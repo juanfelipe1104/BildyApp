@@ -1,5 +1,3 @@
-// mongodb+srv://juanfelipe1104_db_user:goKGxFRWVBVPlPq4@web.1deegav.mongodb.net/?appName=Web
-
 import mongoose from 'mongoose';
 
 import env from './env.js';
