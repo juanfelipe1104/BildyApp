@@ -2,32 +2,89 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
     {
-        email: String,             // Único (index: unique), validado con Zod
-        password: String,          // Cifrada con bcrypt
-        name: String,              // Nombre
-        lastName: String,          // Apellidos
-        nif: String,               // Documento de identidad
-        role: 'admin' | 'guest',            // Por defecto: 'admin'
-        status: 'pending' | 'verified',     // Estado de verificación del email (index)
-        verificationCode: String,  // Código aleatorio de 6 dígitos
-        verificationAttempts: Number, // Intentos restantes (máximo 3)
-        company: ObjectId,
-        code: Number,
-        numberOfTries: Number,
-        address: {
-            street: String,
-            number: String,
-            postal: String,
-            city: String,
-            province: String
+        email: {
+            type: String,
+            required: [true, "El email es requerido"],
+            trim: true,
+            lowercase: true,
+            unique: true
         },
-        deleted: Boolean,          // Soft delete
-        createdAt: Date,
-        updatedAt: Date
+        password: {
+            type: String,
+            required: [true, "La contraseña es requerida"],
+            select: false
+        },
+        name: {
+            type: String,
+            required: [true, "El nombre es requerido"]
+        },
+        lastName: {
+            type: String,
+            required: [true, "El apellido es requerido"]
+        },
+        nif: {
+            type: String,
+            required: [true, "El NIF es requerido"],
+            unique: true
+        },
+        role: {
+            type: String,
+            enum: {
+                values: ["admin", "guest"]
+            },
+            default: "admin"
+        },
+        status: {
+            type: String,
+            enum: {
+                values: ["pending", "verified"]
+            },
+            default: "pending",
+            select: false
+        },
+        verificationCode: {
+            type: String,
+            select: false
+        },
+        verificationAttempts:{
+            type: Number,
+            default: 3,
+            select: false
+        },
+        company: {
+            type: ObjectId,
+            ref: 'Company',
+            required: true
+        },
+        address: {
+            street: {
+                type: String,
+                default: ""
+            },
+            number: {
+                type: String,
+                default: ""
+            },
+            postal: {
+                type: String,
+                default: ""
+            },
+            city: {
+                type: String,
+                default: ""
+            },
+            province: {
+                type: String,
+                default: ""
+            }
+        }
+    },
+    {
+        timestamps: true
     }
-    // Virtual (no se almacena, se calcula):
-    // fullName → name + ' ' + lastName
 )
+
+userSchema.index({status: 1})
 
 const User = mongoose.model('User', userSchema);
 
