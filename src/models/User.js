@@ -43,7 +43,8 @@ const userSchema = new mongoose.Schema(
         },
         verificationCode: {
             type: String,
-            select: false
+            select: false,
+            required: true
         },
         verificationAttempts:{
             type: Number,
@@ -57,25 +58,21 @@ const userSchema = new mongoose.Schema(
         },
         address: {
             street: {
-                type: String,
-                default: ""
+                type: String
             },
             number: {
-                type: String,
-                default: ""
+                type: String
             },
             postal: {
-                type: String,
-                default: ""
+                type: String
             },
             city: {
-                type: String,
-                default: ""
+                type: String
             },
             province: {
-                type: String,
-                default: ""
-            }
+                type: String
+            },
+            default: {}
         }
     },
     {
@@ -83,7 +80,9 @@ const userSchema = new mongoose.Schema(
     }
 )
 
-userSchema.index({status: 1})
+userSchema.index({status: 1, role: 1, company: 1})
+
+userSchema.virtual('fullName').get(() => this.name + ' ' + this.lastName)
 
 const User = mongoose.model('User', userSchema);
 

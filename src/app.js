@@ -8,6 +8,6 @@ app.use(express.json());
 
 app.use(helmet());
 
-app.use(router);
+app.use('/api/user', router);
 
 export default app;
