@@ -1,5 +1,5 @@
-import { verifyToken } from "./handleJWT.js";
-import { ApiError } from "./error-handler.js";
+import { verifyToken } from "../utils/handleJWT.js";
+import { AppError } from "../utils/AppError.js";
 import User from "../models/User.js";
 
 export const validateUser = async (req, res, next) => {
@@ -12,5 +12,5 @@ export const validateUser = async (req, res, next) => {
         req.token = token;
         next();
     }
-    return ApiError.badRequest("Wrong authorization token", token)
+    return AppError.badRequest("Wrong authorization token", token)
 }

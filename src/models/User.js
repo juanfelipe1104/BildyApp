@@ -52,7 +52,7 @@ const userSchema = new mongoose.Schema(
             select: false
         },
         company: {
-            type: ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref: 'Company',
             required: true
         },
