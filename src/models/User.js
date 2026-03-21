@@ -39,8 +39,7 @@ const userSchema = new mongoose.Schema(
             enum: {
                 values: ["pending", "verified"]
             },
-            default: "pending",
-            select: false
+            default: "pending"
         },
         verificationCode: {
             type: String,
