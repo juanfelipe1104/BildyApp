@@ -16,26 +16,31 @@ export const registerUser = async (req, res) => {
         user: user,
         verificationCode: newUser.verificationCode,
         access_token: token
-    })
+    });
+}
+
+export const validateEmail = async (req, res) => {
+    const { code } = req.body;
+    const id = req.user._id;
+    const user = await User.findByIdAndUpdate(id, { $inc: { verificationAttempts: -1 } }, { new: true });
+    if (user.code == code) {
+        const user = await User.findByIdAndUpdate(id, { status: "verified" }, { new: true });
+        res.json({
+            message: "Usuario verificado",
+            user: user
+        })
+    }
+    else if (user.numberOfTries > 0) {
+        AppError.badRequest("Codigo incorrecto", `Quedan ${user.verificationAttempts} intentos`);
+    }
+    else {
+        await User.deleteOne({ _id: id });
+        AppError.tooManyRequests();
+    }
 }
 
 export const getUser = async (req, res) => {
     const id = req.user._id;
     const user = await User.findById(id).populate()
     res.json(user);
-}
-
-export const validateEmail = async (req, res) => {
-    const { code } = req.body;
-    const id = req.user._id;
-    const user = await User.findByIdAndUpdate(id, {$inc: {numberOfTries: -1}});
-    if(user.code == code){
-        res.json("")
-    }
-    else if(user.numberOfTries >= 0){
-        AppError.badRequest("Codigo incorrecto", `Quedan ${user.numberOfTries} intentos`);
-    }
-    else{
-        AppError.tooManyRequests();
-    }
 }

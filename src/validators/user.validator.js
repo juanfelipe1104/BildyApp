@@ -17,3 +17,9 @@ export const schemaUserBody = z.object({
         }).optional()
     })
 })
+
+export const schemaCodeBody = z.object({
+    body: z.object({
+        code: z.string().length(6, "El codigo debe ser de 6 digitos")
+    })
+})
