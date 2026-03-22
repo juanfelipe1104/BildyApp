@@ -23,3 +23,10 @@ export const schemaCodeBody = z.object({
         code: z.string().length(6, "El codigo debe ser de 6 digitos")
     })
 })
+
+export const schemaLoginBody = z.object({
+    body: z.object({
+        email: z.string().regex(/\w+@\w+.\w+/, 'formato de correo incorrecto').transform(value => value.toLowerCase()),
+        password: z.string().min(8, "La contraseña debe contener minimo 8 caracteres").max(16, "La contraseña puede contener maximo 16 caracteres")
+    })
+})

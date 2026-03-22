@@ -39,6 +39,23 @@ export const validateEmail = async (req, res) => {
     }
 }
 
+export const loginUser = async (req, res) => {
+    const id = req.user._id;
+    const { password } = req.body;
+    const user = await User.findById(id);
+    if(user.password == password){
+        const token = tokenSign(user);
+        res.json({
+            message: "Login exitoso",
+            user: user,
+            access_token: token
+        });
+    }
+    else {
+        AppError.unauthorized();
+    }
+}
+
 export const getUser = async (req, res) => {
     const id = req.user._id;
     const user = await User.findById(id).populate()
