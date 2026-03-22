@@ -35,7 +35,7 @@ export const validateEmail = async (req, res) => {
     }
     else {
         await User.deleteOne({ _id: id });
-        AppError.tooManyRequests();
+        AppError.tooManyRequests("Demasiados intentos. Vuelve a registrar el usuario");
     }
 }
 
