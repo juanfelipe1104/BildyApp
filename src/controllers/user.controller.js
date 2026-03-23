@@ -1,6 +1,7 @@
+import RefreshToken from "../models/RefreshToken.js";
 import User from "../models/User.js";
 import { AppError } from "../utils/AppError.js";
-import { tokenSign } from "../utils/handleJWT.js";
+import { generateAccessToken, generateRefreshToken, getRefreshTokenExpiry } from "../utils/handleJWT.js";
 import { encrypt } from "../utils/handlePassword.js";
 
 const generateRandomCode = () => Math.floor(100000 + (Math.random() * 900000)).toString()
@@ -10,12 +11,14 @@ export const registerUser = async (req, res) => {
     newUser.password = await encrypt(newUser.password);
     newUser.verificationCode = generateRandomCode();
     const user = await User.create(newUser);
-    const token = tokenSign(user);
+    const token = generateAccessToken(user);
+    const refreshToken = await RefreshToken(generateRefreshToken(), user._id, getRefreshTokenExpiry());
     res.status(201).json({
         message: "Usuario creado",
         user: user,
         verificationCode: newUser.verificationCode,
-        access_token: token
+        access_token: token,
+        refresh_token: refreshToken
     });
 }
 
@@ -44,17 +47,21 @@ export const loginUser = async (req, res) => {
     const { password } = req.body;
     const user = await User.findById(id);
     if(user.password == password){
-        const token = tokenSign(user);
+        const token = generateAccessToken(user);
+        const refreshToken = await RefreshToken(generateRefreshToken(), user._id, getRefreshTokenExpiry());
         res.json({
             message: "Login exitoso",
             user: user,
-            access_token: token
+            access_token: token,
+            refresh_token: refreshToken
         });
     }
     else {
         AppError.unauthorized();
     }
 }
+
+
 
 export const getUser = async (req, res) => {
     const id = req.user._id;
