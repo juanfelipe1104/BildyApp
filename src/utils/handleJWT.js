@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
-import env from '../config/env.js'
+import env from '../config/env.js';
+import crypto from 'node:crypto';
 
 const JWT_SECRET = env.JWT_SECRET;
 const ACCESS_TOKEN_EXPIRES = '15m';
