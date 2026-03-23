@@ -2,7 +2,7 @@ import RefreshToken from "../models/RefreshToken.js";
 import User from "../models/User.js";
 import { AppError } from "../utils/AppError.js";
 import { generateAccessToken, generateRefreshToken, getRefreshTokenExpiry } from "../utils/handleJWT.js";
-import { encrypt } from "../utils/handlePassword.js";
+import { compare, encrypt } from "../utils/handlePassword.js";
 
 const generateRandomCode = () => Math.floor(100000 + (Math.random() * 900000)).toString()
 
@@ -25,8 +25,8 @@ export const registerUser = async (req, res) => {
 export const validateEmail = async (req, res) => {
     const { code } = req.body;
     const id = req.user._id;
-    const user = await User.findByIdAndUpdate(id, { $inc: { verificationAttempts: -1 } }, { new: true });
-    if (user.code == code) {
+    const user = await User.findByIdAndUpdate(id, { $inc: { verificationAttempts: -1 } }, { new: true }).select('+verificationCode');
+    if (user.verificationCode == code) {
         const user = await User.findByIdAndUpdate(id, { status: "verified" }, { new: true });
         res.json({
             message: "Usuario verificado",
@@ -45,8 +45,8 @@ export const validateEmail = async (req, res) => {
 export const loginUser = async (req, res) => {
     const id = req.user._id;
     const { password } = req.body;
-    const user = await User.findById(id);
-    if(user.password == password){
+    const user = await User.findById(id).select('+password');
+    if(await compare(password, user.password)){
         const token = generateAccessToken(user);
         const refreshToken = await RefreshToken(generateRefreshToken(), user._id, getRefreshTokenExpiry());
         res.json({
