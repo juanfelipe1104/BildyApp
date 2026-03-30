@@ -26,7 +26,10 @@ export const validateEmail = async (req, res) => {
     const { code } = req.body;
     const id = req.user._id;
     const user = await User.findByIdAndUpdate(id, { $inc: { verificationAttempts: -1 } }, { new: true }).select('+verificationCode');
-    if (user.verificationCode == code) {
+    if(user.status === "verified"){
+        return AppError.badRequest("Email ya autenticado");
+    }
+    if (user.verificationCode === code) {
         const user = await User.findByIdAndUpdate(id, { status: "verified" }, { new: true });
         res.json({
             message: "Usuario verificado",
@@ -65,6 +68,6 @@ export const loginUser = async (req, res) => {
 
 export const getUser = async (req, res) => {
     const id = req.user._id;
-    const user = await User.findById(id).populate()
+    const user = await User.findById(id).populate('company')
     res.json(user);
 }

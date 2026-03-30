@@ -15,17 +15,13 @@ const userSchema = new mongoose.Schema(
             select: false
         },
         name: {
-            type: String,
-            required: [true, "El nombre es requerido"]
+            type: String
         },
         lastName: {
-            type: String,
-            required: [true, "El apellido es requerido"]
+            type: String
         },
         nif: {
-            type: String,
-            required: [true, "El NIF es requerido"],
-            unique: true
+            type: String
         },
         role: {
             type: String,
@@ -53,8 +49,7 @@ const userSchema = new mongoose.Schema(
         },
         company: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Company',
-            required: true
+            ref: 'Company'
         },
         address: {
             street: {

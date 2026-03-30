@@ -10,7 +10,15 @@ export const validateUser = async (req, res, next) => {
         const user = await User.findById(userData._id);
         req.user = user;
         req.token = token;
-        next();
+        return next();
     }
-    return AppError.badRequest("Wrong authorization token", token)
+    return AppError.badRequest(`Wrong authorization token: ${token}`);
+}
+
+export const validateCompany = async (req, res, next) => {
+    const user = req.user;
+    if(user.company){
+        return next();
+    }
+    return AppError.badRequest(`No company for user: ${user.email}`);
 }

@@ -4,8 +4,7 @@ const companySchema = new mongoose.Schema(
     {
         owner: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-            required: true
+            ref: 'User'
         },
         name: {
             type: String,
@@ -36,15 +35,15 @@ const companySchema = new mongoose.Schema(
             province: {
                 type: String,
                 default: ""
-            }
+            },
+            required: true
         },
         logo: {
             type: String,
-            required: [true, "El logo es requerido"]
         },
         isFreelance: {
             type: Boolean,
-            default: false
+            required: true
         }
     },
     {
