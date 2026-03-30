@@ -58,7 +58,7 @@ export const validateEmail = async (req, res) => {
             user: user
         })
     }
-    else if (user.verificationAttempts > 0) {
+    else if (user.verificationAttempts >= 0) {
         throw AppError.badRequest("Codigo incorrecto", `Quedan ${user.verificationAttempts} intentos`);
     }
     else {
