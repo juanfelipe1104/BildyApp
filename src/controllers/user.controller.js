@@ -70,6 +70,10 @@ export const validateEmail = async (req, res) => {
 export const loginUser = async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email: email }).select('+password');
+    if (!user) {
+        throw AppError.unauthorized("Credenciales incorrectas");
+    }
+
     if (await compare(password, user.password)) {
         const token = generateAccessToken(user);
         const refreshToken = await RefreshToken(generateRefreshToken(), user._id, getRefreshTokenExpiry());
@@ -173,6 +177,9 @@ export const changePassword = async (req, res) => {
     const { currentPassword, newPassword } = req.body;
     const id = req.user._id;
     const user = await User.findById(id).select('+password');
+    if (!user) {
+        throw AppError.unauthorized("Credenciales incorrectas");
+    }
     if (await compare(currentPassword, user.password)) {
         const encryptedPassword = await encrypt(newPassword);
         const user = await User.findByIdAndUpdate(id, { password: encryptedPassword }, { new: true });

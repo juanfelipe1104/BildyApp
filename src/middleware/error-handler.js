@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+
 const errorHandler = (err, req, res, next) => {
     if (err.isOperational) {
         return res.status(err.statusCode).json({
