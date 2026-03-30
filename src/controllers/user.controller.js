@@ -124,6 +124,29 @@ export const registerCompany = async (req, res) => {
     }
 }
 
+export const uploadLogo = async (req, res) => {
+    const userId = req.user._id;
+
+    if (!req.file) {
+        throw AppError.badRequest("No se ha enviado ningun archivo");
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user?.company) {
+        throw AppError.badRequest("El usuario no tiene ninguna compañía asociada");
+    }
+
+    const logoUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+
+    const company = await Company.findByIdAndUpdate(user.company, { logo: logoUrl }, { new: true });
+
+    res.json({
+        message: "Logo actualizado",
+        company: company
+    });
+};
+
 export const getUser = async (req, res) => {
     const id = req.user._id;
     const user = await User.findById(id).populate('company')
