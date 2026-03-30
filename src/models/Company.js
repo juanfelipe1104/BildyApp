@@ -35,8 +35,7 @@ const companySchema = new mongoose.Schema(
             province: {
                 type: String,
                 default: ""
-            },
-            required: true
+            }
         },
         logo: {
             type: String,
