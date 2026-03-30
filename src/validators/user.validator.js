@@ -43,6 +43,12 @@ export const schemaCompanyBody = z.object({
     })
 })
 
+export const schemaRefreshTokenBody = z.object({
+    body: z.object({
+        refreshToken: z.string().min(1, "refreshToken es obligatorio")
+    })
+});
+
 export const schemaSoftDelete = z.object({
     query: z.object({
         soft: z.enum(["true", "false"])
@@ -55,7 +61,7 @@ export const schemaPasswordBody = z.object({
         newPassword: z.string().min(8),
     }).refine((data) => data.currentPassword !== data.newPassword, {
         message: "La nueva contraseña debe ser diferente de la actual",
-        path: ["newPassword"],
+        path: ["newPassword"]
     }
     )
 })

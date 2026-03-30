@@ -14,6 +14,8 @@ router.put('/register', validate(userSchema.schemaUserBody), validateUser, userC
 router.patch('/company', validate(userSchema.schemaCompanyBody), validateUser, userController.registerCompany);
 router.patch('/logo', validateUser, upload.single("logo"), userController.uploadLogo);
 router.get('/', validateUser, userController.getUser);
+router.post('/refresh', validate(userSchema.schemaRefreshTokenBody), userController.refreshSession);
+router.post('/logout', validateUser, userController.logoutUser);
 router.delete('/', validate(userSchema.schemaSoftDelete), validateUser, userController.deleteUser);
 router.put('/password', validate(userSchema.schemaPasswordBody), validateUser, userController.changePassword);
 export default router;

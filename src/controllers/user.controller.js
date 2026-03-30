@@ -157,6 +157,43 @@ export const getUser = async (req, res) => {
     res.json(user);
 }
 
+export const refreshSession = async (req, res) => {
+    const { refreshToken } = req.body;
+
+    const storedToken = await RefreshToken.findOne({ token: refreshToken }).populate("user");
+
+    if (!storedToken) {
+        throw AppError.unauthorized("Refresh token inválido");
+    }
+
+    if (!storedToken.isActive()) {
+        throw AppError.unauthorized("Refresh token expirado o revocado");
+    }
+
+    if (!storedToken.user) {
+        throw AppError.unauthorized("Usuario no encontrado para este refresh token");
+    }
+
+    const accessToken = generateAccessToken(storedToken.user);
+
+    res.json({
+        message: "Nuevo access token generado",
+        access_token: accessToken,
+    });
+};
+
+export const logoutUser = async (req, res) => {
+    const id = req.user._id;
+    const storedToken = await RefreshToken.findOne({ user: id });
+    
+    storedToken.revokedAt = new Date();
+    await storedToken.save();
+
+    res.json({
+        message: "Logout exitoso",
+    });
+};
+
 export const deleteUser = async (req, res) => {
     const { soft } = req.query;
     const id = req.user._id;

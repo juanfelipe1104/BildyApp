@@ -7,17 +7,14 @@ const ACCESS_TOKEN_EXPIRES = '15m';
 const REFRESH_TOKEN_DAYS = 7;
 
 export const generateAccessToken = (user) => {
-    const sign = jwt.sign(
+    return jwt.sign(
         {
             _id: user._id,
             role: user.role
         },
         JWT_SECRET,
-        {
-            expiresIn: ACCESS_TOKEN_EXPIRES
-        }
+        { expiresIn: ACCESS_TOKEN_EXPIRES }
     );
-    return sign;
 };
 
 export const generateRefreshToken = () => {
@@ -30,11 +27,15 @@ export const getRefreshTokenExpiry = () => {
     return expireDate;
 };
 
-export const verifyToken = (tokenJwt) => {
+export const verifyAccessToken = (token) => {
     try {
-        return jwt.verify(tokenJwt, JWT_SECRET);
-    } catch (err) {
-        console.log('Error verificando token:', err.message);
-        return null;
+        const payload = jwt.verify(token, JWT_SECRET);
+        return { valid: true, expired: false, payload };
+    } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+            return { valid: false, expired: true, payload: null };
+        }
+
+        return { valid: false, expired: false, payload: null };
     }
 };
