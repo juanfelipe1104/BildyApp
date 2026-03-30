@@ -12,5 +12,6 @@ router.post('/login', validate(userSchema.schemaMailBody), validateUser, userCon
 router.put('/register', validate(userSchema.schemaUserBody), validateUser, userController.registerDataUser);
 router.patch('/company', validate(userSchema.schemaCompanyBody), validateUser, userController.registerCompany)
 router.get('/', validateUser, userController.getUser);
+router.delete('/', validate(userSchema.schemaSoftDelete), validateUser, userController.deleteUser);
 
 export default router;

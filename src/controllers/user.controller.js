@@ -108,3 +108,19 @@ export const getUser = async (req, res) => {
     const user = await User.findById(id).populate('company')
     res.json(user);
 }
+
+export const deleteUser = async (req, res) => {
+    const {soft} = req.query;
+    const id = req.user._id;
+    let user;
+    if(soft === "true"){
+        user = await User.softDeleteById(id);
+    }
+    else{
+        user = await User.hardDelete(id);
+    }
+    res.json({
+        message: "Usuario borrado",
+        user: user
+    })
+}

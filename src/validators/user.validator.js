@@ -42,3 +42,9 @@ export const schemaCompanyBody = z.object({
         isFreelance: z.boolean()
     })
 })
+
+export const schemaSoftDelete = z.object({
+    query: z.object({
+        soft: z.enum(["true", "false"])
+    })
+})
