@@ -7,6 +7,20 @@ import { compare, encrypt } from "../utils/handlePassword.js";
 
 const generateRandomCode = () => Math.floor(100000 + (Math.random() * 900000)).toString();
 
+const createSession = async (user) => {
+    const accessToken = generateAccessToken(user);
+    const refreshToken = await RefreshToken.create({
+        token: generateRefreshToken(),
+        user: user._id,
+        expiresAt: getRefreshTokenExpiry()
+    });
+
+    return {
+        access_token: accessToken,
+        refresh_token: refreshToken.token
+    };
+};
+
 export const registerUser = async (req, res) => {
     const { email, password } = req.body;
     const existingUser = await User.findOne({ email: email });
@@ -33,14 +47,13 @@ export const registerUser = async (req, res) => {
         });
     }
 
-    const token = generateAccessToken(user);
-    const refreshToken = await RefreshToken({ token: generateRefreshToken(), user: user._id, expiresAt: getRefreshTokenExpiry() });
+    const {access_token, refresh_token} = createSession();
     res.status(201).json({
         message: "Usuario creado",
         user: user,
         verificationCode: verificationCode,
-        access_token: token,
-        refresh_token: refreshToken.token
+        access_token: access_token,
+        refresh_token: refresh_token
     });
 };
 
@@ -74,13 +87,12 @@ export const loginUser = async (req, res) => {
     }
 
     if (await compare(password, user.password)) {
-        const token = generateAccessToken(user);
-        const refreshToken = await RefreshToken({ token: generateRefreshToken(), user: user._id, expiresAt: getRefreshTokenExpiry() });
+        const {access_token, refresh_token} = createSession();
         res.json({
             message: "Login exitoso",
             user: user,
-            access_token: token,
-            refresh_token: refreshToken.token
+            access_token: access_token,
+            refresh_token: refresh_token
         });
     }
     else {
@@ -173,25 +185,21 @@ export const refreshSession = async (req, res) => {
     storedToken.revokedAt = new Date();
     await storedToken.save();
 
-    const accessToken = generateAccessToken(storedToken.user);
-    const newRefreshToken = await RefreshToken.create({ token: generateRefreshToken(), user: storedToken.user._id, expiresAt: getRefreshTokenExpiry() });
+    const {access_token, refresh_token} = createSession();
 
     res.json({
         message: "Nuevo access token generado",
-        access_token: accessToken,
-        refresh_token: newRefreshToken.token
+        access_token: access_token,
+        refresh_token: refresh_token
     });
 };
 
 export const logoutUser = async (req, res) => {
     const id = req.user._id;
-    const storedToken = await RefreshToken.findOne({ user: id });
-
-    storedToken.revokedAt = new Date();
-    await storedToken.save();
+    await RefreshToken.updateMany({user: id, revokedAt: null}, {revokedAt: new Date()});
 
     res.json({
-        message: "Logout exitoso"
+        message: "Logout de todas las sesiones activas"
     });
 };
 
