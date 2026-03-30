@@ -48,3 +48,14 @@ export const schemaSoftDelete = z.object({
         soft: z.enum(["true", "false"])
     })
 })
+
+export const schemaPasswordBody = z.object({
+    body: z.object({
+        currentPassword: z.string().min(8),
+        newPassword: z.string().min(8),
+    }).refine((data) => data.currentPassword !== data.newPassword, {
+        message: "La nueva contraseña debe ser diferente de la actual",
+        path: ["newPassword"],
+    }
+    )
+})

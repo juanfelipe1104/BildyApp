@@ -37,7 +37,7 @@ export const validateEmail = async (req, res) => {
             user: user
         })
     }
-    else if (user.numberOfTries > 0) {
+    else if (user.verificationAttempts > 0) {
         AppError.badRequest("Codigo incorrecto", `Quedan ${user.verificationAttempts} intentos`);
     }
     else {
@@ -48,7 +48,7 @@ export const validateEmail = async (req, res) => {
 
 export const loginUser = async (req, res) => {
     const { email, password } = req.body;
-    const user = await User.find({ email: email }).select('+password');
+    const user = await User.findOne({ email: email }).select('+password');
     if (await compare(password, user.password)) {
         const token = generateAccessToken(user);
         const refreshToken = await RefreshToken(generateRefreshToken(), user._id, getRefreshTokenExpiry());
@@ -77,7 +77,7 @@ export const registerDataUser = async (req, res) => {
 export const registerCompany = async (req, res) => {
     const companyData = req.body;
     const userData = req.user;
-    const company = await Company.find({ cif: companyData.cif });
+    const company = await Company.findOne({ cif: companyData.cif });
     if (company) {
         const user = await User.findByIdAndUpdate(userData._id, { company: company._id, role: "guest" }, { new: true });
         res.json({
@@ -88,7 +88,7 @@ export const registerCompany = async (req, res) => {
     }
     else {
         companyData.owner = userData._id;
-        if (company.isFreelance) {
+        if (companyData.isFreelance) {
             companyData.name = userData.name;
             companyData.cif = userData.nif;
             companyData.address = userData.address;
@@ -123,4 +123,21 @@ export const deleteUser = async (req, res) => {
         message: "Usuario borrado",
         user: user
     })
+}
+
+export const changePassword = async (req, res) => {
+    const {currentPassword, newPassword} = req.body;
+    const id = req.user._id;
+    const user = await User.findById(id).select('+password');
+    if(await compare(currentPassword, user.password)){
+        const encryptedPassword = await encrypt(newPassword);
+        const user = await User.findByIdAndUpdate(id, {password: encryptedPassword}, {new: true});
+        res.json({
+            message: "Cambio de contraseña exitoso",
+            user: user
+        })
+    }
+    else{
+        AppError.unauthorized("Contraseña incorrecta");
+    }
 }
