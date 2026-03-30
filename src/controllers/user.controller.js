@@ -64,7 +64,15 @@ export const loginUser = async (req, res) => {
     }
 }
 
-
+export const registerDataUser = async (req, res) => {
+    const id = req.user._id;
+    const data = req.body;
+    const user = await User.findByIdAndUpdate(id, data, { new: true });
+    res.json({
+        message: "Usuario actualizado",
+        user: user
+    })
+}
 
 export const getUser = async (req, res) => {
     const id = req.user._id;
