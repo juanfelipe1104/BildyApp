@@ -29,18 +29,23 @@ export const schemaCodeBody = z.object({
 });
 
 export const schemaCompanyBody = z.object({
-    body: z.object({
-        name: z.string().trim().min(1, "El nombre es obligatorio"),
-        cif: z.string().trim().min(1, "El CIF es obligatorio"),
-        address: z.object({
-            street: z.string(),
-            number: z.string(),
-            postal: z.string(),
-            city: z.string(),
-            province: z.string()
+    body: z.discriminatedUnion("isFreelance", [
+        z.object({
+            isFreelance: z.literal(true)
         }),
-        isFreelance: z.boolean()
-    })
+        z.object({
+            isFreelance: z.literal(false),
+            name: z.string().trim().min(1, "El nombre es obligatorio"),
+            cif: z.string().trim().min(1, "El CIF es obligatorio"),
+            address: z.object({
+                street: z.string(),
+                number: z.string(),
+                postal: z.string(),
+                city: z.string(),
+                province: z.string()
+            })
+        })
+    ])
 });
 
 export const schemaRefreshTokenBody = z.object({
