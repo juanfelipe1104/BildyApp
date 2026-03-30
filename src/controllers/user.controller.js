@@ -8,16 +8,37 @@ import { compare, encrypt } from "../utils/handlePassword.js";
 const generateRandomCode = () => Math.floor(100000 + (Math.random() * 900000)).toString()
 
 export const registerUser = async (req, res) => {
-    const newUser = req.body;
-    newUser.password = await encrypt(newUser.password);
-    newUser.verificationCode = generateRandomCode();
-    const user = await User.create(newUser);
+    const { email, password } = req.body;
+    const existingUser = await User.findOne({ email: email });
+    if (existingUser?.status === "verified") {
+        throw AppError.conflict("Ya existe un usuario verificado con ese email");
+    }
+
+    const encryptedPassword = await encrypt(password);
+    const verificationCode = generateRandomCode();
+
+    let user;
+
+    if (existingUser?.status === "pending") {
+        existingUser.password = encryptedPassword;
+        existingUser.verificationCode = verificationCode;
+        existingUser.verificationAttempts = 3;
+        existingUser.deleted = false;
+        user = await existingUser.save();
+    } else {
+        user = await User.create({
+            email: email,
+            password: encryptedPassword,
+            verificationCode: verificationCode
+        });
+    }
+
     const token = generateAccessToken(user);
     const refreshToken = await RefreshToken(generateRefreshToken(), user._id, getRefreshTokenExpiry());
     res.status(201).json({
         message: "Usuario creado",
         user: user,
-        verificationCode: newUser.verificationCode,
+        verificationCode: verificationCode,
         access_token: token,
         refresh_token: refreshToken
     });
@@ -110,13 +131,13 @@ export const getUser = async (req, res) => {
 }
 
 export const deleteUser = async (req, res) => {
-    const {soft} = req.query;
+    const { soft } = req.query;
     const id = req.user._id;
     let user;
-    if(soft === "true"){
+    if (soft === "true") {
         user = await User.softDeleteById(id);
     }
-    else{
+    else {
         user = await User.hardDelete(id);
     }
     res.json({
@@ -126,18 +147,18 @@ export const deleteUser = async (req, res) => {
 }
 
 export const changePassword = async (req, res) => {
-    const {currentPassword, newPassword} = req.body;
+    const { currentPassword, newPassword } = req.body;
     const id = req.user._id;
     const user = await User.findById(id).select('+password');
-    if(await compare(currentPassword, user.password)){
+    if (await compare(currentPassword, user.password)) {
         const encryptedPassword = await encrypt(newPassword);
-        const user = await User.findByIdAndUpdate(id, {password: encryptedPassword}, {new: true});
+        const user = await User.findByIdAndUpdate(id, { password: encryptedPassword }, { new: true });
         res.json({
             message: "Cambio de contraseña exitoso",
             user: user
         })
     }
-    else{
+    else {
         throw AppError.unauthorized("Contraseña incorrecta");
     }
 }
