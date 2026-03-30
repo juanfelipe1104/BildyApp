@@ -40,7 +40,7 @@ export const registerUser = async (req, res) => {
         user: user,
         verificationCode: verificationCode,
         access_token: token,
-        refresh_token: refreshToken
+        refresh_token: refreshToken.token
     });
 };
 
@@ -80,7 +80,7 @@ export const loginUser = async (req, res) => {
             message: "Login exitoso",
             user: user,
             access_token: token,
-            refresh_token: refreshToken
+            refresh_token: refreshToken.token
         });
     }
     else {
@@ -101,6 +101,11 @@ export const registerDataUser = async (req, res) => {
 export const registerCompany = async (req, res) => {
     const companyData = req.body;
     const userData = req.user;
+
+    if (userData.company) {
+        throw AppError.conflict("El usuario ya pertenece a una compañía");
+    }
+
     const company = await Company.findOne({ cif: companyData.cif });
     if (company) {
         const user = await User.findByIdAndUpdate(userData._id, { company: company._id, role: "guest" }, { new: true });
@@ -174,7 +179,7 @@ export const refreshSession = async (req, res) => {
     res.json({
         message: "Nuevo access token generado",
         access_token: accessToken,
-        refresh_token: newRefreshToken
+        refresh_token: newRefreshToken.token
     });
 };
 

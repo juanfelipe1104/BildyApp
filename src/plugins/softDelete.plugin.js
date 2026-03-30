@@ -14,7 +14,7 @@ const softDeletePlugin = (schema) => {
         }
     });
 
-    const excludeDeleted = () => {
+    const excludeDeleted = function () {
         if (!this.getOptions().withDeleted) {
             this.where({
                 deleted: { $ne: true }
