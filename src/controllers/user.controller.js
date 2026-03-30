@@ -28,7 +28,7 @@ export const validateEmail = async (req, res) => {
     const id = req.user._id;
     const user = await User.findByIdAndUpdate(id, { $inc: { verificationAttempts: -1 } }, { new: true }).select('+verificationCode');
     if (user.status === "verified") {
-        return AppError.badRequest("Email ya autenticado");
+        throw AppError.badRequest("Email ya autenticado");
     }
     if (user.verificationCode === code) {
         const user = await User.findByIdAndUpdate(id, { status: "verified" }, { new: true });
@@ -38,11 +38,11 @@ export const validateEmail = async (req, res) => {
         })
     }
     else if (user.verificationAttempts > 0) {
-        AppError.badRequest("Codigo incorrecto", `Quedan ${user.verificationAttempts} intentos`);
+        throw AppError.badRequest("Codigo incorrecto", `Quedan ${user.verificationAttempts} intentos`);
     }
     else {
         await User.deleteOne({ _id: id });
-        AppError.tooManyRequests("Demasiados intentos. Vuelve a registrar el usuario");
+        throw AppError.tooManyRequests("Demasiados intentos. Vuelve a registrar el usuario");
     }
 }
 
@@ -60,7 +60,7 @@ export const loginUser = async (req, res) => {
         });
     }
     else {
-        AppError.unauthorized();
+        throw AppError.unauthorized();
     }
 }
 
@@ -138,6 +138,6 @@ export const changePassword = async (req, res) => {
         })
     }
     else{
-        AppError.unauthorized("Contraseña incorrecta");
+        throw AppError.unauthorized("Contraseña incorrecta");
     }
 }

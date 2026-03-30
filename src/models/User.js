@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema(
             select: false,
             required: true
         },
-        verificationAttempts:{
+        verificationAttempts: {
             type: Number,
             default: 3,
             select: false
@@ -85,9 +85,11 @@ const userSchema = new mongoose.Schema(
     }
 )
 
-userSchema.index({status: 1, role: 1, company: 1})
+userSchema.index({ status: 1, role: 1, company: 1 })
 
-userSchema.virtual('fullName').get(() => this.name + ' ' + this.lastName)
+userSchema.virtual('fullName').get(function () {
+    return `${this.name ?? ''} ${this.lastName ?? ''}`.trim();
+});
 
 userSchema.plugin(softDeletePlugin);
 
