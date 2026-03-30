@@ -10,6 +10,7 @@ router.post('/register', validate(userSchema.schemaMailBody), userController.reg
 router.put('/validation', validate(userSchema.schemaCodeBody), validateUser, userController.validateEmail);
 router.post('/login', validate(userSchema.schemaMailBody), validateUser, userController.loginUser);
 router.put('/register', validate(userSchema.schemaUserBody), validateUser, userController.registerDataUser);
+router.patch('/company', validate(userSchema.schemaCompanyBody), validateUser, userController.registerCompany)
 router.get('/', validateUser, userController.getUser);
 
 export default router;

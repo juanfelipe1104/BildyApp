@@ -1,5 +1,6 @@
 import RefreshToken from "../models/RefreshToken.js";
 import User from "../models/User.js";
+import Company from "../models/Company.js";
 import { AppError } from "../utils/AppError.js";
 import { generateAccessToken, generateRefreshToken, getRefreshTokenExpiry } from "../utils/handleJWT.js";
 import { compare, encrypt } from "../utils/handlePassword.js";
@@ -26,7 +27,7 @@ export const validateEmail = async (req, res) => {
     const { code } = req.body;
     const id = req.user._id;
     const user = await User.findByIdAndUpdate(id, { $inc: { verificationAttempts: -1 } }, { new: true }).select('+verificationCode');
-    if(user.status === "verified"){
+    if (user.status === "verified") {
         return AppError.badRequest("Email ya autenticado");
     }
     if (user.verificationCode === code) {
@@ -46,10 +47,9 @@ export const validateEmail = async (req, res) => {
 }
 
 export const loginUser = async (req, res) => {
-    const id = req.user._id;
-    const { password } = req.body;
-    const user = await User.findById(id).select('+password');
-    if(await compare(password, user.password)){
+    const { email, password } = req.body;
+    const user = await User.find({ email: email }).select('+password');
+    if (await compare(password, user.password)) {
         const token = generateAccessToken(user);
         const refreshToken = await RefreshToken(generateRefreshToken(), user._id, getRefreshTokenExpiry());
         res.json({
@@ -72,6 +72,35 @@ export const registerDataUser = async (req, res) => {
         message: "Usuario actualizado",
         user: user
     })
+}
+
+export const registerCompany = async (req, res) => {
+    const companyData = req.body;
+    const userData = req.user;
+    const company = await Company.find({ cif: companyData.cif });
+    if (company) {
+        const user = await User.findByIdAndUpdate(userData._id, { company: company._id, role: "guest" }, { new: true });
+        res.json({
+            message: "Usuario añadido a la compañia",
+            user: user,
+            company: company
+        })
+    }
+    else {
+        companyData.owner = userData._id;
+        if (company.isFreelance) {
+            companyData.name = userData.name;
+            companyData.cif = userData.nif;
+            companyData.address = userData.address;
+        }
+        const company = await Company.create(companyData);
+        const user = await User.findByIdAndUpdate(userData._id, { company: company._id });
+        res.status(201).json({
+            message: "Compañia creada",
+            user: user,
+            company: company
+        })
+    }
 }
 
 export const getUser = async (req, res) => {

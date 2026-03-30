@@ -27,3 +27,18 @@ export const schemaCodeBody = z.object({
         code: z.string().length(6, "El codigo debe ser de 6 digitos")
     })
 })
+
+export const schemaCompanyBody = z.object({
+    body: z.object({
+        name: z.string(),
+        cif: z.string(),
+        address: z.object({
+            street: z.string(),
+            number: z.string(),
+            postal: z.string(),
+            city: z.string(),
+            province: z.string()
+        }).optional(),
+        isFreelance: z.boolean()
+    })
+})
