@@ -16,7 +16,7 @@ app.use(mongoSanitize());
 
 app.use(limiter);
 
-app.use('/uploads', express.static(join(import.meta.dirname, 'uploads')));
+app.use('/uploads', express.static(join(import.meta.dirname, '../uploads')));
 
 app.use('/api/user', router);
 

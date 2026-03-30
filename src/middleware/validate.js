@@ -16,7 +16,7 @@ const validate = (schema) => async (req, res, next) => {
                 mensaje: err.message
             }));
 
-            return AppError.badRequest('Error de validación', errors);
+            throw AppError.badRequest('Error de validación', errors);
         }
         next(error);
     }

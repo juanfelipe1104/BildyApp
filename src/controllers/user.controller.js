@@ -47,7 +47,7 @@ export const registerUser = async (req, res) => {
         });
     }
 
-    const {access_token, refresh_token} = createSession();
+    const {access_token, refresh_token} = await createSession();
     res.status(201).json({
         message: "Usuario creado",
         user: user,
@@ -87,7 +87,7 @@ export const loginUser = async (req, res) => {
     }
 
     if (await compare(password, user.password)) {
-        const {access_token, refresh_token} = createSession();
+        const {access_token, refresh_token} = await createSession();
         res.json({
             message: "Login exitoso",
             user: user,
@@ -185,7 +185,7 @@ export const refreshSession = async (req, res) => {
     storedToken.revokedAt = new Date();
     await storedToken.save();
 
-    const {access_token, refresh_token} = createSession();
+    const {access_token, refresh_token} = await createSession();
 
     res.json({
         message: "Nuevo access token generado",
