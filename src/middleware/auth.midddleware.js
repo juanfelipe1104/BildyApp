@@ -24,22 +24,14 @@ export const validateUser = async (req, res, next) => {
 
     const result = verifyAccessToken(token);
 
-    if (result.expired) {
-        throw AppError.unauthorized("El access token ha expirado");
-    }
-
-    if (!result.valid) {
-        throw AppError.unauthorized("Access token inválido");
+    if (result.expired || !result.valid) {
+        throw AppError.unauthorized("El access token es invalido");
     }
 
     const user = await User.findById(result.payload._id);
 
-    if (!user) {
+    if (!user || user.deleted) {
         throw AppError.unauthorized("El usuario del token no existe");
-    }
-
-    if (user.deleted) {
-        throw AppError.unauthorized("El usuario está eliminado");
     }
 
     req.user = user;

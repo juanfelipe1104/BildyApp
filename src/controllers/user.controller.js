@@ -5,7 +5,7 @@ import { AppError } from "../utils/AppError.js";
 import { generateAccessToken, generateRefreshToken, getRefreshTokenExpiry } from "../utils/handleJWT.js";
 import { compare, encrypt } from "../utils/handlePassword.js";
 
-const generateRandomCode = () => Math.floor(100000 + (Math.random() * 900000)).toString()
+const generateRandomCode = () => Math.floor(100000 + (Math.random() * 900000)).toString();
 
 export const registerUser = async (req, res) => {
     const { email, password } = req.body;
@@ -16,7 +16,6 @@ export const registerUser = async (req, res) => {
 
     const encryptedPassword = await encrypt(password);
     const verificationCode = generateRandomCode();
-
     let user;
 
     if (existingUser?.status === "pending") {
@@ -25,7 +24,8 @@ export const registerUser = async (req, res) => {
         existingUser.verificationAttempts = 3;
         existingUser.deleted = false;
         user = await existingUser.save();
-    } else {
+    }
+    else {
         user = await User.create({
             email: email,
             password: encryptedPassword,
@@ -34,7 +34,7 @@ export const registerUser = async (req, res) => {
     }
 
     const token = generateAccessToken(user);
-    const refreshToken = await RefreshToken(generateRefreshToken(), user._id, getRefreshTokenExpiry());
+    const refreshToken = await RefreshToken({ token: generateRefreshToken(), user: user._id, expiresAt: getRefreshTokenExpiry() });
     res.status(201).json({
         message: "Usuario creado",
         user: user,
@@ -42,7 +42,7 @@ export const registerUser = async (req, res) => {
         access_token: token,
         refresh_token: refreshToken
     });
-}
+};
 
 export const validateEmail = async (req, res) => {
     const { code } = req.body;
@@ -56,16 +56,15 @@ export const validateEmail = async (req, res) => {
         res.json({
             message: "Usuario verificado",
             user: user
-        })
+        });
     }
     else if (user.verificationAttempts >= 0) {
         throw AppError.badRequest("Codigo incorrecto", `Quedan ${user.verificationAttempts} intentos`);
     }
     else {
-        await User.deleteOne({ _id: id });
         throw AppError.tooManyRequests("Demasiados intentos. Vuelve a registrar el usuario");
     }
-}
+};
 
 export const loginUser = async (req, res) => {
     const { email, password } = req.body;
@@ -76,7 +75,7 @@ export const loginUser = async (req, res) => {
 
     if (await compare(password, user.password)) {
         const token = generateAccessToken(user);
-        const refreshToken = await RefreshToken(generateRefreshToken(), user._id, getRefreshTokenExpiry());
+        const refreshToken = await RefreshToken({ token: generateRefreshToken(), user: user._id, expiresAt: getRefreshTokenExpiry() });
         res.json({
             message: "Login exitoso",
             user: user,
@@ -87,7 +86,7 @@ export const loginUser = async (req, res) => {
     else {
         throw AppError.unauthorized();
     }
-}
+};
 
 export const registerDataUser = async (req, res) => {
     const id = req.user._id;
@@ -96,8 +95,8 @@ export const registerDataUser = async (req, res) => {
     res.json({
         message: "Usuario actualizado",
         user: user
-    })
-}
+    });
+};
 
 export const registerCompany = async (req, res) => {
     const companyData = req.body;
@@ -109,7 +108,7 @@ export const registerCompany = async (req, res) => {
             message: "Usuario añadido a la compañia",
             user: user,
             company: company
-        })
+        });
     }
     else {
         companyData.owner = userData._id;
@@ -124,9 +123,9 @@ export const registerCompany = async (req, res) => {
             message: "Compañia creada",
             user: user,
             company: company
-        })
+        });
     }
-}
+};
 
 export const uploadLogo = async (req, res) => {
     const userId = req.user._id;
@@ -153,44 +152,41 @@ export const uploadLogo = async (req, res) => {
 
 export const getUser = async (req, res) => {
     const id = req.user._id;
-    const user = await User.findById(id).populate('company')
+    const user = await User.findById(id).populate('company');
     res.json(user);
-}
+};
 
 export const refreshSession = async (req, res) => {
     const { refreshToken } = req.body;
 
     const storedToken = await RefreshToken.findOne({ token: refreshToken }).populate("user");
 
-    if (!storedToken) {
-        throw AppError.unauthorized("Refresh token inválido");
+    if (!storedToken || !storedToken.isActive() || !storedToken.user) {
+        throw AppError.unauthorized("Refresh token inválido o expirado");
     }
 
-    if (!storedToken.isActive()) {
-        throw AppError.unauthorized("Refresh token expirado o revocado");
-    }
-
-    if (!storedToken.user) {
-        throw AppError.unauthorized("Usuario no encontrado para este refresh token");
-    }
+    storedToken.revokedAt = new Date();
+    await storedToken.save();
 
     const accessToken = generateAccessToken(storedToken.user);
+    const newRefreshToken = await RefreshToken.create({ token: generateRefreshToken(), user: storedToken.user._id, expiresAt: getRefreshTokenExpiry() });
 
     res.json({
         message: "Nuevo access token generado",
         access_token: accessToken,
+        refresh_token: newRefreshToken
     });
 };
 
 export const logoutUser = async (req, res) => {
     const id = req.user._id;
     const storedToken = await RefreshToken.findOne({ user: id });
-    
+
     storedToken.revokedAt = new Date();
     await storedToken.save();
 
     res.json({
-        message: "Logout exitoso",
+        message: "Logout exitoso"
     });
 };
 
@@ -207,8 +203,8 @@ export const deleteUser = async (req, res) => {
     res.json({
         message: "Usuario borrado",
         user: user
-    })
-}
+    });
+};
 
 export const changePassword = async (req, res) => {
     const { currentPassword, newPassword } = req.body;
@@ -223,9 +219,9 @@ export const changePassword = async (req, res) => {
         res.json({
             message: "Cambio de contraseña exitoso",
             user: user
-        })
+        });
     }
     else {
         throw AppError.unauthorized("Contraseña incorrecta");
     }
-}
+};

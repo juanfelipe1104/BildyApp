@@ -16,9 +16,15 @@ const refreshTokenSchema = new mongoose.Schema({
         required: true,
         expires: 0
     },
-    createdByIp: String,
-    revokedAt: Date,
-    revokedByIp: String
+    createdByIp: {
+        type: String
+    },
+    revokedAt: {
+        type: Date
+    },
+    revokedByIp: {
+        type: String
+    }
 },
     {
         timestamps: true

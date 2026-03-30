@@ -18,7 +18,7 @@ const storage = multer.diskStorage({
         const ext = extname(file.originalname).toLowerCase();
         const uniqueName = `logo-${Date.now()}${ext}`;
         cb(null, uniqueName);
-    },
+    }
 });
 
 const fileFilter = (req, file, cb) => {

@@ -12,7 +12,7 @@ const softDeletePlugin = (schema) => {
             type: String,
             default: null
         }
-    })
+    });
 
     const excludeDeleted = () => {
         if (!this.getOptions().withDeleted) {
@@ -20,14 +20,13 @@ const softDeletePlugin = (schema) => {
                 deleted: { $ne: true }
             })
         }
-    }
+    };
 
     schema.pre('find', excludeDeleted);
     schema.pre('findOne', excludeDeleted);
     schema.pre('findOneAndUpdate', excludeDeleted);
     schema.pre('countDocuments', excludeDeleted);
 
-    // Método de instancia: soft delete
     schema.methods.softDelete = async function (deletedBy = null) {
         this.deleted = true;
         this.deletedAt = new Date();
@@ -35,7 +34,6 @@ const softDeletePlugin = (schema) => {
         return this.save();
     };
 
-    // Método de instancia: restaurar
     schema.methods.restore = async function () {
         this.deleted = false;
         this.deletedAt = null;
@@ -43,7 +41,6 @@ const softDeletePlugin = (schema) => {
         return this.save();
     };
 
-    // Método estático: soft delete por ID
     schema.statics.softDeleteById = async function (id, deletedBy = null) {
         return this.findByIdAndUpdate(
             id,
@@ -56,7 +53,6 @@ const softDeletePlugin = (schema) => {
         ).setOptions({ withDeleted: true });
     };
 
-    // Método estático: restaurar por ID
     schema.statics.restoreById = async function (id) {
         return this.findByIdAndUpdate(
             id,
@@ -69,20 +65,17 @@ const softDeletePlugin = (schema) => {
         ).setOptions({ withDeleted: true });
     };
 
-    // Método estático: buscar incluyendo eliminados
     schema.statics.findWithDeleted = function (filter = {}) {
         return this.find(filter).setOptions({ withDeleted: true });
     };
 
-    // Método estático: buscar solo eliminados
     schema.statics.findDeleted = function (filter = {}) {
         return this.find({ ...filter, deleted: true }).setOptions({ withDeleted: true });
     };
 
-    // Método estático: eliminar permanentemente
     schema.statics.hardDelete = function (id) {
         return this.findByIdAndDelete(id).setOptions({ withDeleted: true });
     };
-}
+};
 
 export default softDeletePlugin;

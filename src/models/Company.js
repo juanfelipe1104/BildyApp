@@ -49,7 +49,7 @@ const companySchema = new mongoose.Schema(
     {
         timestamps: true
     }
-)
+);
 
 companySchema.plugin(softDeletePlugin);
 

@@ -74,18 +74,20 @@ const userSchema = new mongoose.Schema(
     {
         timestamps: true,
         toJSON: {
-            virtuals: true,
-            transform(doc, ret) {
-                delete ret.password;
-                delete ret.verificationCode;
-                delete ret.verificationAttempts;
-                return ret;
-            }
+            virtuals: true
         }
     }
-)
+);
 
-userSchema.index({ status: 1, role: 1, company: 1 })
+userSchema.index({ status: 1, role: 1, company: 1 });
+
+userSchema.methods.toJSON = function () {
+    const user = this.toObject();
+    delete user.password;
+    delete user.verificationCode;
+    delete user.verificationAttempts;
+    return user;
+};
 
 userSchema.virtual('fullName').get(function () {
     return `${this.name ?? ''} ${this.lastName ?? ''}`.trim();
