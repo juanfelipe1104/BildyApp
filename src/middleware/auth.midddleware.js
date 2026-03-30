@@ -46,11 +46,3 @@ export const validateUser = async (req, res, next) => {
     req.token = token;
     next();
 };
-
-export const validateCompany = async (req, res, next) => {
-    const user = req.user;
-    if (user.company) {
-        return next();
-    }
-    return AppError.badRequest(`No company for user: ${user.email}`);
-}
