@@ -178,7 +178,9 @@ export const uploadLogo = async (req, res) => {
 export const getUser = async (req, res) => {
     const id = req.user._id;
     const user = await User.findById(id).populate('company');
-    res.json(user);
+    res.json({
+        user: user
+    });
 };
 
 export const refreshSession = async (req, res) => {
