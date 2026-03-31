@@ -456,11 +456,11 @@ Se usan, entre otras, estas características:
 
 ## Pruebas de endpoints
 
-El proyecto incluye una colección de Postman para probar todos los endpoints.
+El proyecto incluye una colección de Postman en `/postman/` para probar todos los endpoints.
 
 ### Recomendación de uso en Postman
 
-Crear variables de entorno:
+Crear variables de entorno o cargar el environment adjunto en `/postman/`:
 
 - `baseUrl` = `http://localhost:3000/api/user`
 - `accessToken`
