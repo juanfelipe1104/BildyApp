@@ -1,6 +1,6 @@
 import express from 'express';
 import helmet from 'helmet';
-import mongoSanitize from 'express-mongo-sanitize';
+import mongoSanitizeMiddleware from './middleware/sanitize.middleware.js';
 import limiter from './middleware/rate-limit.js';
 import { join } from 'node:path';
 import router from './routes/user.routes.js';
@@ -12,7 +12,7 @@ app.use(express.json());
 
 app.use(helmet());
 
-app.use(mongoSanitize());
+app.use(mongoSanitizeMiddleware);
 
 app.use(limiter);
 
