@@ -79,7 +79,9 @@ const userSchema = new mongoose.Schema(
     }
 );
 
-userSchema.index({ status: 1, role: 1, company: 1 });
+userSchema.index({ company: 1 });
+userSchema.index({ status: 1 });
+userSchema.index({ role: 1 });
 
 userSchema.methods.toJSON = function () {
     const user = this.toObject();
