@@ -4,6 +4,7 @@ import Company from "../models/Company.js";
 import { AppError } from "../utils/AppError.js";
 import { generateAccessToken, generateRefreshToken, getRefreshTokenExpiry } from "../utils/handleJWT.js";
 import { compare, encrypt } from "../utils/handlePassword.js";
+import notificationService from "../services/notification.service.js";
 
 const generateRandomCode = () => Math.floor(100000 + (Math.random() * 900000)).toString();
 
@@ -36,7 +37,6 @@ export const registerUser = async (req, res) => {
         existingUser.password = encryptedPassword;
         existingUser.verificationCode = verificationCode;
         existingUser.verificationAttempts = 3;
-        existingUser.deleted = false;
         user = await existingUser.save();
     }
     else {
@@ -47,7 +47,7 @@ export const registerUser = async (req, res) => {
         });
     }
 
-    const {access_token, refresh_token} = await createSession();
+    const { access_token, refresh_token } = await createSession();
     res.status(201).json({
         message: "Usuario creado",
         user: user,
@@ -87,7 +87,7 @@ export const loginUser = async (req, res) => {
     }
 
     if (await compare(password, user.password)) {
-        const {access_token, refresh_token} = await createSession();
+        const { access_token, refresh_token } = await createSession();
         res.json({
             message: "Login exitoso",
             user: user,
@@ -185,7 +185,7 @@ export const refreshSession = async (req, res) => {
     storedToken.revokedAt = new Date();
     await storedToken.save();
 
-    const {access_token, refresh_token} = await createSession();
+    const { access_token, refresh_token } = await createSession();
 
     res.json({
         message: "Nuevo access token generado",
@@ -196,7 +196,7 @@ export const refreshSession = async (req, res) => {
 
 export const logoutUser = async (req, res) => {
     const id = req.user._id;
-    await RefreshToken.updateMany({user: id, revokedAt: null}, {revokedAt: new Date()});
+    await RefreshToken.updateMany({ user: id, revokedAt: null }, { revokedAt: new Date() });
 
     res.json({
         message: "Logout de todas las sesiones activas"
@@ -237,4 +237,60 @@ export const changePassword = async (req, res) => {
     else {
         throw AppError.unauthorized("Contraseña incorrecta");
     }
+};
+
+export const inviteUser = async (req, res) => {
+    const { email, password } = req.body;
+    const inviter = req.user;
+
+    if (!inviter.company) {
+        throw AppError.badRequest("El usuario administrador no tiene compañía asociada");
+    }
+
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser?.status === "verified") {
+        throw AppError.conflict("Ya existe un usuario verificado con ese email");
+    }
+
+    if (existingUser?.company) {
+        throw AppError.conflict("Ese usuario ya pertenece a una compañía");
+    }
+
+    const encryptedPassword = await encrypt(password);
+    const verificationCode = generateRandomCode();
+
+    let invitedUser;
+
+    if (existingUser?.status === "pending") {
+        existingUser.password = encryptedPassword;
+        existingUser.verificationCode = verificationCode;
+        existingUser.verificationAttempts = 3;
+        existingUser.company = inviter.company;
+        existingUser.role = "guest";
+
+        invitedUser = await existingUser.save();
+    }
+    else {
+        invitedUser = await User.create({
+            email,
+            password: encryptedPassword,
+            verificationCode,
+            role: "guest",
+            company: inviter.company
+        });
+    }
+
+    notificationService.inviteUser({
+        invitedUserId: invitedUser._id.toString(),
+        invitedEmail: invitedUser.email,
+        companyId: inviter.company.toString(),
+        invitedBy: inviter._id.toString()
+    });
+
+    res.status(201).json({
+        message: "Usuario invitado correctamente",
+        user: invitedUser,
+        verificationCode: verificationCode
+    });
 };

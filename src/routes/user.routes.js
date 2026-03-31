@@ -4,6 +4,7 @@ import validate from "../middleware/validate.js";
 import * as userSchema from "../validators/user.validator.js";
 import * as userController from "../controllers/user.controller.js";
 import upload from "../middleware/upload.js";
+import { authorizeRoles } from "../middleware/role.middleware.js";
 
 const router = Router();
 
@@ -18,4 +19,5 @@ router.post('/refresh', validate(userSchema.schemaRefreshTokenBody), userControl
 router.post('/logout', validateUser, userController.logoutUser);
 router.delete('/', validate(userSchema.schemaSoftDelete), validateUser, userController.deleteUser);
 router.put('/password', validate(userSchema.schemaPasswordBody), validateUser, userController.changePassword);
+router.post('/invite', validate(userSchema.schemaMailBody), validateUser, authorizeRoles("admin"), userController.inviteUser);
 export default router;
