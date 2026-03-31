@@ -48,6 +48,10 @@ export const registerUser = async (req, res) => {
     }
 
     const { access_token, refresh_token } = await createSession();
+    notificationService.registerUser({
+        userId: user._id.toString(),
+        email: user.email
+    });
     res.status(201).json({
         message: "Usuario creado",
         user: user,
@@ -66,6 +70,10 @@ export const validateEmail = async (req, res) => {
     }
     if (user.verificationCode === code) {
         const user = await User.findByIdAndUpdate(id, { status: "verified" }, { new: true });
+        notificationService.verifyUser({
+            userId: user._id.toString(),
+            email: user.email
+        });
         res.json({
             message: "Usuario verificado",
             user: user
@@ -213,6 +221,10 @@ export const deleteUser = async (req, res) => {
     else {
         user = await User.hardDelete(id);
     }
+    notificationService.deleteUser({
+        userId: id.toString(),
+        soft: soft === "true"
+    })
     res.json({
         message: "Usuario borrado",
         user: user
