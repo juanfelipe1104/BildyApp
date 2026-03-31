@@ -64,12 +64,12 @@ export const registerUser = async (req, res) => {
 export const validateEmail = async (req, res) => {
     const { code } = req.body;
     const id = req.user._id;
-    const user = await User.findByIdAndUpdate(id, { $inc: { verificationAttempts: -1 } }, { new: true }).select('+verificationCode');
+    const user = await User.findByIdAndUpdate(id, { $inc: { verificationAttempts: -1 } }, { returnDocument: 'after' }).select('+verificationCode +verificationAttempts');
     if (user.status === "verified") {
         throw AppError.badRequest("Email ya autenticado");
     }
     if (user.verificationCode === code) {
-        const user = await User.findByIdAndUpdate(id, { status: "verified" }, { new: true });
+        const user = await User.findByIdAndUpdate(id, { status: "verified" }, { returnDocument: 'after' });
         notificationService.verifyUser({
             userId: user._id.toString(),
             email: user.email
@@ -111,7 +111,7 @@ export const loginUser = async (req, res) => {
 export const registerDataUser = async (req, res) => {
     const id = req.user._id;
     const data = req.body;
-    const user = await User.findByIdAndUpdate(id, data, { new: true });
+    const user = await User.findByIdAndUpdate(id, data, { returnDocument: 'after' });
     res.json({
         message: "Usuario actualizado",
         user: user
@@ -128,7 +128,7 @@ export const registerCompany = async (req, res) => {
 
     const company = await Company.findOne({ cif: companyData.cif });
     if (company) {
-        const user = await User.findByIdAndUpdate(userData._id, { company: company._id, role: "guest" }, { new: true });
+        const user = await User.findByIdAndUpdate(userData._id, { company: company._id, role: "guest" }, { returnDocument: 'after' });
         res.json({
             message: "Usuario añadido a la compañia",
             user: user,
@@ -143,7 +143,7 @@ export const registerCompany = async (req, res) => {
             companyData.address = userData.address;
         }
         const company = await Company.create(companyData);
-        const user = await User.findByIdAndUpdate(userData._id, { company: company._id });
+        const user = await User.findByIdAndUpdate(userData._id, { company: company._id }, {returnDocument: 'after'});
         res.status(201).json({
             message: "Compañia creada",
             user: user,
@@ -167,7 +167,7 @@ export const uploadLogo = async (req, res) => {
 
     const logoUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
 
-    const company = await Company.findByIdAndUpdate(user.company, { logo: logoUrl }, { new: true });
+    const company = await Company.findByIdAndUpdate(user.company, { logo: logoUrl }, { returnDocument: 'after' });
 
     res.json({
         message: "Logo actualizado",
@@ -242,7 +242,7 @@ export const changePassword = async (req, res) => {
     }
     if (await compare(currentPassword, user.password)) {
         const encryptedPassword = await encrypt(newPassword);
-        const user = await User.findByIdAndUpdate(id, { password: encryptedPassword }, { new: true });
+        const user = await User.findByIdAndUpdate(id, { password: encryptedPassword }, { returnDocument: 'after' });
         res.json({
             message: "Cambio de contraseña exitoso",
             user: user
