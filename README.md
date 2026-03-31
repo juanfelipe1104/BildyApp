@@ -460,13 +460,9 @@ El proyecto incluye una colección de Postman en `/postman/` para probar todos l
 
 ### Recomendación de uso en Postman
 
-Crear variables de entorno o cargar el environment adjunto en `/postman/`:
+La colección utiliza un environment de Postman con las variables `baseUrl`, `accessToken`, `refreshToken` y `verificationCode`.
 
-- `baseUrl` = `http://localhost:3000/api/user`
-- `accessToken`
-- `refreshToken`
-
-Y reutilizarlas en las requests.
+Solo es necesario configurar inicialmente `baseUrl`. El resto de variables se rellenan automáticamente al ejecutar las requests del flujo principal.
 
 Ejemplo de header:
 
