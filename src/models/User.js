@@ -73,10 +73,7 @@ const userSchema = new mongoose.Schema(
     },
     {
         timestamps: true,
-        versionKey: false,
-        toJSON: {
-            virtuals: true
-        }
+        versionKey: false
     }
 );
 
@@ -85,7 +82,7 @@ userSchema.index({ status: 1 });
 userSchema.index({ role: 1 });
 
 userSchema.methods.toJSON = function () {
-    const user = this.toObject();
+    const user = this.toObject({ virtuals: true });
     delete user.password;
     delete user.verificationCode;
     delete user.verificationAttempts;
