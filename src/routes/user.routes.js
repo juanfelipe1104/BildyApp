@@ -13,7 +13,7 @@ router.put('/validation', validate(userSchema.schemaCodeBody), validateUser, use
 router.post('/login', validate(userSchema.schemaMailBody), userController.loginUser);
 router.put('/register', validate(userSchema.schemaUserBody), validateUser, userController.registerDataUser);
 router.patch('/company', validate(userSchema.schemaCompanyBody), validateUser, userController.registerCompany);
-router.patch('/logo', validateUser, upload.single("logo"), userController.uploadLogo);
+router.patch('/logo', validateUser, authorizeRoles("admin"), upload.single("logo"), userController.uploadLogo);
 router.get('/', validateUser, userController.getUser);
 router.post('/refresh', validate(userSchema.schemaRefreshTokenBody), userController.refreshSession);
 router.post('/logout', validateUser, userController.logoutUser);
