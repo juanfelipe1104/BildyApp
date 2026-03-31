@@ -67,8 +67,7 @@ const userSchema = new mongoose.Schema(
             },
             province: {
                 type: String
-            },
-            default: {}
+            }
         }
     },
     {

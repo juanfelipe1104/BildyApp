@@ -17,7 +17,6 @@ El proyecto implementa gestión de usuarios, autenticación con **JWT + refresh 
 - **Multer**
 - **Helmet**
 - **express-rate-limit**
-- **express-mongo-sanitize**
 
 ---
 
@@ -117,7 +116,7 @@ src/
 - Seguridad básica con:
     - helmet
     - express-rate-limit
-    - express-mongo-sanitize
+    - middleware propio para proteger inyecciones NoSQL
 
 ---
 
@@ -406,7 +405,7 @@ La aplicación usa:
 El proyecto incluye:
 
 - Helmet para cabeceras HTTP seguras
-- express-mongo-sanitize para evitar inyecciones NoSQL
+- Middleware para evitar inyecciones NoSQL
 - express-rate-limit para limitar peticiones
 - Validación de entradas con Zod
 - Contraseñas hasheadas con bcryptjs
