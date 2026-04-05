@@ -40,13 +40,11 @@ const userSchema = new mongoose.Schema(
         },
         verificationCode: {
             type: String,
-            select: false,
             required: true
         },
         verificationAttempts: {
             type: Number,
-            default: 3,
-            select: false
+            default: 3
         },
         company: {
             type: mongoose.Schema.Types.ObjectId,

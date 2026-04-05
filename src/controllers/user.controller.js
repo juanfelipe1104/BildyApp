@@ -54,32 +54,34 @@ export const registerUser = async (req, res) => {
     });
     res.status(201).json({
         message: "Usuario creado",
-        user: user,
-        verificationCode: verificationCode,
-        access_token: access_token,
-        refresh_token: refresh_token
+        user,
+        verificationCode,
+        access_token,
+        refresh_token
     });
 };
 
 export const validateEmail = async (req, res) => {
     const { code } = req.body;
-    const id = req.user._id;
-    const user = await User.findByIdAndUpdate(id, { $inc: { verificationAttempts: -1 } }, { returnDocument: 'after' }).select('+verificationCode +verificationAttempts');
+    const user = req.user;
     if (user.status === "verified") {
         throw AppError.badRequest("Email ya autenticado");
     }
     if (user.verificationCode === code) {
-        const user = await User.findByIdAndUpdate(id, { status: "verified" }, { returnDocument: 'after' });
+        user.status = "verified";
+        await user.save();
         notificationService.verifyUser({
             userId: user._id.toString(),
             email: user.email
         });
         res.json({
             message: "Usuario verificado",
-            user: user
+            user
         });
     }
     else if (user.verificationAttempts > 0) {
+        user.verificationAttempts -= 1;
+        await user.save();
         throw AppError.badRequest("Codigo incorrecto", `Quedan ${user.verificationAttempts} intentos`);
     }
     else {
@@ -98,9 +100,9 @@ export const loginUser = async (req, res) => {
         const { access_token, refresh_token } = await createSession(user);
         res.json({
             message: "Login exitoso",
-            user: user,
-            access_token: access_token,
-            refresh_token: refresh_token
+            user,
+            access_token,
+            refresh_token
         });
     }
     else {
@@ -109,57 +111,58 @@ export const loginUser = async (req, res) => {
 };
 
 export const registerDataUser = async (req, res) => {
-    const id = req.user._id;
-    const data = req.body;
-    const user = await User.findByIdAndUpdate(id, data, { returnDocument: 'after' });
+    const user = req.user;
+    const userData = req.body;
+    user.set(userData);
+    await user.save();
     res.json({
         message: "Usuario actualizado",
-        user: user
+        user
     });
 };
 
 export const registerCompany = async (req, res) => {
     const companyData = req.body;
-    const userData = req.user;
-
-    if (userData.company) {
+    const user = req.user;
+    if (user.company) {
         throw AppError.conflict("El usuario ya pertenece a una compañía");
     }
 
     const company = await Company.findOne({ cif: companyData.cif });
     if (company) {
-        const user = await User.findByIdAndUpdate(userData._id, { company: company._id, role: "guest" }, { returnDocument: 'after' });
+        user.company = company._id;
+        user.role = "guest";
+        await user.save();
         res.json({
             message: "Usuario añadido a la compañia",
-            user: user,
-            company: company
+            user,
+            company
         });
     }
     else {
-        companyData.owner = userData._id;
+        companyData.owner = user._id;
         if (companyData.isFreelance) {
-            companyData.name = userData.name;
-            companyData.cif = userData.nif;
-            companyData.address = userData.address;
+            companyData.name = user.name;
+            companyData.cif = user.nif;
+            companyData.address = user.address;
         }
         const company = await Company.create(companyData);
-        const user = await User.findByIdAndUpdate(userData._id, { company: company._id }, {returnDocument: 'after'});
+        user.company = company._id;
+        await user.save();
         res.status(201).json({
             message: "Compañia creada",
-            user: user,
-            company: company
+            user,
+            company
         });
     }
 };
 
 export const uploadLogo = async (req, res) => {
-    const userId = req.user._id;
+    const user = req.user;
 
     if (!req.file) {
         throw AppError.badRequest("No se ha enviado ningun archivo");
     }
-
-    const user = await User.findById(userId);
 
     if (!user?.company) {
         throw AppError.badRequest("El usuario no tiene ninguna compañía asociada");
@@ -171,15 +174,14 @@ export const uploadLogo = async (req, res) => {
 
     res.json({
         message: "Logo actualizado",
-        company: company
+        company
     });
 };
 
 export const getUser = async (req, res) => {
-    const id = req.user._id;
-    const user = await User.findById(id).populate('company');
+    const user = await req.user.populate('company');
     res.json({
-        user: user
+        user
     });
 };
 
@@ -199,8 +201,8 @@ export const refreshSession = async (req, res) => {
 
     res.json({
         message: "Nuevo access token generado",
-        access_token: access_token,
-        refresh_token: refresh_token
+        access_token,
+        refresh_token
     });
 };
 
@@ -229,7 +231,7 @@ export const deleteUser = async (req, res) => {
     })
     res.json({
         message: "Usuario borrado",
-        user: user
+        user
     });
 };
 
@@ -242,10 +244,11 @@ export const changePassword = async (req, res) => {
     }
     if (await compare(currentPassword, user.password)) {
         const encryptedPassword = await encrypt(newPassword);
-        const user = await User.findByIdAndUpdate(id, { password: encryptedPassword }, { returnDocument: 'after' });
+        user.password = encryptedPassword;
+        await user.save();
         res.json({
             message: "Cambio de contraseña exitoso",
-            user: user
+            user
         });
     }
     else {
@@ -263,37 +266,20 @@ export const inviteUser = async (req, res) => {
 
     const existingUser = await User.findOne({ email });
 
-    if (existingUser?.status === "verified") {
-        throw AppError.conflict("Ya existe un usuario verificado con ese email");
-    }
-
-    if (existingUser?.company) {
-        throw AppError.conflict("Ese usuario ya pertenece a una compañía");
+    if (existingUser) {
+        throw AppError.conflict("Ya existe el usuario");
     }
 
     const encryptedPassword = await encrypt(password);
     const verificationCode = generateRandomCode();
 
-    let invitedUser;
-
-    if (existingUser?.status === "pending") {
-        existingUser.password = encryptedPassword;
-        existingUser.verificationCode = verificationCode;
-        existingUser.verificationAttempts = 3;
-        existingUser.company = inviter.company;
-        existingUser.role = "guest";
-
-        invitedUser = await existingUser.save();
-    }
-    else {
-        invitedUser = await User.create({
-            email,
-            password: encryptedPassword,
-            verificationCode,
-            role: "guest",
-            company: inviter.company
-        });
-    }
+    const invitedUser = await User.create({
+        email,
+        password: encryptedPassword,
+        verificationCode,
+        role: "guest",
+        company: inviter.company
+    });
 
     notificationService.inviteUser({
         invitedUserId: invitedUser._id.toString(),
@@ -305,6 +291,6 @@ export const inviteUser = async (req, res) => {
     res.status(201).json({
         message: "Usuario invitado correctamente",
         user: invitedUser,
-        verificationCode: verificationCode
+        verificationCode
     });
 };
