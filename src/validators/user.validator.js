@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+const nifRegex = /^([0-9]{8}[A-Z]|[XYZ][0-9]{7}[A-Z])$/;
+const cifRegex = /^[A-Z][0-9]{7}[0-9A-Z]$/;
+const postalRegex = /^(0[1-9]|[1-4][0-9]|5[0-2])[0-9]{3}$/;
+const verifyEmailCodeRegex = /^\d{6}$/;
+
 export const schemaMailBody = z.object({
     body: z.object({
         email: z.email("Formato de correo incorrecto").trim().toLowerCase(),
@@ -11,20 +16,20 @@ export const schemaUserBody = z.object({
     body: z.object({
         name: z.string().trim().min(1, "El nombre es obligatorio"),
         lastName: z.string().trim().min(1, "El apellido es obligatorio"),
-        nif: z.string().trim().min(1, "El NIF es obligatorio"),
+        nif: z.string().trim().toUpperCase().regex(nifRegex, "El NIE/DNI no tiene un formato valido"),
         address: z.object({
-            street: z.string(),
-            number: z.string(),
-            postal: z.string(),
-            city: z.string(),
-            province: z.string()
+            street: z.string().trim(),
+            number: z.string().trim(),
+            postal: z.string().trim().regex(postalRegex, "El codigo postal debe ser de 5 digitos"),
+            city: z.string().trim(),
+            province: z.string().trim()
         }).optional()
     })
 });
 
 export const schemaCodeBody = z.object({
     body: z.object({
-        code: z.string().regex(/^\d{6}$/, "El código debe ser de 6 dígitos")
+        code: z.string().regex(verifyEmailCodeRegex, "El código debe ser de 6 dígitos")
     })
 });
 
@@ -36,13 +41,13 @@ export const schemaCompanyBody = z.object({
         z.object({
             isFreelance: z.literal(false),
             name: z.string().trim().min(1, "El nombre es obligatorio"),
-            cif: z.string().trim().min(1, "El CIF es obligatorio"),
+            cif: z.string().trim().toUpperCase().regex(cifRegex, "El CIF no tiene un formato valido"),
             address: z.object({
-                street: z.string(),
-                number: z.string(),
-                postal: z.string(),
-                city: z.string(),
-                province: z.string()
+                street: z.string().trim(),
+                number: z.string().trim(),
+                postal: z.string().trim().regex(postalRegex, "El codigo postal debe ser de 5 digitos"),
+                city: z.string().trim(),
+                province: z.string().trim()
             })
         })
     ])
