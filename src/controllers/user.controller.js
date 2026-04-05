@@ -281,6 +281,8 @@ export const inviteUser = async (req, res) => {
         company: inviter.company
     });
 
+    const { access_token, refresh_token } = await createSession(invitedUser);
+
     notificationService.inviteUser({
         invitedUserId: invitedUser._id.toString(),
         invitedEmail: invitedUser.email,
@@ -289,8 +291,10 @@ export const inviteUser = async (req, res) => {
     });
 
     res.status(201).json({
-        message: "Usuario invitado correctamente",
+        message: "Usuario invitado correctamente. Datos invitado: ",
         user: invitedUser,
-        verificationCode
+        verificationCode,
+        access_token,
+        refresh_token
     });
 };
