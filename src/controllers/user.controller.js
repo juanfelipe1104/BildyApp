@@ -64,9 +64,6 @@ export const registerUser = async (req, res) => {
 export const validateEmail = async (req, res) => {
     const { code } = req.body;
     const user = req.user;
-    if (user.status === "verified") {
-        throw AppError.badRequest("Email ya autenticado");
-    }
     if (user.verificationCode === code) {
         user.status = "verified";
         await user.save();
@@ -225,6 +222,9 @@ export const deleteUser = async (req, res) => {
     else {
         user = await User.hardDelete(id);
     }
+
+    await RefreshToken.updateMany({ user: id, revokedAt: null }, { revokedAt: new Date() });
+
     notificationService.deleteUser({
         userId: id.toString(),
         soft: soft === "true"
