@@ -26,7 +26,7 @@ Antes de ejecutar el proyecto se necesita tener instalado:
 
 - **Node.js 22 o superior**
 - **npm**
-- **MongoDB** en local o una conexión remota
+- **MongoDB** accesible mediante URI, ya sea en local o mediante un servicio remoto como MongoDB Atlas.
 
 ---
 
@@ -72,7 +72,7 @@ src/
 ├── controllers/
 │   └── user.controller.js
 ├── middleware/
-│   ├── auth.midddleware.js
+│   ├── auth.middleware.js
 │   ├── error-handler.js
 │   ├── rate-limit.js
 │   ├── role.middleware.js
