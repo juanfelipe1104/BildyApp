@@ -5,6 +5,8 @@ import { AppError } from "../utils/AppError.js";
 import { generateAccessToken, generateRefreshToken, getRefreshTokenExpiry } from "../utils/handleJWT.js";
 import { compare, encrypt } from "../utils/handlePassword.js";
 import notificationService from "../services/notification.service.js";
+import fs from "node:fs/promises";
+import { join } from "node:path";
 
 const generateRandomCode = () => Math.floor(100000 + (Math.random() * 900000)).toString();
 
@@ -169,9 +171,27 @@ export const uploadLogo = async (req, res) => {
         throw AppError.badRequest("El usuario no tiene ninguna compañía asociada");
     }
 
-    const logoUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+    const company = await Company.findById(user.company);
 
-    const company = await Company.findByIdAndUpdate(user.company, { logo: logoUrl }, { returnDocument: 'after' });
+    const oldLogo = company.logo;
+    const newLogoUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+
+    company.logo = newLogoUrl;
+    await company.save();
+
+    if (oldLogo) {
+        try {
+            const oldFileName = oldLogo.split("/uploads/")[1];
+            if (oldFileName) {
+                const oldFilePath = join(import.meta.dirname, "../../uploads", oldFileName);
+                await fs.unlink(oldFilePath,);
+            }
+        } catch (error) {
+            if (error.code !== "ENOENT") {
+                console.error("Error al eliminar el logo anterior:", error);
+            }
+        }
+    }
 
     res.json({
         message: "Logo actualizado",
