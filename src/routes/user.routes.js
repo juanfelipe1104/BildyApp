@@ -10,7 +10,7 @@ const router = Router();
 
 router.post('/register', validate(userSchema.schemaMailBody), userController.registerUser);
 router.put('/validation', validate(userSchema.schemaCodeBody), validateUser, validateUserStatus("pending"), userController.validateEmail);
-router.post('/login', validate(userSchema.schemaMailBody), validateUserStatus("verified"), userController.loginUser);
+router.post('/login', validate(userSchema.schemaMailBody), userController.loginUser);
 router.put('/register', validate(userSchema.schemaUserBody), validateUser, validateUserStatus("verified"), userController.registerDataUser);
 router.patch('/company', validate(userSchema.schemaCompanyBody), validateUser, validateUserStatus("verified"), userController.registerCompany);
 router.patch('/logo', validateUser, validateUserStatus("verified"), authorizeRoles("admin"), upload.single("logo"), userController.uploadLogo);

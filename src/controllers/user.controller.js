@@ -93,6 +93,10 @@ export const loginUser = async (req, res) => {
         throw AppError.unauthorized("Credenciales incorrectas");
     }
 
+    if (user.status !== "verified") {
+        throw AppError.unauthorized("El usuario no se ha verificado");
+    }
+
     if (await compare(password, user.password)) {
         const { access_token, refresh_token } = await createSession(user);
         res.json({
@@ -103,7 +107,7 @@ export const loginUser = async (req, res) => {
         });
     }
     else {
-        throw AppError.unauthorized();
+        throw AppError.unauthorized("Credenciales incorrectas");
     }
 };
 
