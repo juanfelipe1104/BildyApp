@@ -1,6 +1,8 @@
 import multer from "multer";
 import fs from "node:fs";
 import { join, extname } from "node:path";
+import type { Request } from "express";
+import type { FileFilterCallback } from "multer";
 import { AppError } from "../utils/AppError.js";
 
 const __dirname = import.meta.dirname;
@@ -10,18 +12,21 @@ if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
+// Migrado a Cloudinary (cambio de almacenamiento local a nube)
+/*
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
+    destination: (_req: Request, _file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
         cb(null, uploadDir);
     },
-    filename: (req, file, cb) => {
+    filename: (_req: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
         const ext = extname(file.originalname).toLowerCase();
         const uniqueName = `logo-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
         cb(null, uniqueName);
     }
 });
+*/
 
-const fileFilter = (req, file, cb) => {
+const fileFilter = (_req: Request, file: Express.Multer.File, cb: FileFilterCallback): void => {
     const allowedMimes = ["image/jpeg", "image/png", "image/webp"];
 
     if (!allowedMimes.includes(file.mimetype)) {
@@ -32,7 +37,7 @@ const fileFilter = (req, file, cb) => {
 };
 
 const upload = multer({
-    storage,
+    storage: multer.memoryStorage(),
     fileFilter,
     limits: {
         fileSize: 5 * 1024 * 1024,

@@ -1,8 +1,10 @@
+import type { Request, Response, NextFunction } from 'express';
+import type { UserStatus } from '../models/User.js';
 import { verifyAccessToken } from "../utils/handleJWT.js";
 import { AppError } from "../utils/AppError.js";
 import User from "../models/User.js";
 
-const extractBearerToken = (authorizationHeader) => {
+const extractBearerToken = (authorizationHeader?: string): string | null => {
     if (!authorizationHeader) {
         return null;
     }
@@ -15,7 +17,7 @@ const extractBearerToken = (authorizationHeader) => {
     return token;
 };
 
-export const validateUser = async (req, res, next) => {
+export const validateUser = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     const token = extractBearerToken(req.headers.authorization);
 
     if (!token) {
@@ -35,11 +37,10 @@ export const validateUser = async (req, res, next) => {
     }
 
     req.user = user;
-    req.token = token;
     next();
 };
 
-export const validateUserStatus = (...allowedStatus) => async (req, res, next) => {
+export const validateUserStatus = (...allowedStatus: UserStatus[]) => async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     const user = req.user;
 
     if (!allowedStatus.includes(user.status)) {

@@ -1,16 +1,17 @@
-import RefreshToken from "../models/RefreshToken.js";
-import User from "../models/User.js";
-import Company from "../models/Company.js";
-import { AppError } from "../utils/AppError.js";
-import { generateAccessToken, generateRefreshToken, getRefreshTokenExpiry } from "../utils/handleJWT.js";
-import { compare, encrypt } from "../utils/handlePassword.js";
-import notificationService from "../services/notification.service.js";
-import fs from "node:fs/promises";
-import { join } from "node:path";
+import type { Request, Response } from 'express';
+import type { UserDocument } from '../models/User.js';
+import RefreshToken from '../models/RefreshToken.js';
+import User from '../models/User.js';
+import Company from '../models/Company.js';
+import { AppError } from '../utils/AppError.js';
+import { generateAccessToken, generateRefreshToken, getRefreshTokenExpiry } from '../utils/handleJWT.js';
+import { compare, encrypt } from '../utils/handlePassword.js';
+import notificationService from '../services/notification.service.js';
+import cloudinaryService from '../services/cloudinary.service.js';
 
-const generateRandomCode = () => Math.floor(100000 + (Math.random() * 900000)).toString();
+const generateRandomCode = (): string => Math.floor(100000 + (Math.random() * 900000)).toString();
 
-const createSession = async (user) => {
+const createSession = async (user: Pick<UserDocument, '_id' | 'role'>) => {
     const accessToken = generateAccessToken(user);
     const refreshToken = await RefreshToken.create({
         token: generateRefreshToken(),
@@ -24,7 +25,7 @@ const createSession = async (user) => {
     };
 };
 
-export const registerUser = async (req, res) => {
+export const registerUser = async (req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body;
     const existingUser = await User.findOne({ email: email });
     if (existingUser?.status === "verified") {
@@ -33,7 +34,7 @@ export const registerUser = async (req, res) => {
 
     const encryptedPassword = await encrypt(password);
     const verificationCode = generateRandomCode();
-    let user;
+    let user: UserDocument;
 
     if (existingUser?.status === "pending") {
         existingUser.password = encryptedPassword;
@@ -63,7 +64,7 @@ export const registerUser = async (req, res) => {
     });
 };
 
-export const validateEmail = async (req, res) => {
+export const validateEmail = async (req: Request, res: Response): Promise<void> => {
     const { code } = req.body;
     const user = req.user;
     if (user.verificationCode === code) {
@@ -81,14 +82,14 @@ export const validateEmail = async (req, res) => {
     else if (user.verificationAttempts > 0) {
         user.verificationAttempts -= 1;
         await user.save();
-        throw AppError.badRequest("Codigo incorrecto", `Quedan ${user.verificationAttempts} intentos`);
+        throw AppError.badRequest(`Codigo incorrecto. Quedan ${user.verificationAttempts} intentos`);
     }
     else {
         throw AppError.tooManyRequests("Demasiados intentos. Vuelve a registrar el usuario");
     }
 };
 
-export const loginUser = async (req, res) => {
+export const loginUser = async (req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body;
     const user = await User.findOne({ email: email }).select('+password');
     if (!user) {
@@ -113,7 +114,7 @@ export const loginUser = async (req, res) => {
     }
 };
 
-export const registerDataUser = async (req, res) => {
+export const registerDataUser = async (req: Request, res: Response): Promise<void> => {
     const user = req.user;
     const userData = req.body;
     user.set(userData);
@@ -124,7 +125,7 @@ export const registerDataUser = async (req, res) => {
     });
 };
 
-export const registerCompany = async (req, res) => {
+export const registerCompany = async (req: Request, res: Response): Promise<void> => {
     const companyData = req.body;
     const user = req.user;
     if (user.company) {
@@ -160,7 +161,7 @@ export const registerCompany = async (req, res) => {
     }
 };
 
-export const uploadLogo = async (req, res) => {
+export const uploadLogo = async (req: Request, res: Response): Promise<void> => {
     const user = req.user;
 
     if (!req.file) {
@@ -173,25 +174,10 @@ export const uploadLogo = async (req, res) => {
 
     const company = await Company.findById(user.company);
 
-    const oldLogo = company.logo;
-    const newLogoUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
-
+    const result = await cloudinaryService.uploadAvatar(req.file.buffer, req.user._id.toString());
+    const newLogoUrl = result.secure_url;
     company.logo = newLogoUrl;
     await company.save();
-
-    if (oldLogo) {
-        try {
-            const oldFileName = oldLogo.split("/uploads/")[1];
-            if (oldFileName) {
-                const oldFilePath = join(import.meta.dirname, "../../uploads", oldFileName);
-                await fs.unlink(oldFilePath,);
-            }
-        } catch (error) {
-            if (error.code !== "ENOENT") {
-                console.error("Error al eliminar el logo anterior:", error);
-            }
-        }
-    }
 
     res.json({
         message: "Logo actualizado",
@@ -199,14 +185,14 @@ export const uploadLogo = async (req, res) => {
     });
 };
 
-export const getUser = async (req, res) => {
+export const getUser = async (req: Request, res: Response): Promise<void> => {
     const user = await req.user.populate('company');
     res.json({
         user
     });
 };
 
-export const refreshSession = async (req, res) => {
+export const refreshSession = async (req: Request, res: Response): Promise<void> => {
     const { refreshToken } = req.body;
 
     const storedToken = await RefreshToken.findOne({ token: refreshToken }).populate("user");
@@ -218,7 +204,9 @@ export const refreshSession = async (req, res) => {
     storedToken.revokedAt = new Date();
     await storedToken.save();
 
-    const { access_token, refresh_token } = await createSession(storedToken.user);
+    const user = storedToken.user as unknown as UserDocument;
+
+    const { access_token, refresh_token } = await createSession(user);
 
     res.json({
         message: "Nuevo access token generado",
@@ -227,7 +215,7 @@ export const refreshSession = async (req, res) => {
     });
 };
 
-export const logoutUser = async (req, res) => {
+export const logoutUser = async (req: Request, res: Response): Promise<void> => {
     const id = req.user._id;
     await RefreshToken.updateMany({ user: id, revokedAt: null }, { revokedAt: new Date() });
 
@@ -236,10 +224,10 @@ export const logoutUser = async (req, res) => {
     });
 };
 
-export const deleteUser = async (req, res) => {
+export const deleteUser = async (req: Request, res: Response): Promise<void> => {
     const { soft } = req.query;
     const id = req.user._id;
-    let user;
+    let user: UserDocument;
     if (soft === "true") {
         user = await User.softDeleteById(id);
     }
@@ -259,7 +247,7 @@ export const deleteUser = async (req, res) => {
     });
 };
 
-export const changePassword = async (req, res) => {
+export const changePassword = async (req: Request, res: Response): Promise<void> => {
     const { currentPassword, newPassword } = req.body;
     const id = req.user._id;
     const user = await User.findById(id).select('+password');
@@ -280,7 +268,7 @@ export const changePassword = async (req, res) => {
     }
 };
 
-export const inviteUser = async (req, res) => {
+export const inviteUser = async (req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body;
     const inviter = req.user;
 

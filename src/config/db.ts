@@ -1,8 +1,7 @@
 import mongoose from 'mongoose';
-
 import env from './env.js';
 
-const dbConnect = async () => {
+const dbConnect = async (): Promise<void> => {
     const DB_URI = env.DB_URI;
     const DB_NAME = env.DB_NAME;
     try {
