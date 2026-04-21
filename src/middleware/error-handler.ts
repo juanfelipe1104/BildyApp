@@ -16,7 +16,7 @@ const errorHandler = (err: unknown, _req: Request, res: Response, _next: NextFun
             error: true,
             message: err.message,
             code: err.code,
-            ...(err.details && { details: err.details }),
+            ...(err.details ? { details: err.details } : {}),
         });
     }
 

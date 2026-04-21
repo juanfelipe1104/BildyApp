@@ -174,6 +174,10 @@ export const uploadLogo = async (req: Request, res: Response): Promise<void> => 
 
     const company = await Company.findById(user.company);
 
+    if (!company) {
+        throw AppError.notFound("Compañía no encontrada");
+    }
+
     const result = await cloudinaryService.uploadAvatar(req.file.buffer, req.user._id.toString());
     const newLogoUrl = result.secure_url;
     company.logo = newLogoUrl;

@@ -10,7 +10,8 @@ const dbConnect = async (): Promise<void> => {
         });
         console.log('Conectado a MongoDB');
     } catch (error) {
-        console.error('Error conectando a MongoDB:', error.message);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error('Error conectando a MongoDB:', errorMessage);
         process.exit(1);
     }
 };
