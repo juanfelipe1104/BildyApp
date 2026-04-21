@@ -9,7 +9,9 @@ const envSchema = z.object({
     SLACK_WEBHOOK: z.string(),
     CLOUDINARY_CLOUD_NAME: z.string(),
     CLOUDINARY_API_KEY: z.string(),
-    CLOUDINARY_API_SECRET: z.string()
+    CLOUDINARY_API_SECRET: z.string(),
+    EMAIL_USER: z.email(),
+    EMAIL_PASSWORD: z.string()
 });
 
 const parsed = envSchema.safeParse(process.env);
