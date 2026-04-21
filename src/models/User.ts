@@ -4,12 +4,12 @@ import softDeletePlugin, { type SoftDeleteFields, type SoftDeleteMethods, type S
 export type UserRole = 'admin' | 'guest';
 export type UserStatus = 'pending' | 'verified';
 
-export interface UserAddress {
-    street?: string;
-    number?: string;
-    postal?: string;
-    city?: string;
-    province?: string;
+export interface Address {
+    street: string;
+    number: string;
+    postal: string;
+    city: string;
+    province: string;
 }
 
 export interface IUser extends SoftDeleteFields {
@@ -23,7 +23,7 @@ export interface IUser extends SoftDeleteFields {
     verificationCode: string;
     verificationAttempts: number;
     company?: Types.ObjectId;
-    address?: UserAddress;
+    address?: Address;
     createdAt: Date;
     updatedAt: Date;
 }

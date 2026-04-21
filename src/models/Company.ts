@@ -1,19 +1,12 @@
 import mongoose, { type HydratedDocument, type Model, type Types } from 'mongoose';
 import softDeletePlugin, { type SoftDeleteFields, type SoftDeleteMethods, type SoftDeleteStatics } from '../plugins/softDelete.plugin.js';
-
-export interface CompanyAddress {
-    street: string;
-    number: string;
-    postal: string;
-    city: string;
-    province: string;
-}
+import type { Address } from './User.js';
 
 export interface ICompany extends SoftDeleteFields {
     owner: Types.ObjectId;
     name: string;
     cif: string;
-    address: CompanyAddress;
+    address: Address;
     logo?: string;
     isFreelance: boolean;
     createdAt: Date;
