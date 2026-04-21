@@ -20,4 +20,5 @@ router.post('/logout', validateUser, validateUserStatus("verified"), userControl
 router.delete('/', validate(userSchema.schemaSoftDelete), validateUser, validateUserStatus("verified"), userController.deleteUser);
 router.put('/password', validate(userSchema.schemaPasswordBody), validateUser, validateUserStatus("verified"), userController.changePassword);
 router.post('/invite', validate(userSchema.schemaMailBody), validateUser, authorizeRoles("admin"), validateUserStatus("verified"), userController.inviteUser);
+
 export default router;

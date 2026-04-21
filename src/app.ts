@@ -3,7 +3,7 @@ import helmet from 'helmet';
 import mongoSanitizeMiddleware from './middleware/sanitize.middleware.js';
 import limiter from './middleware/rate-limit.js';
 import { join } from 'node:path';
-import router from './routes/user.routes.js';
+import router from './routes/routes.js';
 import errorHandler from './middleware/error-handler.js';
 import morganBody from 'morgan-body';
 import { loggerStream } from './utils/handleLogger.js';
@@ -26,7 +26,7 @@ app.use(limiter);
 
 app.use('/uploads', express.static(join(import.meta.dirname, '../uploads')));
 
-app.use('/api/user', router);
+app.use('/api', router);
 
 app.use(errorHandler);
 
