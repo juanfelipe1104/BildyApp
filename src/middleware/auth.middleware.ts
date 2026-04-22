@@ -54,7 +54,15 @@ export const validateUserStatus = (...allowedStatus: UserStatus[]) => async (req
     }
 
     next();
-}
+};
+
+export const checkIfUserHasCompany = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
+    const user = req.user;
+    if(!user.company){
+        throw AppError.forbidden("El usuario no tiene compañia");
+    }
+    next();
+};
 
 export const checkIfClientInCompany = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     const clientId = req.params;
@@ -65,4 +73,4 @@ export const checkIfClientInCompany = async (req: Request, _res: Response, next:
     }
     req.client = client;
     next();
-}
+};
