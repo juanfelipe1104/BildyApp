@@ -1,17 +1,5 @@
 import { z } from "zod";
-
-const nifRegex = /^([0-9]{8}[A-Z]|[XYZ][0-9]{7}[A-Z])$/;
-const cifRegex = /^[A-Z][0-9]{7}[0-9A-Z]$/;
-const postalRegex = /^(0[1-9]|[1-4][0-9]|5[0-2])[0-9]{3}$/;
-const verifyEmailCodeRegex = /^\d{6}$/;
-
-const addressSchema = z.object({
-    street: z.string().trim(),
-    number: z.string().trim(),
-    postal: z.string().trim().regex(postalRegex, "El codigo postal debe ser de 5 digitos"),
-    city: z.string().trim(),
-    province: z.string().trim()
-})
+import { nifRegex, cifRegex, postalRegex, verifyEmailCodeRegex, addressSchema } from "./common.validator.js";
 
 export const schemaMailBody = z.object({
     body: z.object({

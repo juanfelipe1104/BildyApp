@@ -3,6 +3,7 @@ import type { UserStatus } from '../models/User.js';
 import { verifyAccessToken } from "../utils/handleJWT.js";
 import { AppError } from "../utils/AppError.js";
 import User from "../models/User.js";
+import Client from '../models/Client.js';
 
 const extractBearerToken = (authorizationHeader?: string): string | null => {
     if (!authorizationHeader) {
@@ -52,5 +53,16 @@ export const validateUserStatus = (...allowedStatus: UserStatus[]) => async (req
         }
     }
 
+    next();
+}
+
+export const checkIfClientInCompany = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
+    const clientId = req.params;
+    const userId = req.user._id;
+    const client = await Client.findOne({ _id: clientId, user: userId });
+    if (!client) {
+        throw AppError.notFound("El cliente no existe o no pertenece a la compañia");
+    }
+    req.client = client;
     next();
 }
