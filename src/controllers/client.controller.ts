@@ -19,7 +19,7 @@ export const createClient = async (req: Request, res: Response): Promise<void> =
         message: "Cliente creado",
         client
     });
-}
+};
 
 export const updateClient = async (req: Request, res: Response): Promise<void> => {
     const client = req.client;
@@ -30,7 +30,7 @@ export const updateClient = async (req: Request, res: Response): Promise<void> =
         message: "Cliente actualizado",
         client
     });
-}
+};
 
 export const getClients = async (req: Request, res: Response): Promise<void> => {
     const { page, limit, skip, filters, sortOption } = req.queryData;
@@ -43,14 +43,14 @@ export const getClients = async (req: Request, res: Response): Promise<void> => 
         currentPage: page,
         clients
     });
-}
+};
 
 export const getClient = async (req: Request, res: Response): Promise<void> => {
     const client = req.client;
     res.json({
         client
     })
-}
+};
 
 export const deleteClient = async (req: Request, res: Response): Promise<void> => {
     const { soft } = req.query;
@@ -67,3 +67,30 @@ export const deleteClient = async (req: Request, res: Response): Promise<void> =
         client
     });
 };
+
+export const getArchivedClients = async (req: Request, res: Response): Promise<void> => {
+    const userId = req.user._id;
+    const archivedClients = await Client.findDeleted({user: userId}) as ClientDocument[];
+    let message = "Clientes archivados";
+    if(!archivedClients){
+        message = "No hay clientes archivados"
+    }
+    res.json({
+        message,
+        archivedClients
+    })
+}
+
+export const restoreClient = async (req: Request, res: Response): Promise<void> => {
+    const clientId = String(req.params);
+    const userId = req.user._id;
+    const deletedClient = await Client.findDeleted({_id: clientId, user: userId}) as ClientDocument[];
+    if(!deletedClient){
+        throw AppError.notFound("No hay cliente archivado");
+    }
+    const restoredClient = await Client.restoreById(clientId) as ClientDocument;
+    res.json({
+        message: "Cliente restaurado",
+        restoredClient
+    })
+}

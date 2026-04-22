@@ -14,3 +14,5 @@ router.put("/:id", validate(clientSchema.schemaClientBody), validateUser, checkI
 router.get("/", validate(clientSchema.schemaClientQuery), validateUser, checkIfUserHasCompany, buildQuery(filterFields, sortFields), clientController.getClients);
 router.get("/:id", validateUser, checkIfUserHasCompany, checkIfClientInCompany, clientController.getClient);
 router.delete("/:id", validate(commonSchema.schemaSoftDelete), validateUser, checkIfUserHasCompany, checkIfClientInCompany, clientController.deleteClient);
+router.get("/archived", validateUser, checkIfUserHasCompany, clientController.getArchivedClients);
+router.patch("/:id/restore", validateUser, checkIfUserHasCompany, clientController.restoreClient);
