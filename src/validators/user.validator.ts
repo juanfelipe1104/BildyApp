@@ -43,12 +43,6 @@ export const schemaRefreshTokenBody = z.object({
     })
 });
 
-export const schemaSoftDelete = z.object({
-    query: z.object({
-        soft: z.enum(["true", "false"])
-    })
-});
-
 export const schemaPasswordBody = z.object({
     body: z.object({
         currentPassword: z.string().min(8),

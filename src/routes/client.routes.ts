@@ -2,6 +2,7 @@ import { Router } from "express";
 import validate from "../middleware/validate.js";
 import { filterFields, sortFields } from "../models/Client.js";
 import buildQuery from "../middleware/buildQuery.js";
+import * as commonSchema from "../validators/common.validator.js";
 import * as clientSchema from "../validators/client.validator.js";
 import * as clientController from "../controllers/client.controller.js";
 import { checkIfClientInCompany, validateUser } from "../middleware/auth.middleware.js";
@@ -12,3 +13,4 @@ router.post("/", validate(clientSchema.schemaClientBody), validateUser, clientCo
 router.put("/:id", validate(clientSchema.schemaClientBody), validateUser, checkIfClientInCompany, clientController.updateClient);
 router.get("/", validate(clientSchema.schemaClientQuery), validateUser, buildQuery(filterFields, sortFields), clientController.getClients);
 router.get("/:id", validateUser, checkIfClientInCompany, clientController.getClient);
+router.delete("/:id", validate(commonSchema.schemaSoftDelete), validateUser, checkIfClientInCompany, clientController.deleteClient);

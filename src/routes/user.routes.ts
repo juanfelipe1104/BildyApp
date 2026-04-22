@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { validateUser, validateUserStatus } from "../middleware/auth.middleware.js";
 import validate from "../middleware/validate.js";
+import * as commonSchema from "../validators/common.validator.js";
 import * as userSchema from "../validators/user.validator.js";
 import * as userController from "../controllers/user.controller.js";
 import upload from "../middleware/upload.js";
@@ -17,7 +18,7 @@ router.patch('/logo', validateUser, validateUserStatus("verified"), authorizeRol
 router.get('/', validateUser, validateUserStatus("verified"), userController.getUser);
 router.post('/refresh', validate(userSchema.schemaRefreshTokenBody), userController.refreshSession);
 router.post('/logout', validateUser, validateUserStatus("verified"), userController.logoutUser);
-router.delete('/', validate(userSchema.schemaSoftDelete), validateUser, validateUserStatus("verified"), userController.deleteUser);
+router.delete('/', validate(commonSchema.schemaSoftDelete), validateUser, validateUserStatus("verified"), userController.deleteUser);
 router.put('/password', validate(userSchema.schemaPasswordBody), validateUser, validateUserStatus("verified"), userController.changePassword);
 router.post('/invite', validate(userSchema.schemaMailBody), validateUser, authorizeRoles("admin"), validateUserStatus("verified"), userController.inviteUser);
 

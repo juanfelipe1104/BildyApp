@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import Client from "../models/Client.js";
+import Client, { ClientDocument } from "../models/Client.js";
 import { AppError } from '../utils/AppError.js';
 
 export const createClient = async (req: Request, res: Response): Promise<void> => {
@@ -51,3 +51,19 @@ export const getClient = async (req: Request, res: Response): Promise<void> => {
         client
     })
 }
+
+export const deleteClient = async (req: Request, res: Response): Promise<void> => {
+    const { soft } = req.query;
+    const clientId = req.client._id;
+    let client: ClientDocument;
+    if (soft === "true") {
+        client = await Client.softDeleteById(clientId);
+    }
+    else {
+        client = await Client.hardDelete(clientId);
+    }
+    res.json({
+        message: "Cliente borrado",
+        client
+    });
+};
