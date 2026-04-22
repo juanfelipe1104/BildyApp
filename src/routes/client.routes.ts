@@ -9,5 +9,6 @@ import { checkIfClientInCompany, validateUser } from "../middleware/auth.middlew
 const router = Router();
 
 router.post("/", validate(clientSchema.schemaClientBody), validateUser, clientController.createClient);
-router.put("/:id", validateUser, validate(clientSchema.schemaClientBody), checkIfClientInCompany, clientController.updateClient);
+router.put("/:id", validate(clientSchema.schemaClientBody), validateUser, checkIfClientInCompany, clientController.updateClient);
 router.get("/", validate(clientSchema.schemaClientQuery), validateUser, buildQuery(filterFields, sortFields), clientController.getClients);
+router.get("/:id", validateUser, checkIfClientInCompany, clientController.getClient);

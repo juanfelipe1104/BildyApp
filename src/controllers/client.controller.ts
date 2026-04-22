@@ -45,3 +45,9 @@ export const getClients = async (req: Request, res: Response): Promise<void> => 
     });
 }
 
+export const getClient = async (req: Request, res: Response): Promise<void> => {
+    const client = req.client;
+    res.json({
+        client
+    })
+}
