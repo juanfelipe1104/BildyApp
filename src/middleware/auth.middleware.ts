@@ -66,8 +66,8 @@ export const checkIfUserHasCompany = async (req: Request, _res: Response, next: 
 
 export const checkIfClientInCompany = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     const clientId = req.params;
-    const userId = req.user._id;
-    const client = await Client.findOne({ _id: clientId, user: userId });
+    const companyId = req.user.company;
+    const client = await Client.findOne({ _id: clientId, company: companyId });
     if (!client) {
         throw AppError.notFound("El cliente no existe o no pertenece a la compañia");
     }

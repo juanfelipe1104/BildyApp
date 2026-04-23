@@ -1,19 +1,17 @@
 import multer from "multer";
-import fs from "node:fs";
-import { join, extname } from "node:path";
 import type { Request } from "express";
 import type { FileFilterCallback } from "multer";
 import { AppError } from "../utils/AppError.js";
 
+// Migrado a Cloudinary (cambio de almacenamiento local a nube)
+/*
+import fs from "node:fs";
+import { join, extname } from "node:path";
 const __dirname = import.meta.dirname;
 const uploadDir = join(__dirname, "../../uploads");
-
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
-
-// Migrado a Cloudinary (cambio de almacenamiento local a nube)
-/*
 const storage = multer.diskStorage({
     destination: (_req: Request, _file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
         cb(null, uploadDir);
