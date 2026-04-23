@@ -69,8 +69,8 @@ export const deleteClient = async (req: Request, res: Response): Promise<void> =
 };
 
 export const getArchivedClients = async (req: Request, res: Response): Promise<void> => {
-    const userId = req.user._id;
-    const archivedClients = await Client.findDeleted({user: userId}) as ClientDocument[];
+    const companyId = req.user.company;
+    const archivedClients = await Client.findDeleted({company: companyId}) as ClientDocument[];
     let message = "Clientes archivados";
     if(!archivedClients){
         message = "No hay clientes archivados"
@@ -83,9 +83,9 @@ export const getArchivedClients = async (req: Request, res: Response): Promise<v
 
 export const restoreClient = async (req: Request, res: Response): Promise<void> => {
     const clientId = String(req.params);
-    const userId = req.user._id;
-    const deletedClient = await Client.findDeleted({_id: clientId, user: userId}) as ClientDocument[];
-    if(!deletedClient){
+    const client = req.client;
+    const isDeleted = client.deleted;
+    if(isDeleted){
         throw AppError.notFound("No hay cliente archivado");
     }
     const restoredClient = await Client.restoreById(clientId) as ClientDocument;

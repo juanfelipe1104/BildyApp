@@ -6,6 +6,7 @@ import * as commonSchema from "../validators/common.validator.js";
 import * as clientSchema from "../validators/client.validator.js";
 import * as clientController from "../controllers/client.controller.js";
 import { checkIfClientInCompany, checkIfUserHasCompany, validateUser } from "../middleware/auth.middleware.js";
+import { authorizeRoles } from "../middleware/role.middleware.js";
 
 const router = Router();
 
@@ -14,5 +15,7 @@ router.put("/:id", validate(clientSchema.schemaClientBody), validateUser, checkI
 router.get("/", validate(clientSchema.schemaClientQuery), validateUser, checkIfUserHasCompany, buildQuery(filterFields, sortFields), clientController.getClients);
 router.get("/:id", validateUser, checkIfUserHasCompany, checkIfClientInCompany, clientController.getClient);
 router.delete("/:id", validate(commonSchema.schemaSoftDelete), validateUser, checkIfUserHasCompany, checkIfClientInCompany, clientController.deleteClient);
-router.get("/archived", validateUser, checkIfUserHasCompany, clientController.getArchivedClients);
-router.patch("/:id/restore", validateUser, checkIfUserHasCompany, clientController.restoreClient);
+router.get("/archived", validateUser, authorizeRoles("admin"), checkIfUserHasCompany, clientController.getArchivedClients);
+router.patch("/:id/restore", validateUser, authorizeRoles("admin"), checkIfUserHasCompany, checkIfClientInCompany, clientController.restoreClient);
+
+export default router;
