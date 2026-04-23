@@ -26,13 +26,7 @@ type CloudinaryUploadResult = {
 class CloudinaryService {
     async uploadBuffer(buffer: Buffer, options: UploadOptions = {}): Promise<CloudinaryUploadResult> {
         return new Promise((resolve, reject) => {
-            const {
-                folder,
-                resourceType,
-                publicId,
-                transformation,
-                ...restOptions
-            } = options;
+            const { folder, resourceType, publicId, transformation, ...restOptions } = options;
 
             const uploadStream = cloudinary.uploader.upload_stream(
                 {
@@ -58,43 +52,38 @@ class CloudinaryService {
         });
     }
 
-    async uploadImage(buffer: Buffer, options: UploadOptions = {}): Promise<CloudinaryUploadResult> {
+    async uploadLogo(buffer: Buffer, companyId: string): Promise<CloudinaryUploadResult> {
         return this.uploadBuffer(buffer, {
-            folder: 'images',
+            folder: `company_${companyId}/logo`,
+            publicId: `logo_${companyId}`,
+            overwrite: true,
             resourceType: 'image',
             transformation: [
                 { quality: 'auto:good' },
                 { fetch_format: 'auto' }
-            ],
-            ...options
-        });
-    }
-
-    async uploadAvatar(buffer: Buffer, userId: string): Promise<CloudinaryUploadResult> {
-        return this.uploadBuffer(buffer, {
-            folder: 'avatars',
-            publicId: `user_${userId}`,
-            overwrite: true,
-            resourceType: 'image',
-            transformation: [
-                { width: 300, height: 300, crop: 'fill', gravity: 'face' },
-                { radius: 'max' },
-                { quality: 'auto' }
             ]
         });
     }
 
-    async uploadProductImage(buffer: Buffer, productId: string, index = 0): Promise<CloudinaryUploadResult> {
+    async uploadDeliveryNoteSignature(buffer: Buffer, companyId: string, deliveryNoteId: string): Promise<CloudinaryUploadResult> {
         return this.uploadBuffer(buffer, {
-            folder: 'products',
-            publicId: `product_${productId}_${index}`,
+            folder: 'company_${companyId}/deliverynotes/signatures',
+            publicId: `deliverynote_${deliveryNoteId}_signature`,
+            overwrite: true,
             resourceType: 'image',
-            eager: [
-                { width: 150, height: 150, crop: 'fill' },
-                { width: 400, height: 400, crop: 'fill' },
-                { width: 800, height: 800, crop: 'limit' }
-            ],
-            eager_async: true
+            transformation: [
+                { quality: 'auto:good' },
+                { fetch_format: 'auto' }
+            ]
+        });
+    }
+
+    async uploadDeliveryNotePdf(buffer: Buffer, deliveryNoteId: string): Promise<CloudinaryUploadResult> {
+        return this.uploadBuffer(buffer, {
+            folder: 'deliverynotes/pdfs',
+            publicId: `deliverynote_${deliveryNoteId}`,
+            overwrite: true,
+            resourceType: 'raw'
         });
     }
 
