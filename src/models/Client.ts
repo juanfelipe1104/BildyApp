@@ -17,9 +17,6 @@ export interface IClient extends SoftDeleteFields {
 export type ClientDocument = HydratedDocument<IClient, SoftDeleteMethods>;
 export type ClientModel = Model<IClient, {}, SoftDeleteMethods> & SoftDeleteStatics;
 
-export const filterFields = ['name', 'cif', 'email', 'phone', 'user', 'company'];
-export const sortFields = ['name', 'cif', 'email', 'phone', 'createdAt', 'updatedAt'];
-
 const clientSchema = new mongoose.Schema<IClient, ClientModel, SoftDeleteMethods>(
     {
         user: {
@@ -61,13 +58,13 @@ const clientSchema = new mongoose.Schema<IClient, ClientModel, SoftDeleteMethods
                 type: String
             }
         }
-    },{
-        timestamps: true,
-        versionKey: false
-    }
+    }, {
+    timestamps: true,
+    versionKey: false
+}
 )
 
-clientSchema.index({cif: 1});
+clientSchema.index({ cif: 1 });
 
 clientSchema.plugin(softDeletePlugin);
 
