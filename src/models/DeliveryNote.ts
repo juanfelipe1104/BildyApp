@@ -60,7 +60,8 @@ const deliveryNoteSchema = new mongoose.Schema<IDeliveryNote, DeliveryNoteModel,
         },
         format: {
             type: String,
-            enum: ['materials', 'hours']
+            enum: ['materials', 'hours'],
+            required: true
         },
         description: {
             type: String
@@ -84,7 +85,20 @@ const deliveryNoteSchema = new mongoose.Schema<IDeliveryNote, DeliveryNoteModel,
             hour: {
                 type: Number
             }
-        }]
+        }],
+        signed: {
+            type: Boolean,
+            default: false
+        },
+        signedAt: {
+            type: Date
+        },
+        signatureUrl: {
+            type: String
+        },
+        pdfUrl: {
+            type: String
+        }
     }, {
     timestamps: true,
     versionKey: false
