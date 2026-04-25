@@ -22,10 +22,9 @@ const buildQuery = (filterFields: string[], sortFields: string[]): RequestHandle
     next();
 }
 
-export const buildQueryClient = (req: Request, _res: Response, next: NextFunction) => {
-    const filterFields = ['name', 'cif', 'email', 'phone', 'user', 'company'];
-    const sortFields = ['name', 'cif', 'email', 'phone', 'createdAt', 'updatedAt'];
-    return buildQuery(filterFields, sortFields)(req, _res, next);
-}
+const clientFilterFields = ['name', 'cif', 'email', 'phone', 'user', 'company'];
+const clientSortFields = ['name', 'cif', 'email', 'phone', 'createdAt', 'updatedAt'];
+
+export const buildQueryClient = buildQuery(clientFilterFields, clientSortFields);
 
 export default buildQuery;
