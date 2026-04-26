@@ -105,8 +105,6 @@ const deliveryNoteSchema = new mongoose.Schema<IDeliveryNote, DeliveryNoteModel,
 }
 )
 
-deliveryNoteSchema.index({ cif: 1 });
-
 deliveryNoteSchema.plugin(softDeletePlugin);
 
 const DeliveryNote = mongoose.model<IDeliveryNote, DeliveryNoteModel>('DeliveryNote', deliveryNoteSchema);
