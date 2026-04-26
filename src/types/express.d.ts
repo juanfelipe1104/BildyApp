@@ -1,4 +1,5 @@
 import type { ClientDocument } from '../models/Client.ts';
+import { ProjectDocument } from '../models/Project.ts';
 import type { UserDocument } from '../models/User.js';
 
 declare global {
@@ -14,6 +15,7 @@ declare global {
 
             };
             client: ClientDocument;
+            project: ProjectDocument;
         }
     }
 }
