@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction, RequestHandler } from 'express';
 import { z, ZodError } from 'zod';
 import { AppError } from '../utils/AppError.js';
 
-const validate = (schema: z.ZodType<any,any,any>): RequestHandler => async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
+const validate = (schema: z.ZodType<any, any, any>): RequestHandler => async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     try {
         const parsed = await schema.parseAsync({
             body: req.body,
@@ -10,15 +10,15 @@ const validate = (schema: z.ZodType<any,any,any>): RequestHandler => async (req:
             params: req.params
         });
 
-        if(parsed.body){
+        if (parsed.body) {
             req.body = parsed.body;
         }
 
-        if(parsed.query){
+        if (parsed.query) {
             Object.assign(req.query, parsed.query);
         }
 
-        if(parsed.params){
+        if (parsed.params) {
             req.params = parsed.params;
         }
 
@@ -30,7 +30,7 @@ const validate = (schema: z.ZodType<any,any,any>): RequestHandler => async (req:
                 mensaje: err.message
             }));
 
-            throw AppError.validation('Error de validación', errors);
+            return next(AppError.validation('Error de validación', errors));
         }
         next(error);
     }

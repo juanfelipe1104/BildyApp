@@ -23,19 +23,19 @@ export const validateUser = async (req: Request, _res: Response, next: NextFunct
     const token = extractBearerToken(req.headers.authorization);
 
     if (!token) {
-        throw AppError.unauthorized("Falta el token Bearer");
+        return next(AppError.unauthorized("Falta el token Bearer"));
     }
 
     const result = verifyAccessToken(token);
 
     if (result.expired || !result.valid) {
-        throw AppError.unauthorized("El access token es invalido");
+        return next(AppError.unauthorized("El access token es invalido"));
     }
 
     const user = await User.findById(result.payload._id);
 
     if (!user || user.deleted) {
-        throw AppError.unauthorized("El usuario del token no existe");
+        return next(AppError.unauthorized("El usuario del token no existe"));
     }
 
     req.user = user;
@@ -47,10 +47,10 @@ export const validateUserStatus = (...allowedStatus: UserStatus[]) => async (req
 
     if (!allowedStatus.includes(user.status)) {
         if (user.status === "verified") {
-            throw AppError.conflict("El usuario ya está verificado")
+            return next(AppError.conflict("El usuario ya está verificado"))
         }
         else {
-            throw AppError.unauthorized("El usuario no se ha verificado");
+            return next(AppError.unauthorized("El usuario no se ha verificado"));
         }
     }
 
@@ -59,8 +59,8 @@ export const validateUserStatus = (...allowedStatus: UserStatus[]) => async (req
 
 export const checkIfUserHasCompany = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     const user = req.user;
-    if(!user.company){
-        throw AppError.forbidden("El usuario no tiene compañia");
+    if (!user.company) {
+        return next(AppError.forbidden("El usuario no tiene compañia"));
     }
     next();
 };
@@ -70,7 +70,7 @@ export const checkIfClientInCompany = async (req: Request, _res: Response, next:
     const companyId = req.user.company;
     const client = await Client.findOne({ _id: clientId, company: companyId });
     if (!client) {
-        throw AppError.notFound("El cliente no existe o no pertenece a la compañia");
+        return next(AppError.notFound("El cliente no existe o no pertenece a la compañia"));
     }
     req.client = client;
     next();
@@ -79,9 +79,9 @@ export const checkIfClientInCompany = async (req: Request, _res: Response, next:
 export const checkIfProjectInCompany = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     const projectId = req.params;
     const companyId = req.user.company;
-    const project = await Project.findOne({_id: projectId, company: companyId});
-    if(!project){
-        throw AppError.notFound("El proyecto no existe o no pertenece a la compañia");
+    const project = await Project.findOne({ _id: projectId, company: companyId });
+    if (!project) {
+        return next(AppError.notFound("El proyecto no existe o no pertenece a la compañia"));
     }
     req.project = project;
     next();

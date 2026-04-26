@@ -27,4 +27,9 @@ const clientSortFields = ['name', 'cif', 'email', 'phone', 'createdAt', 'updated
 
 export const buildQueryClient = buildQuery(clientFilterFields, clientSortFields);
 
+const projectFilterFields = ['name', 'projectCode', 'email', 'notes', 'user', 'company', 'client'];
+const projectSortFields = ['name', 'cif', 'email', 'phone', 'createdAt', 'updatedAt'];
+
+export const buildQueryProject = buildQuery(projectFilterFields, projectSortFields);
+
 export default buildQuery;
