@@ -40,7 +40,8 @@ const projectSchema = new mongoose.Schema<IProject, ProjectModel, SoftDeleteMeth
             type: String
         },
         projectCode: {
-            type: String
+            type: String,
+            unique: true
         },
         address: {
             street: {
@@ -71,7 +72,8 @@ const projectSchema = new mongoose.Schema<IProject, ProjectModel, SoftDeleteMeth
             type: String
         },
         active: {
-            type: Boolean
+            type: Boolean,
+            default: true
         }
     }, {
     timestamps: true,

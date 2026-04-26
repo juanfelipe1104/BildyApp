@@ -4,6 +4,7 @@ import { verifyAccessToken } from "../utils/handleJWT.js";
 import { AppError } from "../utils/AppError.js";
 import User from "../models/User.js";
 import Client from '../models/Client.js';
+import Project from '../models/Project.js';
 
 const extractBearerToken = (authorizationHeader?: string): string | null => {
     if (!authorizationHeader) {
@@ -74,3 +75,14 @@ export const checkIfClientInCompany = async (req: Request, _res: Response, next:
     req.client = client;
     next();
 };
+
+export const checkIfProjectInCompany = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
+    const projectId = req.params;
+    const companyId = req.user.company;
+    const project = await Project.findOne({_id: projectId, company: companyId});
+    if(!project){
+        throw AppError.notFound("El proyecto no existe o no pertenece a la compañia");
+    }
+    req.project = project;
+    next();
+}
