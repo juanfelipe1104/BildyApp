@@ -3,15 +3,15 @@ import softDeletePlugin, { type SoftDeleteFields, type SoftDeleteMethods, type S
 
 type FormatType = 'material' | 'hours';
 type Worker = {
-    name: String,
+    name: string,
     hour: Number
 }
 
 export interface IDeliveryNoteSign extends SoftDeleteFields {
-    signed: Boolean,
+    signed: boolean,
     signedAt: Date,
-    signatureUrl: String,
-    pdfUrl: String
+    signatureUrl: string,
+    pdfUrl: string
 }
 
 export interface IDeliveryNote extends IDeliveryNoteSign {
@@ -20,9 +20,9 @@ export interface IDeliveryNote extends IDeliveryNoteSign {
     client: Types.ObjectId,
     project: Types.ObjectId,
     format: FormatType,
-    description: String,
+    description: string,
     workDate: Date,
-    material: String,
+    material: string,
     quantity: Number,
     hours: Number,
     workers: Worker[],
