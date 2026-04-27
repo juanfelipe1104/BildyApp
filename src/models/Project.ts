@@ -83,6 +83,6 @@ const projectSchema = new mongoose.Schema<IProject, ProjectModel, SoftDeleteMeth
 
 projectSchema.plugin(softDeletePlugin);
 
-const Project = mongoose.model<IProject, ProjectModel>('DeliveryNote', projectSchema);
+const Project = mongoose.model<IProject, ProjectModel>('Project', projectSchema);
 
 export default Project;

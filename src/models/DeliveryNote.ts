@@ -33,9 +33,6 @@ export interface IDeliveryNote extends IDeliveryNoteSign {
 export type DeliveryNoteDocument = HydratedDocument<IDeliveryNote, SoftDeleteMethods>;
 export type DeliveryNoteModel = Model<IDeliveryNote, {}, SoftDeleteMethods> & SoftDeleteStatics;
 
-export const filterFields = ['name', 'cif', 'email', 'phone', 'user', 'company'];
-export const sortFields = ['name', 'cif', 'email', 'phone', 'createdAt', 'updatedAt'];
-
 const deliveryNoteSchema = new mongoose.Schema<IDeliveryNote, DeliveryNoteModel, SoftDeleteMethods>(
     {
         user: {
