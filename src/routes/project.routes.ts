@@ -10,11 +10,11 @@ import { authorizeRoles } from "../middleware/role.middleware.js";
 const router = Router();
 
 router.post("/", validate(projectSchema.schemaProjectBody), validateUser, checkIfUserHasCompany, projectController.createProject);
-router.put("/:id", validate(projectSchema.schemaProjectBody), validateUser, checkIfUserHasCompany, checkIfProjectInCompany, projectController.updateProject);
 router.get("/", validate(projectSchema.schemaProjectQuery), validateUser, checkIfUserHasCompany, buildQueryProject, projectController.getProjects);
-router.get("/:id", validateUser, checkIfUserHasCompany, checkIfProjectInCompany, projectController.getProject);
-router.delete("/:id", validate(commonSchema.schemaSoftDelete), validateUser, checkIfUserHasCompany, checkIfProjectInCompany, projectController.deleteProject);
 router.get("/archived", validateUser, authorizeRoles("admin"), checkIfUserHasCompany, projectController.getArchivedProjects);
+router.get("/:id", validateUser, checkIfUserHasCompany, checkIfProjectInCompany, projectController.getProject);
+router.put("/:id", validate(projectSchema.schemaProjectBody), validateUser, checkIfUserHasCompany, checkIfProjectInCompany, projectController.updateProject);
+router.delete("/:id", validate(commonSchema.schemaSoftDelete), validateUser, checkIfUserHasCompany, checkIfProjectInCompany, projectController.deleteProject);
 router.patch("/:id/restore", validateUser, authorizeRoles("admin"), checkIfUserHasCompany, checkIfProjectInCompany, projectController.restoreProject);
 
 export default router;

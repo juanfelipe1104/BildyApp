@@ -10,11 +10,11 @@ import { authorizeRoles } from "../middleware/role.middleware.js";
 const router = Router();
 
 router.post("/", validate(clientSchema.schemaClientBody), validateUser, checkIfUserHasCompany, clientController.createClient);
-router.put("/:id", validate(clientSchema.schemaClientBody), validateUser, checkIfUserHasCompany, checkIfClientInCompany, clientController.updateClient);
 router.get("/", validate(clientSchema.schemaClientQuery), validateUser, checkIfUserHasCompany, buildQueryClient, clientController.getClients);
+router.get("/archived", validateUser, authorizeRoles("admin"), checkIfUserHasCompany, clientController.getArchivedClients);
+router.put("/:id", validate(clientSchema.schemaClientBody), validateUser, checkIfUserHasCompany, checkIfClientInCompany, clientController.updateClient);
 router.get("/:id", validateUser, checkIfUserHasCompany, checkIfClientInCompany, clientController.getClient);
 router.delete("/:id", validate(commonSchema.schemaSoftDelete), validateUser, checkIfUserHasCompany, checkIfClientInCompany, clientController.deleteClient);
-router.get("/archived", validateUser, authorizeRoles("admin"), checkIfUserHasCompany, clientController.getArchivedClients);
 router.patch("/:id/restore", validateUser, authorizeRoles("admin"), checkIfUserHasCompany, checkIfClientInCompany, clientController.restoreClient);
 
 export default router;
