@@ -37,7 +37,7 @@ export const getClients = async (req: Request, res: Response): Promise<void> => 
     const clients = await Client.find(filters).skip(skip).limit(limit).sort(sortOption);
     const totalItems = await Client.countDocuments(filters);
     const totalPages = Math.ceil(totalItems / limit);
-    res.status(200).json({
+    res.json({
         totalPages,
         totalItems,
         currentPage: page,

@@ -33,7 +33,7 @@ export const getProjects = async (req: Request, res: Response): Promise<void> =>
     const projects = await Project.find(filters).skip(skip).limit(limit).sort(sortOption);
     const totalItems = await Project.countDocuments(filters);
     const totalPages = Math.ceil(totalItems / limit);
-    res.status(200).json({
+    res.json({
         totalPages,
         totalItems,
         currentPage: page,
