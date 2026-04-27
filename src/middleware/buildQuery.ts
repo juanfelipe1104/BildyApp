@@ -32,4 +32,9 @@ const projectSortFields = ['name', 'cif', 'email', 'phone', 'createdAt', 'update
 
 export const buildQueryProject = buildQuery(projectFilterFields, projectSortFields);
 
+const deliveryNoteFilterFields = ['format', 'description', 'workDate', 'material', 'quantity', 'hours', 'user', 'company', 'client', 'project'];
+const deliveryNoteSortFields = ['format', 'workDate', 'material', 'quantity', 'hours', 'createdAt', 'updatedAt'];
+
+export const buildQueryDeliveryNote = buildQuery(deliveryNoteFilterFields, deliveryNoteSortFields);
+
 export default buildQuery;
