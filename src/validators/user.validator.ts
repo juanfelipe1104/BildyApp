@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { nifRegex, cifRegex, postalRegex, verifyEmailCodeRegex, addressSchema } from "./common.validator.js";
+import { nifRegex, cifRegex, verifyEmailCodeRegex, addressSchema } from "./common.validator.js";
 
 export const schemaMailBody = z.object({
     body: z.object({

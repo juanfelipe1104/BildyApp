@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { AppError } from '../utils/AppError.js';
-import Project, { ProjectDocument } from "../models/Project.js";
+import Project, { type ProjectDocument } from "../models/Project.js";
 
 export const createProject = async (req: Request, res: Response): Promise<void> => {
     const { client, name, projectCode, address, email, notes } = req.body;

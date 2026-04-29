@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import Client, { ClientDocument } from "../models/Client.js";
+import Client, { type ClientDocument } from "../models/Client.js";
 import { AppError } from '../utils/AppError.js';
 
 export const createClient = async (req: Request, res: Response): Promise<void> => {

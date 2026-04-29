@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { addressSchema, cifRegex } from "./common.validator.js";
+import { addressSchema } from "./common.validator.js";
 
 export const schemaProjectBody = z.object({
     body: z.object({

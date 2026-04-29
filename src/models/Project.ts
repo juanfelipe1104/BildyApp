@@ -1,6 +1,6 @@
 import mongoose, { type HydratedDocument, type Model, type Types } from 'mongoose';
 import softDeletePlugin, { type SoftDeleteFields, type SoftDeleteMethods, type SoftDeleteStatics } from '../plugins/softDelete.plugin.js';
-import { Address } from './User.js';
+import type { Address } from './User.js';
 
 export interface IProject extends SoftDeleteFields {
     user: Types.ObjectId,

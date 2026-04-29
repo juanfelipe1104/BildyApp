@@ -18,7 +18,7 @@ app.use(mongoSanitizeMiddleware);
 
 morganBody(app, {
     noColors: true,
-    skip: (req, res) => res.statusCode < 400,
+    skip: (_req, res) => res.statusCode < 500,
     stream: loggerStream
 });
 
