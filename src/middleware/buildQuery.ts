@@ -5,8 +5,7 @@ const buildQuery = (filterFields: string[], sortFields: string[]): RequestHandle
     const limit = Number(req.query.limit) || 10;
     const sort = req.query.sort?.toString();
     const skip = (page - 1) * limit;
-    const filters: Record<string, any> = {}
-    filters["user"] = req.user._id;
+    const filters: Record<string, any> = {};
     filters["company"] = req.user.company;
     for (const [key, value] of Object.entries(req.query)) {
         if (filterFields.includes(key)) {

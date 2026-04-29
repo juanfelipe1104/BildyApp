@@ -4,14 +4,12 @@ import { AppError } from '../utils/AppError.js';
 
 export const createClient = async (req: Request, res: Response): Promise<void> => {
     const { name, cif, email, phone, address } = req.body;
-    const userId = req.user._id;
     const companyId = req.user.company;
     const alreadyClient = await Client.find({ company: companyId, cif: cif });
     if (alreadyClient) {
         throw AppError.conflict();
     }
     const client = await Client.create({
-        user: userId,
         company: companyId,
         name, cif, email, phone, address
     });
@@ -82,10 +80,10 @@ export const getArchivedClients = async (req: Request, res: Response): Promise<v
 }
 
 export const restoreClient = async (req: Request, res: Response): Promise<void> => {
+    const companyId = req.user.company;
     const clientId = String(req.params);
-    const client = req.client;
-    const isDeleted = client.deleted;
-    if(isDeleted){
+    const client = await Client.findDeleted({_id: clientId, company: companyId});
+    if(!client){
         throw AppError.notFound("No hay cliente archivado");
     }
     const restoredClient = await Client.restoreById(clientId) as ClientDocument;
