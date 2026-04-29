@@ -4,10 +4,10 @@ import Project, { ProjectDocument } from "../models/Project.js";
 
 export const createProject = async (req: Request, res: Response): Promise<void> => {
     const { client, name, projectCode, address, email, notes } = req.body;
-    const companyId = req.user.company;
+    const user = req.user._id;
+    const company = req.user.company;
     const project = await Project.create({
-        company: companyId,
-        client, name, projectCode, address, email, notes
+        user, company, client, name, projectCode, address, email, notes
     });
     res.status(201).json({
         message: "Cliente creado",

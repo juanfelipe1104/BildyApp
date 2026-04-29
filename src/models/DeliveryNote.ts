@@ -15,6 +15,7 @@ export interface IDeliveryNoteSign extends SoftDeleteFields {
 }
 
 export interface IDeliveryNote extends IDeliveryNoteSign {
+    user: Types.ObjectId,
     company: Types.ObjectId,
     client: Types.ObjectId,
     project: Types.ObjectId,
@@ -34,6 +35,11 @@ export type DeliveryNoteModel = Model<IDeliveryNote, {}, SoftDeleteMethods> & So
 
 const deliveryNoteSchema = new mongoose.Schema<IDeliveryNote, DeliveryNoteModel, SoftDeleteMethods>(
     {
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        },
         company: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Company',

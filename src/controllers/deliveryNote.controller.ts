@@ -4,6 +4,7 @@ import DeliveryNote from "../models/DeliveryNote.js";
 import Project from "../models/Project.js";
 
 export const createDeliveryNote = async (req: Request, res: Response) => {
+    const user = req.user._id;
     const company = req.user.company;
     const deliveryNoteData = req.body;
     const project = await Project.findOne({ _id: req.body.project, company, client: req.body.client });
@@ -11,7 +12,7 @@ export const createDeliveryNote = async (req: Request, res: Response) => {
         throw AppError.notFound("No hay un proyecto");
     }
     const deliveryNote = await DeliveryNote.create({
-        company, ...deliveryNoteData
+        user, company, ...deliveryNoteData
     });
     res.status(201).json({
         message: "Albaran creado",

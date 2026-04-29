@@ -4,14 +4,14 @@ import { AppError } from '../utils/AppError.js';
 
 export const createClient = async (req: Request, res: Response): Promise<void> => {
     const { name, cif, email, phone, address } = req.body;
-    const companyId = req.user.company;
-    const alreadyClient = await Client.find({ company: companyId, cif: cif });
+    const user = req.user._id;
+    const company = req.user.company;
+    const alreadyClient = await Client.find({ company, cif: cif });
     if (alreadyClient) {
         throw AppError.conflict();
     }
     const client = await Client.create({
-        company: companyId,
-        name, cif, email, phone, address
+        user, company, name, cif, email, phone, address
     });
     res.status(201).json({
         message: "Cliente creado",
@@ -68,9 +68,9 @@ export const deleteClient = async (req: Request, res: Response): Promise<void> =
 
 export const getArchivedClients = async (req: Request, res: Response): Promise<void> => {
     const companyId = req.user.company;
-    const archivedClients = await Client.findDeleted({company: companyId}) as ClientDocument[];
+    const archivedClients = await Client.findDeleted({ company: companyId }) as ClientDocument[];
     let message = "Clientes archivados";
-    if(!archivedClients){
+    if (!archivedClients) {
         message = "No hay clientes archivados"
     }
     res.json({
@@ -82,8 +82,8 @@ export const getArchivedClients = async (req: Request, res: Response): Promise<v
 export const restoreClient = async (req: Request, res: Response): Promise<void> => {
     const companyId = req.user.company;
     const clientId = String(req.params);
-    const client = await Client.findDeleted({_id: clientId, company: companyId});
-    if(!client){
+    const client = await Client.findDeleted({ _id: clientId, company: companyId });
+    if (!client) {
         throw AppError.notFound("No hay cliente archivado");
     }
     const restoredClient = await Client.restoreById(clientId) as ClientDocument;

@@ -3,6 +3,7 @@ import softDeletePlugin, { type SoftDeleteFields, type SoftDeleteMethods, type S
 import { Address } from './User.js';
 
 export interface IProject extends SoftDeleteFields {
+    user: Types.ObjectId,
     company: Types.ObjectId,
     client: Types.ObjectId,
     name: string,
@@ -20,6 +21,11 @@ export type ProjectModel = Model<IProject, {}, SoftDeleteMethods> & SoftDeleteSt
 
 const projectSchema = new mongoose.Schema<IProject, ProjectModel, SoftDeleteMethods>(
     {
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        },
         company: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Company',
