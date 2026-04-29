@@ -10,5 +10,6 @@ const router = Router();
 
 router.post("/", validate(deliveryNoteSchema.schemaDeliveryNoteBody), validateUser, userHasCompany, deliveryNoteController.createDeliveryNote);
 router.get("/", validate(deliveryNoteSchema.schemaDeliveryNoteQuery), validateUser, userHasCompany, buildQueryDeliveryNote, deliveryNoteController.getDeliveryNotes);
+router.get("/pdf/:id", validateUser, userHasCompany, deliveryNoteInCompany, deliveryNoteController.getPDF);
 router.get("/:id", validateUser, userHasCompany, deliveryNoteInCompany, deliveryNoteController.getDeliveryNote);
 export default router;

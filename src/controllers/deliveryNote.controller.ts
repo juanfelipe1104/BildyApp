@@ -1,7 +1,8 @@
 import type { Request, Response } from "express";
 import { AppError } from "../utils/AppError.js";
-import DeliveryNote from "../models/DeliveryNote.js";
+import DeliveryNote, { PopulatedDeliveryNote } from "../models/DeliveryNote.js";
 import Project from "../models/Project.js";
+import pdfService from "../services/pdf.service.js";
 
 export const createDeliveryNote = async (req: Request, res: Response) => {
     const user = req.user._id;
@@ -35,8 +36,19 @@ export const getDeliveryNotes = async (req: Request, res: Response) => {
 
 export const getDeliveryNote = async (req: Request, res: Response) => {
     const deliveryNote = req.deliveryNote;
-    await deliveryNote.populate(['company', 'client', 'project']);
+    await deliveryNote.populate(['user', 'company', 'client', 'project']);
     res.json({
         deliveryNote
     })
+}
+
+export const getPDF = async (req: Request, res: Response) => {
+    const deliveryNote = await req.deliveryNote.populate(['user', 'company', 'client', 'project']) as PopulatedDeliveryNote;
+    if (deliveryNote.signed) {
+        return res.redirect(deliveryNote.pdfUrl);
+    }
+    const pdf = await pdfService.generateDeliveryNotePDF({ deliveryNote, signatureBuffer: undefined });
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="albaran-${deliveryNote._id}.pdf"`);
+    res.send(pdf);
 }

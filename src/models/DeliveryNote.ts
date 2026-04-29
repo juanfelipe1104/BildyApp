@@ -1,5 +1,9 @@
 import mongoose, { type HydratedDocument, type Model, type Types } from 'mongoose';
 import softDeletePlugin, { type SoftDeleteFields, type SoftDeleteMethods, type SoftDeleteStatics } from '../plugins/softDelete.plugin.js';
+import type { UserDocument } from './User.js';
+import type { CompanyDocument } from './Company.js';
+import type { ClientDocument } from './Client.js';
+import type { ProjectDocument } from './Project.js';
 
 type FormatType = 'material' | 'hours';
 type Worker = {
@@ -29,6 +33,13 @@ export interface IDeliveryNote extends IDeliveryNoteSign {
     createdAt: Date,
     updatedAt: Date
 }
+
+export type PopulatedDeliveryNote = DeliveryNoteDocument & {
+    user: UserDocument;
+    company: CompanyDocument;
+    client: ClientDocument;
+    project: ProjectDocument;
+};
 
 export type DeliveryNoteDocument = HydratedDocument<IDeliveryNote, SoftDeleteMethods>;
 export type DeliveryNoteModel = Model<IDeliveryNote, {}, SoftDeleteMethods> & SoftDeleteStatics;
