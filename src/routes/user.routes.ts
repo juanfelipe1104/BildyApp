@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { validateUser, validateUserStatus } from "../middleware/auth.middleware.js";
+import { userHasCompany, validateUser, validateUserStatus } from "../middleware/auth.middleware.js";
 import validate from "../middleware/validate.js";
 import * as commonSchema from "../validators/common.validator.js";
 import * as userSchema from "../validators/user.validator.js";
@@ -14,7 +14,7 @@ router.put('/validation', validate(userSchema.schemaCodeBody), validateUser, val
 router.post('/login', validate(userSchema.schemaMailBody), userController.loginUser);
 router.put('/register', validate(userSchema.schemaUserBody), validateUser, validateUserStatus("verified"), userController.registerDataUser);
 router.patch('/company', validate(userSchema.schemaCompanyBody), validateUser, validateUserStatus("verified"), userController.registerCompany);
-router.patch('/logo', validateUser, validateUserStatus("verified"), authorizeRoles("admin"), upload.single("logo"), userController.uploadLogo);
+router.patch('/logo', validateUser, validateUserStatus("verified"), authorizeRoles("admin"), userHasCompany, upload.single("logo"), userController.uploadLogo);
 router.get('/', validateUser, validateUserStatus("verified"), userController.getUser);
 router.post('/refresh', validate(userSchema.schemaRefreshTokenBody), userController.refreshSession);
 router.post('/logout', validateUser, validateUserStatus("verified"), userController.logoutUser);

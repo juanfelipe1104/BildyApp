@@ -168,10 +168,6 @@ export const uploadLogo = async (req: Request, res: Response): Promise<void> => 
         throw AppError.badRequest("No se ha enviado ningun archivo");
     }
 
-    if (!user?.company) {
-        throw AppError.badRequest("El usuario no tiene ninguna compañía asociada");
-    }
-
     const company = await Company.findById(user.company);
 
     if (!company) {
