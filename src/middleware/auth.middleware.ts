@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import type { Model, Document } from 'mongoose';
+import type { Model } from 'mongoose';
 import type { UserStatus } from '../models/User.js';
 import { verifyAccessToken } from "../utils/handleJWT.js";
 import { AppError } from "../utils/AppError.js";
