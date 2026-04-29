@@ -4,10 +4,8 @@ import Project, { ProjectDocument } from "../models/Project.js";
 
 export const createProject = async (req: Request, res: Response): Promise<void> => {
     const { client, name, projectCode, address, email, notes } = req.body;
-    const userId = req.user._id;
     const companyId = req.user.company;
     const project = await Project.create({
-        user: userId,
         company: companyId,
         client, name, projectCode, address, email, notes
     });
@@ -82,10 +80,10 @@ export const getArchivedProjects = async (req: Request, res: Response): Promise<
 }
 
 export const restoreProject = async (req: Request, res: Response): Promise<void> => {
-    const project = req.project;
-    const projectId = project._id;
-    const isDeleted = project.deleted;
-    if (isDeleted) {
+    const companyId = req.user.company;
+    const projectId = String(req.params.id);
+    const project = await Project.findDeleted({ _id: projectId, company: companyId });
+    if (!project) {
         throw AppError.notFound("No hay cliente archivado");
     }
     const restoredProject = await Project.restoreById(projectId) as ProjectDocument;

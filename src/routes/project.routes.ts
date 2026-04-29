@@ -15,6 +15,6 @@ router.get("/archived", validateUser, authorizeRoles("admin"), checkIfUserHasCom
 router.get("/:id", validateUser, checkIfUserHasCompany, checkIfProjectInCompany, projectController.getProject);
 router.put("/:id", validate(projectSchema.schemaProjectBody), validateUser, checkIfUserHasCompany, checkIfProjectInCompany, projectController.updateProject);
 router.delete("/:id", validate(commonSchema.schemaSoftDelete), validateUser, checkIfUserHasCompany, checkIfProjectInCompany, projectController.deleteProject);
-router.patch("/:id/restore", validateUser, authorizeRoles("admin"), checkIfUserHasCompany, checkIfProjectInCompany, projectController.restoreProject);
+router.patch("/:id/restore", validateUser, authorizeRoles("admin"), checkIfUserHasCompany, projectController.restoreProject);
 
 export default router;

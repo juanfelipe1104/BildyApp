@@ -19,7 +19,6 @@ export const schemaProjectQuery = z.object({
         projectCode: z.string().optional(),
         email: z.email().optional(),
         notes: z.string(),
-        user: z.string(),
         company: z.string(),
         page: z.coerce.number().optional(),
         limit: z.coerce.number().optional(),
