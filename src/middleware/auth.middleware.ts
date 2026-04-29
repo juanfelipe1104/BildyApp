@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
+import type { Model, Document } from 'mongoose';
 import type { UserStatus } from '../models/User.js';
 import { verifyAccessToken } from "../utils/handleJWT.js";
 import { AppError } from "../utils/AppError.js";
@@ -58,7 +59,7 @@ export const validateUserStatus = (...allowedStatus: UserStatus[]) => async (req
     next();
 };
 
-export const checkIfUserHasCompany = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
+export const userHasCompany = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     const user = req.user;
     if (!user.company) {
         return next(AppError.forbidden("El usuario no tiene compañia"));
@@ -66,35 +67,26 @@ export const checkIfUserHasCompany = async (req: Request, _res: Response, next: 
     next();
 };
 
-export const checkIfClientInCompany = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
+type RequestKey = 'client' | 'project' | 'deliveryNote';
+
+const resourceInCompany = (model: Model<any>, requestKey: RequestKey, errorMessage: string) => async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     const { id } = req.params;
     const companyId = req.user.company;
-    const client = await Client.findOne({ _id: id, company: companyId });
-    if (!client) {
-        return next(AppError.notFound("El cliente no existe o no pertenece a la compañia"));
+
+    const resource = await model.findOne({ _id: id, company: companyId });
+
+    if (!resource) {
+        return next(AppError.notFound(errorMessage));
     }
-    req.client = client;
+
+    (req as any)[requestKey] = resource;
+
     next();
 };
 
-export const checkIfProjectInCompany = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
-    const { id } = req.params;
-    const companyId = req.user.company;
-    const project = await Project.findOne({ _id: id, company: companyId });
-    if (!project) {
-        return next(AppError.notFound("El proyecto no existe o no pertenece a la compañia"));
-    }
-    req.project = project;
-    next();
-}
 
-export const checkIfDeliveryNoteInCompany = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
-    const { id } = req.params;
-    const companyId = req.user.company;
-    const deliveryNote = await DeliveryNote.findOne({ _id: id, company: companyId });
-    if (!deliveryNote) {
-        return next(AppError.notFound("El albaran no existe o no pertenece a la compañia"));
-    }
-    req.deliveryNote = deliveryNote;
-    next();
-}
+export const clientInCompany = resourceInCompany(Client, 'client', "El cliente no existe o no pertenece a la compañia");
+
+export const projectInCompany = resourceInCompany(Project, 'project', "El proyecto no existe o no pertenece a la compañia");
+
+export const deliveryNoteInCompany = resourceInCompany(DeliveryNote, 'deliveryNote', "El albaran no existe o no pertenece a la compañia");

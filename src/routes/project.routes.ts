@@ -4,17 +4,17 @@ import { buildQueryProject } from "../middleware/buildQuery.js";
 import * as commonSchema from "../validators/common.validator.js";
 import * as projectSchema from "../validators/project.validator.js";
 import * as projectController from "../controllers/project.controller.js";
-import { checkIfProjectInCompany, checkIfUserHasCompany, validateUser } from "../middleware/auth.middleware.js";
+import { projectInCompany, userHasCompany, validateUser } from "../middleware/auth.middleware.js";
 import { authorizeRoles } from "../middleware/role.middleware.js";
 
 const router = Router();
 
-router.post("/", validate(projectSchema.schemaProjectBody), validateUser, checkIfUserHasCompany, projectController.createProject);
-router.get("/", validate(projectSchema.schemaProjectQuery), validateUser, checkIfUserHasCompany, buildQueryProject, projectController.getProjects);
-router.get("/archived", validateUser, authorizeRoles("admin"), checkIfUserHasCompany, projectController.getArchivedProjects);
-router.get("/:id", validateUser, checkIfUserHasCompany, checkIfProjectInCompany, projectController.getProject);
-router.put("/:id", validate(projectSchema.schemaProjectBody), validateUser, checkIfUserHasCompany, checkIfProjectInCompany, projectController.updateProject);
-router.delete("/:id", validate(commonSchema.schemaSoftDelete), validateUser, checkIfUserHasCompany, checkIfProjectInCompany, projectController.deleteProject);
-router.patch("/:id/restore", validateUser, authorizeRoles("admin"), checkIfUserHasCompany, projectController.restoreProject);
+router.post("/", validate(projectSchema.schemaProjectBody), validateUser, userHasCompany, projectController.createProject);
+router.get("/", validate(projectSchema.schemaProjectQuery), validateUser, userHasCompany, buildQueryProject, projectController.getProjects);
+router.get("/archived", validateUser, authorizeRoles("admin"), userHasCompany, projectController.getArchivedProjects);
+router.get("/:id", validateUser, userHasCompany, projectInCompany, projectController.getProject);
+router.put("/:id", validate(projectSchema.schemaProjectBody), validateUser, userHasCompany, projectInCompany, projectController.updateProject);
+router.delete("/:id", validate(commonSchema.schemaSoftDelete), validateUser, userHasCompany, projectInCompany, projectController.deleteProject);
+router.patch("/:id/restore", validateUser, authorizeRoles("admin"), userHasCompany, projectController.restoreProject);
 
 export default router;
