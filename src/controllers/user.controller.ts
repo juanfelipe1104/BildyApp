@@ -8,6 +8,7 @@ import { generateAccessToken, generateRefreshToken, getRefreshTokenExpiry } from
 import { compare, encrypt } from '../utils/handlePassword.js';
 import notificationService from '../services/notification.service.js';
 import cloudinaryService from '../services/cloudinary.service.js';
+import { sendEmail } from '../config/mail.js';
 
 const generateRandomCode = (): string => Math.floor(100000 + (Math.random() * 900000)).toString();
 
@@ -55,6 +56,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
         userId: user._id.toString(),
         email: user.email
     });
+    await sendEmail(user.email, 'Codigo de verificacion', `<h2>Verificación de cuenta</h2><p>Tu código es:</p><h1>${verificationCode}</h1>`);
     res.status(201).json({
         message: "Usuario creado",
         user,
