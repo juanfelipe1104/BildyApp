@@ -5,6 +5,7 @@ import { AppError } from "../utils/AppError.js";
 import User from "../models/User.js";
 import Client from '../models/Client.js';
 import Project from '../models/Project.js';
+import DeliveryNote from '../models/DeliveryNote.js';
 
 const extractBearerToken = (authorizationHeader?: string): string | null => {
     if (!authorizationHeader) {
@@ -50,7 +51,7 @@ export const validateUserStatus = (...allowedStatus: UserStatus[]) => async (req
             return next(AppError.conflict("El usuario ya está verificado"))
         }
         else {
-            return next(AppError.unauthorized("El usuario no se ha verificado"));
+            return next(AppError.unauthorized("El usuario no tiene permisos"));
         }
     }
 
@@ -66,9 +67,9 @@ export const checkIfUserHasCompany = async (req: Request, _res: Response, next: 
 };
 
 export const checkIfClientInCompany = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
-    const clientId = req.params;
+    const { id } = req.params;
     const companyId = req.user.company;
-    const client = await Client.findOne({ _id: clientId, company: companyId });
+    const client = await Client.findOne({ _id: id, company: companyId });
     if (!client) {
         return next(AppError.notFound("El cliente no existe o no pertenece a la compañia"));
     }
@@ -77,12 +78,23 @@ export const checkIfClientInCompany = async (req: Request, _res: Response, next:
 };
 
 export const checkIfProjectInCompany = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
-    const projectId = req.params;
+    const { id } = req.params;
     const companyId = req.user.company;
-    const project = await Project.findOne({ _id: projectId, company: companyId });
+    const project = await Project.findOne({ _id: id, company: companyId });
     if (!project) {
         return next(AppError.notFound("El proyecto no existe o no pertenece a la compañia"));
     }
     req.project = project;
+    next();
+}
+
+export const checkIfDeliveryNoteInCompany = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
+    const { id } = req.params;
+    const companyId = req.user.company;
+    const deliveryNote = await DeliveryNote.findOne({ _id: id, company: companyId });
+    if (!deliveryNote) {
+        return next(AppError.notFound("El albaran no existe o no pertenece a la compañia"));
+    }
+    req.deliveryNote = deliveryNote;
     next();
 }

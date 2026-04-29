@@ -4,14 +4,14 @@ import DeliveryNote from "../models/DeliveryNote.js";
 import Project from "../models/Project.js";
 
 export const createDeliveryNote = async (req: Request, res: Response) => {
-    const user = req.user;
+    const company = req.user.company;
     const deliveryNoteData = req.body;
-    const project = await Project.findOne({ _id: req.body.project, company: user.company, client: req.body.client });
+    const project = await Project.findOne({ _id: req.body.project, company, client: req.body.client });
     if (!project) {
         throw AppError.notFound("No hay un proyecto");
     }
     const deliveryNote = await DeliveryNote.create({
-        user: user._id, company: user.company, ...deliveryNoteData
+        company, ...deliveryNoteData
     });
     res.status(201).json({
         message: "Albaran creado",
@@ -30,4 +30,12 @@ export const getDeliveryNotes = async (req: Request, res: Response) => {
         currentPage: page,
         deliveryNotes
     });
+}
+
+export const getDeliveryNote = async (req: Request, res: Response) => {
+    const deliveryNote = req.deliveryNote;
+    await deliveryNote.populate(['company', 'client', 'project']);
+    res.json({
+        deliveryNote
+    })
 }
