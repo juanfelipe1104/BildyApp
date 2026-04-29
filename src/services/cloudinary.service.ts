@@ -67,7 +67,7 @@ class CloudinaryService {
 
     async uploadDeliveryNoteSignature(buffer: Buffer, companyId: string, deliveryNoteId: string): Promise<CloudinaryUploadResult> {
         return this.uploadBuffer(buffer, {
-            folder: 'company_${companyId}/deliverynotes/signatures',
+            folder: `company_${companyId}/deliverynotes/signatures`,
             publicId: `deliverynote_${deliveryNoteId}_signature`,
             overwrite: true,
             resourceType: 'image',
