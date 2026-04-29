@@ -1,8 +1,9 @@
 import type { Request, Response } from "express";
 import { AppError } from "../utils/AppError.js";
-import DeliveryNote, { PopulatedDeliveryNote } from "../models/DeliveryNote.js";
+import DeliveryNote, { type PopulatedDeliveryNote } from "../models/DeliveryNote.js";
 import Project from "../models/Project.js";
 import pdfService from "../services/pdf.service.js";
+import cloudinaryService from "../services/cloudinary.service.js";
 
 export const createDeliveryNote = async (req: Request, res: Response) => {
     const user = req.user._id;
@@ -51,4 +52,30 @@ export const getPDF = async (req: Request, res: Response) => {
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="albaran-${deliveryNote._id}.pdf"`);
     res.send(pdf);
+}
+
+export const signPDF = async (req: Request, res: Response) => {
+    if (!req.file) {
+        throw AppError.badRequest("No se ha enviado ningun archivo");
+    }
+    const deliveryNote = await req.deliveryNote.populate(['user', 'company', 'client', 'project']) as PopulatedDeliveryNote;
+    const signature = req.file.buffer;
+    if (deliveryNote.signed) {
+        throw AppError.conflict("El albaran esta firmado");
+    }
+
+    const uploadedSignature = await cloudinaryService.uploadDeliveryNoteSignature(signature, deliveryNote.company.cif, deliveryNote._id.toString());
+    deliveryNote.signed = true;
+    deliveryNote.signedAt = new Date();
+    deliveryNote.signatureUrl = uploadedSignature.secure_url;
+
+    const pdf = await pdfService.generateDeliveryNotePDF({ deliveryNote, signatureBuffer: signature });
+    const uploadedPDF = await cloudinaryService.uploadDeliveryNotePdf(pdf, deliveryNote._id.toString());
+    deliveryNote.pdfUrl = uploadedPDF.secure_url;
+
+    await deliveryNote.save();
+
+    res.json({
+        deliveryNote
+    });
 }

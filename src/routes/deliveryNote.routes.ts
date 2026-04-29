@@ -5,6 +5,7 @@ import * as deliveryNoteSchema from "../validators/deliveryNote.validator.js";
 import * as deliveryNoteController from "../controllers/deliveryNote.controller.js";
 import { deliveryNoteInCompany, userHasCompany, validateUser } from "../middleware/auth.middleware.js";
 import { buildQueryDeliveryNote } from "../middleware/buildQuery.js";
+import upload from "../middleware/upload.js";
 
 const router = Router();
 
@@ -12,4 +13,6 @@ router.post("/", validate(deliveryNoteSchema.schemaDeliveryNoteBody), validateUs
 router.get("/", validate(deliveryNoteSchema.schemaDeliveryNoteQuery), validateUser, userHasCompany, buildQueryDeliveryNote, deliveryNoteController.getDeliveryNotes);
 router.get("/pdf/:id", validateUser, userHasCompany, deliveryNoteInCompany, deliveryNoteController.getPDF);
 router.get("/:id", validateUser, userHasCompany, deliveryNoteInCompany, deliveryNoteController.getDeliveryNote);
+router.patch("/:id/sign", validateUser, userHasCompany, deliveryNoteInCompany, upload.single("signature"), deliveryNoteController.signPDF);
+
 export default router;
