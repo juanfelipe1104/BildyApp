@@ -25,7 +25,7 @@ export type VerifyTokenResult = { valid: true; expired: false; payload: AccessTo
 export const generateAccessToken = (user: TokenUser): string => {
     const payload: AccessTokenPayload = {
         _id: user._id.toString(),
-        role: user.role,
+        role: user.role
     };
 
     return jwt.sign(
