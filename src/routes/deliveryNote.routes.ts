@@ -14,5 +14,6 @@ router.get("/", validate(deliveryNoteSchema.schemaDeliveryNoteQuery), validateUs
 router.get("/pdf/:id", validateUser, userHasCompany, deliveryNoteInCompany, deliveryNoteController.getPDF);
 router.get("/:id", validateUser, userHasCompany, deliveryNoteInCompany, deliveryNoteController.getDeliveryNote);
 router.patch("/:id/sign", validateUser, userHasCompany, deliveryNoteInCompany, upload.single("signature"), deliveryNoteController.signPDF);
+router.delete("/:id", validate(commonSchema.schemaSoftDelete), validateUser, userHasCompany, deliveryNoteInCompany, deliveryNoteController.deleteDeliveryNote);
 
 export default router;

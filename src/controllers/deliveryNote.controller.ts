@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { AppError } from "../utils/AppError.js";
-import DeliveryNote, { type PopulatedDeliveryNote } from "../models/DeliveryNote.js";
+import DeliveryNote, { type DeliveryNoteDocument, type PopulatedDeliveryNote } from "../models/DeliveryNote.js";
 import Project from "../models/Project.js";
 import pdfService from "../services/pdf.service.js";
 import cloudinaryService from "../services/cloudinary.service.js";
@@ -78,4 +78,24 @@ export const signPDF = async (req: Request, res: Response) => {
     res.json({
         deliveryNote
     });
+}
+
+export const deleteDeliveryNote = async (req: Request, res: Response) => {
+    const deliveryNoteId = req.deliveryNote._id;
+    const isSigned = req.deliveryNote.signed;
+    const { soft } = req.query;
+    if (isSigned) {
+        throw AppError.forbidden("No se puede borrar albaran firmado");
+    }
+    let deliveryNote: DeliveryNoteDocument;
+    if(soft === "true"){
+        deliveryNote = await DeliveryNote.softDeleteById(deliveryNoteId);
+    }
+    else{
+        deliveryNote = await DeliveryNote.hardDelete(deliveryNoteId);
+    }
+    res.json({
+        message: "Albaran borrado",
+        deliveryNote
+    })
 }
