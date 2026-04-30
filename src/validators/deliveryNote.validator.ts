@@ -6,18 +6,17 @@ export const schemaDeliveryNoteBody = z.object({
         project: z.string().optional(),
         format: z.enum(["materials", "hours"]).optional(),
         description: z.string().optional(),
-        workDate: z.coerce.date(),
+        workDate: z.coerce.date().optional(),
         material: z.string().optional(),
         quantity: z.number().optional(),
+        unit: z.string().optional(),
         hours: z.number().optional(),
-        workers: [{
-            name: {
-                type: String
-            },
-            hour: {
-                type: Number
-            }
-        }]
+        workers: z.array(
+            z.object({
+                name: z.string().trim().min(1),
+                hours: z.coerce.number().positive()
+            })
+        ).optional()
     })
 });
 
@@ -27,14 +26,14 @@ export const schemaDeliveryNoteQuery = z.object({
         project: z.string().optional(),
         format: z.enum(["materials", "hours"]).optional(),
         description: z.string().optional(),
-        workDate: z.coerce.date(),
+        workDate: z.coerce.date().optional(),
         material: z.string().optional(),
         quantity: z.coerce.number().optional(),
         hours: z.coerce.number().optional(),
-        user: z.string(),
-        company: z.string(),
+        user: z.string().optional(),
+        company: z.string().optional(),
         page: z.coerce.number().optional(),
         limit: z.coerce.number().optional(),
-        sort: z.string()
+        sort: z.string().optional()
     })
 });

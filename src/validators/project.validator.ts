@@ -18,10 +18,10 @@ export const schemaProjectQuery = z.object({
         name: z.string().optional(),
         projectCode: z.string().optional(),
         email: z.email().optional(),
-        notes: z.string(),
-        company: z.string(),
+        notes: z.string().optional(),
+        company: z.string().optional(),
         page: z.coerce.number().optional(),
         limit: z.coerce.number().optional(),
-        sort: z.string()
+        sort: z.string().optional()
     })
 });

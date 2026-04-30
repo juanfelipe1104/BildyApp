@@ -87,12 +87,13 @@ class PDFService {
                     doc.font('Helvetica-Bold').text('Trabajadores:');
                     doc.moveDown(0.5);
                     deliveryNote.workers.forEach((worker, index) => {
-                        doc.font('Helvetica').fontSize(10).text(`${index + 1}. ${worker.name || '-'} - ${worker.hour?.toString() ?? '-'} horas`);
+                        doc.font('Helvetica').fontSize(10).text(`${index + 1}. ${worker.name || '-'} - ${worker.hours?.toString() ?? '-'} horas`);
                     });
                 }
             }
             else {
                 addField(doc, 'Material', deliveryNote.material);
+                addField(doc, 'Unidad', deliveryNote.unit?.toString());
                 addField(doc, 'Cantidad', deliveryNote.quantity?.toString());
             }
 

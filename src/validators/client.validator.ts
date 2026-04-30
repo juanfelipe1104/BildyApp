@@ -16,10 +16,10 @@ export const schemaClientQuery = z.object({
         name: z.string().optional(),
         cif: z.string().trim().toUpperCase().regex(cifRegex, "El CIF no tiene un formato valido").optional(),
         email: z.email().optional(),
-        phone: z.string(),
-        company: z.string(),
+        phone: z.string().optional(),
+        company: z.string().optional(),
         page: z.coerce.number().optional(),
         limit: z.coerce.number().optional(),
-        sort: z.string()
+        sort: z.string().optional()
     })
 });
