@@ -40,8 +40,7 @@ const projectSchema = new mongoose.Schema<IProject, ProjectModel, SoftDeleteMeth
             type: String
         },
         projectCode: {
-            type: String,
-            unique: true
+            type: String
         },
         address: {
             street: {
@@ -80,6 +79,8 @@ const projectSchema = new mongoose.Schema<IProject, ProjectModel, SoftDeleteMeth
     versionKey: false
 }
 )
+
+projectSchema.index({ company: 1, projectCode: 1 }, { unique: true });
 
 projectSchema.plugin(softDeletePlugin);
 
