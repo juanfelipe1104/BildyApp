@@ -8,7 +8,7 @@ import type { ProjectDocument } from './Project.js';
 type FormatType = 'material' | 'hours';
 type Worker = {
     name: string,
-    hours: Number
+    hours: number
 }
 
 export interface IDeliveryNoteSign extends SoftDeleteFields {
@@ -28,8 +28,8 @@ export interface IDeliveryNote extends IDeliveryNoteSign {
     workDate: Date,
     material: string,
     unit: string,
-    quantity: Number,
-    hours: Number,
+    quantity: number,
+    hours: number,
     workers: Worker[],
     createdAt: Date,
     updatedAt: Date
@@ -69,7 +69,7 @@ const deliveryNoteSchema = new mongoose.Schema<IDeliveryNote, DeliveryNoteModel,
         },
         format: {
             type: String,
-            enum: ['materials', 'hours'],
+            enum: ['material', 'hours'],
             required: true
         },
         description: {
