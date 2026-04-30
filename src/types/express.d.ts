@@ -12,7 +12,7 @@ declare global {
                 limit: number;
                 skip: number;
                 filters: Record<string, string>;
-                sortOption: Record<string, 1>;
+                sortOption: Record<string, 1 | -1>;
 
             };
             client: ClientDocument;

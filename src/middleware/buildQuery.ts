@@ -5,18 +5,40 @@ const buildQuery = (filterFields: string[], sortFields: string[]): RequestHandle
     const limit = Number(req.query.limit) || 10;
     const sort = req.query.sort?.toString();
     const skip = (page - 1) * limit;
-    const filters: Record<string, any> = {};
-    filters["user"] = req.user._id;
-    filters["company"] = req.user.company;
+    const filters: Record<string, any> = {
+        user: req.user._id,
+        company: req.user.company
+    };
     for (const [key, value] of Object.entries(req.query)) {
         if (filterFields.includes(key)) {
             filters[key] = value;
         }
     }
-    let sortOption: Record<string, 1> = { createdAt: 1 };
-    if (sort && sortFields.includes(sort)) {
-        sortOption = { [sort]: 1 };
+
+    const from = req.query.from;
+    const to = req.query.to;
+    if (from || to) {
+        const workDateFilter: Record<string, Date> = {};
+        if (from) {
+            workDateFilter.$gte = new Date(from.toString());
+        }
+        if (to) {
+            const toDate = new Date(to.toString());
+            toDate.setHours(23, 59, 59, 999);
+            workDateFilter.$lte = toDate;
+        }
+        filters.workDate = workDateFilter;
     }
+
+    let sortOption: Record<string, 1 | -1> = { createdAt: 1 };
+    if (sort) {
+        const direction = sort.startsWith("-") ? -1 : 1;
+        const sortField = sort.startsWith("-") ? sort.slice(1) : sort;
+        if (sortFields.includes(sortField)) {
+            sortOption = { [sortField]: direction };
+        }
+    }
+
     const builtQuery = { page, limit, skip, filters, sortOption };
     req.queryData = builtQuery;
     next();

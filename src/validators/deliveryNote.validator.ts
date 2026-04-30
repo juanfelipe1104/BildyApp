@@ -43,6 +43,8 @@ export const schemaDeliveryNoteQuery = z.object({
         format: z.enum(["material", "hours"]).optional(),
         description: z.string().optional(),
         workDate: z.coerce.date().optional(),
+        from: z.coerce.date().optional(),
+        to: z.coerce.date().optional(),
         material: z.string().optional(),
         quantity: z.coerce.number().optional(),
         hours: z.coerce.number().optional(),
