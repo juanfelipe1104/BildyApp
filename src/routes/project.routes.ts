@@ -13,7 +13,7 @@ router.post("/", validate(projectSchema.schemaProjectBody), validateUser, userHa
 router.get("/", validate(projectSchema.schemaProjectQuery), validateUser, userHasCompany, buildQueryProject, projectController.getProjects);
 router.get("/archived", validateUser, authorizeRoles("admin"), userHasCompany, projectController.getArchivedProjects);
 router.get("/:id", validate(commonSchema.schemaObjectId), validateUser, userHasCompany, projectInCompany, projectController.getProject);
-router.put("/:id", validate(commonSchema.schemaObjectId), validate(projectSchema.schemaProjectBody), validateUser, userHasCompany, projectInCompany, projectController.updateProject);
+router.put("/:id", validate(commonSchema.schemaObjectId), validate(projectSchema.schemaProjectUpdateBody), validateUser, userHasCompany, projectInCompany, projectController.updateProject);
 router.delete("/:id", validate(commonSchema.schemaObjectId), validate(commonSchema.schemaSoftDelete), validateUser, userHasCompany, projectInCompany, projectController.deleteProject);
 router.patch("/:id/restore", validate(commonSchema.schemaObjectId), validateUser, authorizeRoles("admin"), userHasCompany, projectController.restoreProject);
 

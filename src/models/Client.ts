@@ -33,7 +33,8 @@ const clientSchema = new mongoose.Schema<IClient, ClientModel, SoftDeleteMethods
             type: String
         },
         cif: {
-            type: String
+            type: String,
+            required: true
         },
         email: {
             type: String

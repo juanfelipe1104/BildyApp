@@ -40,7 +40,8 @@ const projectSchema = new mongoose.Schema<IProject, ProjectModel, SoftDeleteMeth
             type: String
         },
         projectCode: {
-            type: String
+            type: String,
+            required: true
         },
         address: {
             street: {
