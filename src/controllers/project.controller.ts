@@ -10,7 +10,7 @@ export const createProject = async (req: Request, res: Response): Promise<void> 
         user, company, client, name, projectCode, address, email, notes
     });
     res.status(201).json({
-        message: "Cliente creado",
+        message: "Proyecto creado",
         project
     });
 };
@@ -21,7 +21,7 @@ export const updateProject = async (req: Request, res: Response): Promise<void> 
     project.set(projectData);
     await project.save();
     res.json({
-        message: "Cliente actualizado",
+        message: "Proyecto actualizado",
         project
     });
 };
@@ -61,7 +61,7 @@ export const deleteProject = async (req: Request, res: Response): Promise<void> 
         project = await Project.hardDelete(projectId);
     }
     res.json({
-        message: "Cliente borrado",
+        message: "Proyecto borrado",
         project
     });
 };
@@ -84,11 +84,11 @@ export const restoreProject = async (req: Request, res: Response): Promise<void>
     const projectId = String(req.params.id);
     const project = await Project.findDeleted({ _id: projectId, company: companyId });
     if (!project) {
-        throw AppError.notFound("No hay cliente archivado");
+        throw AppError.notFound("No hay proyecto archivado");
     }
     const restoredProject = await Project.restoreById(projectId) as ProjectDocument;
     res.json({
-        message: "Cliente restaurado",
+        message: "Proyecto restaurado",
         restoredProject
     })
 }
