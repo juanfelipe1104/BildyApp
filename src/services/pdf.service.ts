@@ -24,7 +24,7 @@ const formatAddress = (address?: Address): string => {
         return '-';
     }
 
-    return [address.street, address.number, address.postal, address.city, address.province].join(', ');
+    return [address.street, address.number, address.postal, address.city, address.province].filter(Boolean).join(', ') || '-';
 };
 
 const addSectionTitle = (doc: PDFKit.PDFDocument, title: string): void => {
