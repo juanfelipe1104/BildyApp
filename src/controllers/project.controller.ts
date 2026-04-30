@@ -87,8 +87,8 @@ export const getArchivedProjects = async (req: Request, res: Response): Promise<
 export const restoreProject = async (req: Request, res: Response): Promise<void> => {
     const companyId = req.user.company;
     const projectId = String(req.params.id);
-    const project = await Project.findDeleted({ _id: projectId, company: companyId });
-    if (!project) {
+    const projects = await Project.findDeleted({ _id: projectId, company: companyId });
+    if (projects.length === 0) {
         throw AppError.notFound("No hay proyecto archivado");
     }
     const restoredProject = await Project.restoreById(projectId) as ProjectDocument;

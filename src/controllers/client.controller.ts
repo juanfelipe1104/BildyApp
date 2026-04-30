@@ -78,8 +78,8 @@ export const getArchivedClients = async (req: Request, res: Response): Promise<v
 export const restoreClient = async (req: Request, res: Response): Promise<void> => {
     const companyId = req.user.company;
     const clientId = String(req.params.id);
-    const client = await Client.findDeleted({ _id: clientId, company: companyId });
-    if (!client) {
+    const clients = await Client.findDeleted({ _id: clientId, company: companyId });
+    if (clients.length === 0) {
         throw AppError.notFound("No hay cliente archivado");
     }
     const restoredClient = await Client.restoreById(clientId) as ClientDocument;
