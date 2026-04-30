@@ -70,7 +70,7 @@ export const getArchivedProjects = async (req: Request, res: Response): Promise<
     const companyId = req.user.company;
     const archivedProjects = await Project.findDeleted({ company: companyId }) as ProjectDocument[];
     let message = "Proyectos archivados";
-    if (!archivedProjects) {
+    if (archivedProjects.length === 0) {
         message = "No hay proyectos archivados"
     }
     res.json({
