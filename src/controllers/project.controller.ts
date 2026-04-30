@@ -1,11 +1,16 @@
 import type { Request, Response } from "express";
 import { AppError } from '../utils/AppError.js';
 import Project, { type ProjectDocument } from "../models/Project.js";
+import Client from "../models/Client.js";
 
 export const createProject = async (req: Request, res: Response): Promise<void> => {
     const { client, name, projectCode, address, email, notes } = req.body;
     const user = req.user._id;
     const company = req.user.company;
+    const clientExists = await Client.findOne({_id: client, company});
+    if(!clientExists){
+        throw AppError.notFound("No existe el cliente en la compañia");
+    }
     const project = await Project.create({
         user, company, client, name, projectCode, address, email, notes
     });
