@@ -18,7 +18,8 @@ export const schemaProjectUpdateBody = z.object({
         projectCode: z.string().optional(),
         email: z.email().optional(),
         notes: z.string().optional(),
-        address: addressSchema.optional()
+        address: addressSchema.optional(),
+        isActive: z.boolean().optional()
     })
 });
 
