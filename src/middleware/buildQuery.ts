@@ -11,7 +11,7 @@ const buildQuery = (filterFields: string[], sortFields: string[]): RequestHandle
     };
     for (const [key, value] of Object.entries(req.query)) {
         if (filterFields.includes(key)) {
-            filters[key] = value;
+            filters[key] = { $regex: value };
         }
     }
 
@@ -44,17 +44,17 @@ const buildQuery = (filterFields: string[], sortFields: string[]): RequestHandle
     next();
 }
 
-const clientFilterFields = ['name', 'cif', 'email', 'phone', 'user', 'company'];
+const clientFilterFields = ['name', 'cif', 'email', 'phone'];
 const clientSortFields = ['name', 'cif', 'email', 'phone', 'createdAt', 'updatedAt'];
 
 export const buildQueryClient = buildQuery(clientFilterFields, clientSortFields);
 
-const projectFilterFields = ['name', 'projectCode', 'email', 'notes', 'user', 'company', 'client'];
-const projectSortFields = ['name', 'cif', 'email', 'phone', 'createdAt', 'updatedAt'];
+const projectFilterFields = ['name', 'projectCode', 'email', 'notes', 'client'];
+const projectSortFields = ['name', 'projectCode', 'email', 'createdAt', 'updatedAt'];
 
 export const buildQueryProject = buildQuery(projectFilterFields, projectSortFields);
 
-const deliveryNoteFilterFields = ['format', 'description', 'workDate', 'material', 'quantity', 'hours', 'user', 'company', 'client', 'project'];
+const deliveryNoteFilterFields = ['format', 'description', 'workDate', 'material', 'quantity', 'hours', 'client', 'project'];
 const deliveryNoteSortFields = ['format', 'workDate', 'material', 'quantity', 'hours', 'createdAt', 'updatedAt'];
 
 export const buildQueryDeliveryNote = buildQuery(deliveryNoteFilterFields, deliveryNoteSortFields);

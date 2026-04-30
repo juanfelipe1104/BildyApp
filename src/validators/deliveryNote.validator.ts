@@ -48,8 +48,8 @@ export const schemaDeliveryNoteQuery = z.object({
         material: z.string().optional(),
         quantity: z.coerce.number().optional(),
         hours: z.coerce.number().optional(),
-        page: z.coerce.number().optional(),
-        limit: z.coerce.number().optional(),
+        page: z.coerce.number().int().positive().optional(),
+        limit: z.coerce.number().int().positive().max(100).optional(),
         sort: z.string().optional()
     })
 });

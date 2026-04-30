@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { addressSchema } from "./common.validator.js";
+import { addressSchema, objectId } from "./common.validator.js";
 
 export const schemaProjectBody = z.object({
     body: z.object({
@@ -14,14 +14,13 @@ export const schemaProjectBody = z.object({
 
 export const schemaProjectQuery = z.object({
     query: z.object({
-        client: z.string().optional(),
+        client: objectId.optional(),
         name: z.string().optional(),
         projectCode: z.string().optional(),
         email: z.email().optional(),
         notes: z.string().optional(),
-        company: z.string().optional(),
-        page: z.coerce.number().optional(),
-        limit: z.coerce.number().optional(),
+        page: z.coerce.number().int().positive().optional(),
+        limit: z.coerce.number().int().positive().max(100).optional(),
         sort: z.string().optional()
     })
 });
