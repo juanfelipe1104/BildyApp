@@ -64,7 +64,7 @@ const clientSchema = new mongoose.Schema<IClient, ClientModel, SoftDeleteMethods
 }
 )
 
-clientSchema.index({ cif: 1 });
+clientSchema.index({ company: 1, cif: 1 }, { unique: true });
 
 clientSchema.plugin(softDeletePlugin);
 

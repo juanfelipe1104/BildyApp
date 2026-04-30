@@ -3,15 +3,11 @@ import Client, { type ClientDocument } from "../models/Client.js";
 import { AppError } from '../utils/AppError.js';
 
 export const createClient = async (req: Request, res: Response): Promise<void> => {
-    const { name, cif, email, phone, address } = req.body;
+    const clientData = req.body;
     const user = req.user._id;
     const company = req.user.company;
-    const alreadyClient = await Client.find({ company, cif: cif });
-    if (alreadyClient) {
-        throw AppError.conflict();
-    }
     const client = await Client.create({
-        user, company, name, cif, email, phone, address
+        user, company, ...clientData
     });
     res.status(201).json({
         message: "Cliente creado",
