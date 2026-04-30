@@ -24,6 +24,6 @@ export const addressSchema = z.object({
 
 export const schemaSoftDelete = z.object({
     query: z.object({
-        soft: z.enum(["true", "false"])
+        soft: z.enum(["true", "false"]).default("true")
     })
 });
