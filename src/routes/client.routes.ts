@@ -12,9 +12,9 @@ const router = Router();
 router.post("/", validate(clientSchema.schemaClientBody), validateUser, userHasCompany, clientController.createClient);
 router.get("/", validate(clientSchema.schemaClientQuery), validateUser, userHasCompany, buildQueryClient, clientController.getClients);
 router.get("/archived", validateUser, authorizeRoles("admin"), userHasCompany, clientController.getArchivedClients);
-router.get("/:id", validateUser, userHasCompany, clientInCompany, clientController.getClient);
-router.put("/:id", validate(clientSchema.schemaClientBody), validateUser, userHasCompany, clientInCompany, clientController.updateClient);
-router.delete("/:id", validate(commonSchema.schemaSoftDelete), validateUser, userHasCompany, clientInCompany, clientController.deleteClient);
-router.patch("/:id/restore", validateUser, authorizeRoles("admin"), userHasCompany, clientController.restoreClient);
+router.get("/:id", validate(commonSchema.schemaObjectId), validateUser, userHasCompany, clientInCompany, clientController.getClient);
+router.put("/:id", validate(commonSchema.schemaObjectId), validate(clientSchema.schemaClientBody), validateUser, userHasCompany, clientInCompany, clientController.updateClient);
+router.delete("/:id", validate(commonSchema.schemaObjectId), validate(commonSchema.schemaSoftDelete), validateUser, userHasCompany, clientInCompany, clientController.deleteClient);
+router.patch("/:id/restore", validate(commonSchema.schemaObjectId), validateUser, authorizeRoles("admin"), userHasCompany, clientController.restoreClient);
 
 export default router;

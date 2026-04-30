@@ -12,9 +12,9 @@ const router = Router();
 router.post("/", validate(projectSchema.schemaProjectBody), validateUser, userHasCompany, projectController.createProject);
 router.get("/", validate(projectSchema.schemaProjectQuery), validateUser, userHasCompany, buildQueryProject, projectController.getProjects);
 router.get("/archived", validateUser, authorizeRoles("admin"), userHasCompany, projectController.getArchivedProjects);
-router.get("/:id", validateUser, userHasCompany, projectInCompany, projectController.getProject);
-router.put("/:id", validate(projectSchema.schemaProjectBody), validateUser, userHasCompany, projectInCompany, projectController.updateProject);
-router.delete("/:id", validate(commonSchema.schemaSoftDelete), validateUser, userHasCompany, projectInCompany, projectController.deleteProject);
-router.patch("/:id/restore", validateUser, authorizeRoles("admin"), userHasCompany, projectController.restoreProject);
+router.get("/:id", validate(commonSchema.schemaObjectId), validateUser, userHasCompany, projectInCompany, projectController.getProject);
+router.put("/:id", validate(commonSchema.schemaObjectId), validate(projectSchema.schemaProjectBody), validateUser, userHasCompany, projectInCompany, projectController.updateProject);
+router.delete("/:id", validate(commonSchema.schemaObjectId), validate(commonSchema.schemaSoftDelete), validateUser, userHasCompany, projectInCompany, projectController.deleteProject);
+router.patch("/:id/restore", validate(commonSchema.schemaObjectId), validateUser, authorizeRoles("admin"), userHasCompany, projectController.restoreProject);
 
 export default router;

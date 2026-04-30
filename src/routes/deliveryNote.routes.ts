@@ -11,9 +11,9 @@ const router = Router();
 
 router.post("/", validate(deliveryNoteSchema.schemaDeliveryNoteBody), validateUser, userHasCompany, deliveryNoteController.createDeliveryNote);
 router.get("/", validate(deliveryNoteSchema.schemaDeliveryNoteQuery), validateUser, userHasCompany, buildQueryDeliveryNote, deliveryNoteController.getDeliveryNotes);
-router.get("/pdf/:id", validateUser, userHasCompany, deliveryNoteInCompany, deliveryNoteController.getPDF);
-router.get("/:id", validateUser, userHasCompany, deliveryNoteInCompany, deliveryNoteController.getDeliveryNote);
-router.patch("/:id/sign", validateUser, userHasCompany, deliveryNoteInCompany, upload.single("signature"), deliveryNoteController.signPDF);
-router.delete("/:id", validate(commonSchema.schemaSoftDelete), validateUser, userHasCompany, deliveryNoteInCompany, deliveryNoteController.deleteDeliveryNote);
+router.get("/pdf/:id", validate(commonSchema.schemaObjectId), validateUser, userHasCompany, deliveryNoteInCompany, deliveryNoteController.getPDF);
+router.get("/:id", validate(commonSchema.schemaObjectId), validateUser, userHasCompany, deliveryNoteInCompany, deliveryNoteController.getDeliveryNote);
+router.patch("/:id/sign", validate(commonSchema.schemaObjectId), validateUser, userHasCompany, deliveryNoteInCompany, upload.single("signature"), deliveryNoteController.signPDF);
+router.delete("/:id", validate(commonSchema.schemaObjectId), validate(commonSchema.schemaSoftDelete), validateUser, userHasCompany, deliveryNoteInCompany, deliveryNoteController.deleteDeliveryNote);
 
 export default router;
