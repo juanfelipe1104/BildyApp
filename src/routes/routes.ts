@@ -6,7 +6,7 @@ const router = Router();
 
 const __dirname = import.meta.dirname;
 
-const routeFiles = readdirSync(__dirname).filter(file => file.endsWith(".routes.ts"));
+const routeFiles = readdirSync(__dirname).filter(file => file.endsWith(".routes.js") || file.endsWith(".routes.ts"));
 
 for (const file of routeFiles) {
     const routeName = file.replace(".routes.ts", "");
