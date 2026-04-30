@@ -72,6 +72,7 @@ class CloudinaryService {
             overwrite: true,
             resourceType: 'image',
             transformation: [
+                { width: 800, crop: "limit" },
                 { quality: 'auto:good' },
                 { fetch_format: 'auto' }
             ]
