@@ -9,7 +9,7 @@ export const createDeliveryNote = async (req: Request, res: Response) => {
     const user = req.user._id;
     const company = req.user.company;
     const deliveryNoteData = req.body;
-    const project = await Project.findOne({ _id: req.body.project, company, client: req.body.client });
+    const project = await Project.findOne({ _id: deliveryNoteData.project, company, client: deliveryNoteData.client });
     if (!project) {
         throw AppError.notFound("No hay un proyecto");
     }
