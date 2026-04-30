@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction, RequestHandler } from 'express';
 
-const buildQuery = (filterFields: string[], sortFields: string[]): RequestHandler => async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
+const buildQuery = (filterFields: string[], sortFields: string[], regexFields: string[] = ["name", "cif", "email", "phone", "notes", "description", "material", "projectCode"]): RequestHandler => async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const sort = req.query.sort?.toString();
@@ -11,7 +11,11 @@ const buildQuery = (filterFields: string[], sortFields: string[]): RequestHandle
     };
     for (const [key, value] of Object.entries(req.query)) {
         if (filterFields.includes(key)) {
-            filters[key] = { $regex: value };
+            if (regexFields.includes(key)) {
+                filters[key] = { $regex: value, $options: "i" };
+            } else {
+                filters[key] = value;
+            }
         }
     }
 
@@ -54,7 +58,7 @@ const projectSortFields = ['name', 'projectCode', 'email', 'createdAt', 'updated
 
 export const buildQueryProject = buildQuery(projectFilterFields, projectSortFields);
 
-const deliveryNoteFilterFields = ['format', 'description', 'workDate', 'material', 'quantity', 'hours', 'client', 'project'];
+const deliveryNoteFilterFields = ['format', 'description', 'workDate', 'material', 'quantity', 'hours', 'signed', 'client', 'project'];
 const deliveryNoteSortFields = ['format', 'workDate', 'material', 'quantity', 'hours', 'createdAt', 'updatedAt'];
 
 export const buildQueryDeliveryNote = buildQuery(deliveryNoteFilterFields, deliveryNoteSortFields);
