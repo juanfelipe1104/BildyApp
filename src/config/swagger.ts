@@ -497,6 +497,8 @@ const swaggerDefinition = {
                 type: "object",
                 properties: {
                     _id: { type: "string", example: "663a10489a21b2d4c84fd789" },
+                    user: { type: "string", example: "663a0c8a9a21b2d4c84fc999" },
+                    company: { type: "string", example: "663a0d1f9a21b2d4c84fd000" },
                     client: { type: "string", example: "663a0e4f9a21b2d4c84fd123" },
                     project: { type: "string", example: "663a0f8a9a21b2d4c84fd456" },
                     format: {
@@ -519,13 +521,159 @@ const swaggerDefinition = {
                         items: { $ref: "#/components/schemas/Worker" }
                     },
                     signed: { type: "boolean", example: false },
+                    signedAt: {
+                        type: "string",
+                        format: "date-time",
+                        nullable: true,
+                        example: "2026-04-30T10:15:30.000Z"
+                    },
                     signatureUrl: {
                         type: "string",
+                        nullable: true,
                         example: "https://res.cloudinary.com/demo/image/upload/signature.png"
                     },
                     pdfUrl: {
                         type: "string",
+                        nullable: true,
                         example: "https://res.cloudinary.com/demo/raw/upload/albaran.pdf"
+                    },
+                    createdAt: {
+                        type: "string",
+                        format: "date-time",
+                        example: "2026-04-30T10:15:30.000Z"
+                    },
+                    updatedAt: {
+                        type: "string",
+                        format: "date-time",
+                        example: "2026-04-30T10:15:30.000Z"
+                    }
+                }
+            },
+
+            DeliveryNoteMaterialInput: {
+                type: "object",
+                required: ["client", "project", "format", "workDate", "material", "quantity", "unit"],
+                properties: {
+                    client: {
+                        type: "string",
+                        pattern: "^[0-9a-fA-F]{24}$",
+                        example: "663a0e4f9a21b2d4c84fd123"
+                    },
+                    project: {
+                        type: "string",
+                        pattern: "^[0-9a-fA-F]{24}$",
+                        example: "663a0f8a9a21b2d4c84fd456"
+                    },
+                    format: {
+                        type: "string",
+                        enum: ["material"],
+                        example: "material"
+                    },
+                    description: {
+                        type: "string",
+                        example: "Entrega de materiales"
+                    },
+                    workDate: {
+                        type: "string",
+                        format: "date",
+                        example: "2026-04-30"
+                    },
+                    material: {
+                        type: "string",
+                        example: "Cemento"
+                    },
+                    quantity: {
+                        type: "number",
+                        example: 10
+                    },
+                    unit: {
+                        type: "string",
+                        example: "sacos"
+                    }
+                }
+            },
+
+            DeliveryNoteHoursInput: {
+                type: "object",
+                required: ["client", "project", "format", "workDate"],
+                properties: {
+                    client: {
+                        type: "string",
+                        pattern: "^[0-9a-fA-F]{24}$",
+                        example: "663a0e4f9a21b2d4c84fd123"
+                    },
+                    project: {
+                        type: "string",
+                        pattern: "^[0-9a-fA-F]{24}$",
+                        example: "663a0f8a9a21b2d4c84fd456"
+                    },
+                    format: {
+                        type: "string",
+                        enum: ["hours"],
+                        example: "hours"
+                    },
+                    description: {
+                        type: "string",
+                        example: "Trabajo de instalación"
+                    },
+                    workDate: {
+                        type: "string",
+                        format: "date",
+                        example: "2026-04-30"
+                    },
+                    hours: {
+                        type: "number",
+                        example: 8,
+                        description: "Horas totales. Para albaranes de horas se debe enviar hours o workers."
+                    },
+                    workers: {
+                        type: "array",
+                        description: "Listado de trabajadores. Para albaranes de horas se debe enviar hours o workers.",
+                        items: {
+                            $ref: "#/components/schemas/Worker"
+                        }
+                    }
+                }
+            },
+
+            DeliveryNoteInput: {
+                oneOf: [
+                    {
+                        $ref: "#/components/schemas/DeliveryNoteMaterialInput"
+                    },
+                    {
+                        $ref: "#/components/schemas/DeliveryNoteHoursInput"
+                    }
+                ],
+                discriminator: {
+                    propertyName: "format",
+                    mapping: {
+                        material: "#/components/schemas/DeliveryNoteMaterialInput",
+                        hours: "#/components/schemas/DeliveryNoteHoursInput"
+                    }
+                }
+            },
+
+            PaginatedDeliveryNotesResponse: {
+                type: "object",
+                properties: {
+                    totalPages: {
+                        type: "integer",
+                        example: 4
+                    },
+                    totalItems: {
+                        type: "integer",
+                        example: 32
+                    },
+                    currentPage: {
+                        type: "integer",
+                        example: 1
+                    },
+                    deliveryNotes: {
+                        type: "array",
+                        items: {
+                            $ref: "#/components/schemas/DeliveryNote"
+                        }
                     }
                 }
             }
