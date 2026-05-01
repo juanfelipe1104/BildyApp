@@ -7,6 +7,8 @@ import router from './routes/routes.js';
 import errorHandler from './middleware/error-handler.js';
 import morganBody from 'morgan-body';
 import { loggerStream } from './utils/handleLogger.js';
+import swaggerUi from "swagger-ui-express";
+import swaggerSpec from "./config/swagger.js";
 
 const app = express();
 
@@ -27,6 +29,8 @@ app.use(limiter);
 app.use('/uploads', express.static(join(import.meta.dirname, '../uploads')));
 
 app.use('/api', router);
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(errorHandler);
 
