@@ -1,0 +1,23 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "rootDir": ".",
+        "outDir": "dist-test",
+        "types": [
+            "node",
+            "jest"
+        ],
+        "isolatedModules": true,
+        "noEmit": false
+    },
+    "include": [
+        "src/**/*.ts",
+        "tests/**/*.ts",
+        "jest.config.ts"
+    ],
+    "exclude": [
+        "dist",
+        "dist-test",
+        "node_modules"
+    ]
+}

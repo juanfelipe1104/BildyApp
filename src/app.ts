@@ -9,6 +9,7 @@ import morganBody from 'morgan-body';
 import { loggerStream } from './utils/handleLogger.js';
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./config/swagger.js";
+import env from './config/env.js';
 
 const app = express();
 
@@ -18,11 +19,13 @@ app.use(helmet());
 
 app.use(mongoSanitizeMiddleware);
 
-morganBody(app, {
-    noColors: true,
-    skip: (_req, res) => res.statusCode < 500,
-    stream: loggerStream
-});
+if (env.NODE_ENV !== "test") {
+    morganBody(app, {
+        noColors: true,
+        skip: (_req, res) => res.statusCode < 500,
+        stream: loggerStream
+    });
+}
 
 app.use(limiter);
 

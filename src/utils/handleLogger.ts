@@ -7,6 +7,9 @@ const webhook = webhookUrl ? new IncomingWebhook(webhookUrl) : null;
 
 export const loggerStream = {
     write: (message: string): boolean => {
+        if(env.NODE_ENV === "test"){
+            return true;
+        }
         if (webhook) {
             webhook.send({
                 text: `Errror en API ${message}`,
