@@ -22,6 +22,94 @@ const swaggerDefinition = {
             }
         },
         schemas: {
+            ProjectInput: {
+                type: "object",
+                required: ["client", "projectCode"],
+                properties: {
+                    client: {
+                        type: "string",
+                        pattern: "^[0-9a-fA-F]{24}$",
+                        example: "663a0e4f9a21b2d4c84fd123",
+                        description: "ID del cliente asociado al proyecto"
+                    },
+                    name: {
+                        type: "string",
+                        example: "Reforma local"
+                    },
+                    projectCode: {
+                        type: "string",
+                        example: "PR-001"
+                    },
+                    email: {
+                        type: "string",
+                        format: "email",
+                        example: "obra@example.com"
+                    },
+                    notes: {
+                        type: "string",
+                        example: "Proyecto urgente"
+                    },
+                    address: {
+                        $ref: "#/components/schemas/Address"
+                    }
+                }
+            },
+
+            ProjectUpdateInput: {
+                type: "object",
+                properties: {
+                    name: {
+                        type: "string",
+                        example: "Reforma local actualizada"
+                    },
+                    projectCode: {
+                        type: "string",
+                        example: "PR-002"
+                    },
+                    email: {
+                        type: "string",
+                        format: "email",
+                        example: "obra.actualizada@example.com"
+                    },
+                    notes: {
+                        type: "string",
+                        example: "Proyecto pausado temporalmente"
+                    },
+                    active: {
+                        type: "boolean",
+                        example: false,
+                        description: "Permite activar o desactivar el proyecto"
+                    },
+                    address: {
+                        $ref: "#/components/schemas/Address"
+                    }
+                }
+            },
+
+            PaginatedProjectsResponse: {
+                type: "object",
+                properties: {
+                    totalPages: {
+                        type: "integer",
+                        example: 2
+                    },
+                    totalItems: {
+                        type: "integer",
+                        example: 15
+                    },
+                    currentPage: {
+                        type: "integer",
+                        example: 1
+                    },
+                    projects: {
+                        type: "array",
+                        items: {
+                            $ref: "#/components/schemas/Project"
+                        }
+                    }
+                }
+            },
+
             ClientInput: {
                 type: "object",
                 required: ["cif"],
@@ -234,7 +322,7 @@ const swaggerDefinition = {
                     }
                 }
             },
-            
+
             ErrorResponse: {
                 type: "object",
                 properties: {
@@ -375,13 +463,25 @@ const swaggerDefinition = {
                 type: "object",
                 properties: {
                     _id: { type: "string", example: "663a0f8a9a21b2d4c84fd456" },
+                    user: { type: "string", example: "663a0c8a9a21b2d4c84fc999" },
+                    company: { type: "string", example: "663a0d1f9a21b2d4c84fd000" },
                     client: { type: "string", example: "663a0e4f9a21b2d4c84fd123" },
                     name: { type: "string", example: "Reforma local" },
                     projectCode: { type: "string", example: "PR-001" },
                     email: { type: "string", example: "obra@example.com" },
                     notes: { type: "string", example: "Proyecto urgente" },
                     active: { type: "boolean", example: true },
-                    address: { $ref: "#/components/schemas/Address" }
+                    address: { $ref: "#/components/schemas/Address" },
+                    createdAt: {
+                        type: "string",
+                        format: "date-time",
+                        example: "2026-04-30T10:15:30.000Z"
+                    },
+                    updatedAt: {
+                        type: "string",
+                        format: "date-time",
+                        example: "2026-04-30T10:15:30.000Z"
+                    }
                 }
             },
 
