@@ -22,6 +22,141 @@ const swaggerDefinition = {
             }
         },
         schemas: {
+            UserAuthInput: {
+                type: "object",
+                required: ["email", "password"],
+                properties: {
+                    email: {
+                        type: "string",
+                        format: "email",
+                        example: "juan@example.com"
+                    },
+                    password: {
+                        type: "string",
+                        minLength: 8,
+                        maxLength: 16,
+                        example: "Password123"
+                    }
+                }
+            },
+
+            UserValidationInput: {
+                type: "object",
+                required: ["code"],
+                properties: {
+                    code: {
+                        type: "string",
+                        example: "123456"
+                    }
+                }
+            },
+
+            UserDataInput: {
+                type: "object",
+                required: ["name", "lastName", "nif"],
+                properties: {
+                    name: {
+                        type: "string",
+                        example: "Juan"
+                    },
+                    lastName: {
+                        type: "string",
+                        example: "Rodríguez Córdoba"
+                    },
+                    nif: {
+                        type: "string",
+                        example: "12345678Z"
+                    },
+                    address: {
+                        $ref: "#/components/schemas/Address"
+                    }
+                }
+            },
+
+            CompanyInput: {
+                oneOf: [
+                    {
+                        type: "object",
+                        required: ["isFreelance"],
+                        properties: {
+                            isFreelance: {
+                                type: "boolean",
+                                enum: [true],
+                                example: true
+                            }
+                        }
+                    },
+                    {
+                        type: "object",
+                        required: ["isFreelance", "name", "cif", "address"],
+                        properties: {
+                            isFreelance: {
+                                type: "boolean",
+                                enum: [false],
+                                example: false
+                            },
+                            name: {
+                                type: "string",
+                                example: "Bildy Construcciones SL"
+                            },
+                            cif: {
+                                type: "string",
+                                example: "B12345678"
+                            },
+                            address: {
+                                $ref: "#/components/schemas/Address"
+                            }
+                        }
+                    }
+                ]
+            },
+
+            RefreshTokenInput: {
+                type: "object",
+                required: ["refreshToken"],
+                properties: {
+                    refreshToken: {
+                        type: "string",
+                        example: "b3f7d99f-52f1-4a44-bc14-token"
+                    }
+                }
+            },
+
+            AuthResponse: {
+                type: "object",
+                properties: {
+                    message: {
+                        type: "string",
+                        example: "Login exitoso"
+                    },
+                    user: {
+                        $ref: "#/components/schemas/User"
+                    },
+                    access_token: {
+                        type: "string",
+                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    },
+                    refresh_token: {
+                        type: "string",
+                        example: "b3f7d99f-52f1-4a44-bc14-token"
+                    }
+                }
+            },
+
+            PasswordChangeInput: {
+                type: "object",
+                required: ["currentPassword", "newPassword"],
+                properties: {
+                    currentPassword: {
+                        type: "string",
+                        example: "Password123"
+                    },
+                    newPassword: {
+                        type: "string",
+                        example: "NewPassword123"
+                    }
+                }
+            },
             ErrorResponse: {
                 type: "object",
                 properties: {
