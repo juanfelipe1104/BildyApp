@@ -22,6 +22,83 @@ const swaggerDefinition = {
             }
         },
         schemas: {
+            ClientInput: {
+                type: "object",
+                required: ["cif"],
+                properties: {
+                    name: {
+                        type: "string",
+                        example: "Cliente SL"
+                    },
+                    cif: {
+                        type: "string",
+                        example: "B12345678"
+                    },
+                    email: {
+                        type: "string",
+                        format: "email",
+                        example: "cliente@example.com"
+                    },
+                    phone: {
+                        type: "string",
+                        example: "600123123"
+                    },
+                    address: {
+                        $ref: "#/components/schemas/Address"
+                    }
+                }
+            },
+
+            ClientUpdateInput: {
+                type: "object",
+                properties: {
+                    name: {
+                        type: "string",
+                        example: "Cliente SL Actualizado"
+                    },
+                    cif: {
+                        type: "string",
+                        example: "B87654321"
+                    },
+                    email: {
+                        type: "string",
+                        format: "email",
+                        example: "nuevo@example.com"
+                    },
+                    phone: {
+                        type: "string",
+                        example: "611222333"
+                    },
+                    address: {
+                        $ref: "#/components/schemas/Address"
+                    }
+                }
+            },
+
+            PaginatedClientsResponse: {
+                type: "object",
+                properties: {
+                    totalPages: {
+                        type: "integer",
+                        example: 3
+                    },
+                    totalItems: {
+                        type: "integer",
+                        example: 25
+                    },
+                    currentPage: {
+                        type: "integer",
+                        example: 1
+                    },
+                    clients: {
+                        type: "array",
+                        items: {
+                            $ref: "#/components/schemas/Client"
+                        }
+                    }
+                }
+            },
+
             UserAuthInput: {
                 type: "object",
                 required: ["email", "password"],
@@ -157,6 +234,7 @@ const swaggerDefinition = {
                     }
                 }
             },
+            
             ErrorResponse: {
                 type: "object",
                 properties: {
