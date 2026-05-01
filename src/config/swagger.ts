@@ -337,8 +337,8 @@ const swaggerDefinition = {
                 type: "object",
                 properties: {
                     street: { type: "string", example: "Calle Mayor" },
-                    number: { type: "integer", example: 12 },
-                    postal: { type: "integer", example: 28013 },
+                    number: { type: "string", example: "12" },
+                    postal: { type: "string", example: "28013" },
                     city: { type: "string", example: "Madrid" },
                     province: { type: "string", example: "Madrid" }
                 }
@@ -400,7 +400,7 @@ const swaggerDefinition = {
                         type: "string",
                         example: "Juan"
                     },
-                    surnames: {
+                    lastName: {
                         type: "string",
                         example: "Rodríguez Córdoba"
                     },
@@ -688,7 +688,7 @@ const swaggerDefinition = {
 
 const swaggerSpec = swaggerJSDoc({
     definition: swaggerDefinition,
-    apis: ["./src/routes/*.ts", "./src/models/*.ts"]
+    apis: ["./src/routes/*.ts", "./src/models/*.ts", "./dist/routes/*.js", "./dist/models/*.js"]
 });
 
 export default swaggerSpec;
