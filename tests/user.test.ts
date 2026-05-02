@@ -200,4 +200,104 @@ describe("User / Auth", () => {
         expect(response.status).toBe(401);
         expect(response.body).toHaveProperty("error", true);
     });
+
+    it("debería obtener el usuario autenticado", async () => {
+        const { accessToken, email } = await registerAndValidateUser("get.user@example.com");
+
+        const response = await request(app).get("/api/user").set("Authorization", `Bearer ${accessToken}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("user");
+
+        expect(response.body.user.email).toBe(email);
+        expect(response.body.user.password).toBeUndefined();
+        expect(response.body.user.status).toBe("verified");
+    });
+
+    it("debería rechazar obtener usuario sin token", async () => {
+        const response = await request(app).get("/api/user");
+
+        expect(response.status).toBe(401);
+        expect(response.body).toHaveProperty("error", true);
+    });
+
+    it("debería rechazar obtener usuario si no está verificado", async () => {
+        const registerResponse = await registerUser("pending.get.user@example.com");
+
+        expect(registerResponse.status).toBe(201);
+
+        const accessToken = registerResponse.body.access_token;
+
+        const response = await request(app).get("/api/user").set("Authorization", `Bearer ${accessToken}`);
+
+        expect(response.status).toBe(401);
+        expect(response.body).toHaveProperty("error", true);
+    });
+
+    it("debería completar los datos personales del usuario", async () => {
+        const { accessToken, email } = await registerAndValidateUser("data.user@example.com");
+
+        const response = await request(app).put("/api/user/register").set("Authorization", `Bearer ${accessToken}`).send({
+            name: "Juan",
+            lastName: "Rodríguez Córdoba",
+            nif: "12345678Z",
+            address: {
+                street: "Calle Mayor",
+                number: "12",
+                postal: "28013",
+                city: "Madrid",
+                province: "Madrid"
+            }
+        });
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("user");
+
+        expect(response.body.user.email).toBe(email);
+        expect(response.body.user.name).toBe("Juan");
+        expect(response.body.user.lastName).toBe("Rodríguez Córdoba");
+        expect(response.body.user.nif).toBe("12345678Z");
+        expect(response.body.user.address.city).toBe("Madrid");
+    });
+
+    it("debería rechazar completar datos personales sin token", async () => {
+        const response = await request(app).put("/api/user/register").send({
+            name: "Juan",
+            lastName: "Rodríguez Córdoba",
+            nif: "12345678Z"
+        });
+
+        expect(response.status).toBe(401);
+        expect(response.body).toHaveProperty("error", true);
+    });
+
+    it("debería rechazar completar datos personales si el usuario no está verificado", async () => {
+        const registerResponse = await registerUser("pending.data.user@example.com");
+
+        expect(registerResponse.status).toBe(201);
+
+        const accessToken = registerResponse.body.access_token;
+
+        const response = await request(app).put("/api/user/register").set("Authorization", `Bearer ${accessToken}`).send({
+            name: "Juan",
+            lastName: "Rodríguez Córdoba",
+            nif: "12345678Z"
+        });
+
+        expect(response.status).toBe(401);
+        expect(response.body).toHaveProperty("error", true);
+    });
+
+    it("debería rechazar datos personales inválidos", async () => {
+        const { accessToken } = await registerAndValidateUser("invalid.data.user@example.com");
+
+        const response = await request(app).put("/api/user/register").set("Authorization", `Bearer ${accessToken}`).send({
+            name: "",
+            lastName: "",
+            nif: "nif-invalido"
+        });
+
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty("error", true);
+    });
 });
