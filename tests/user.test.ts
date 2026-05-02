@@ -341,6 +341,205 @@ describe("User / Auth", () => {
         expect(response.status).toBe(400);
         expect(response.body).toHaveProperty("error", true);
     });
+
+    it("debería cambiar la contraseña del usuario autenticado", async () => {
+        const { accessToken, email } = await registerAndValidateUser("change.password@example.com");
+
+        const response = await request(app).put("/api/user/password").set("Authorization", `Bearer ${accessToken}`).send({
+            currentPassword: "Password123",
+            newPassword: "NewPassword123"
+        });
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("message");
+        expect(response.body).toHaveProperty("user");
+
+        const oldPasswordLogin = await request(app).post("/api/user/login").send({
+            email,
+            password: "Password123"
+        });
+
+        expect(oldPasswordLogin.status).toBe(401);
+
+        const newPasswordLogin = await request(app).post("/api/user/login").send({
+            email,
+            password: "NewPassword123"
+        });
+
+        expect(newPasswordLogin.status).toBe(200);
+        expect(newPasswordLogin.body).toHaveProperty("access_token");
+        expect(newPasswordLogin.body).toHaveProperty("refresh_token");
+    });
+
+    it("debería rechazar cambio de contraseña si la contraseña actual es incorrecta", async () => {
+        const { accessToken } = await registerAndValidateUser("wrong.current.password@example.com");
+
+        const response = await request(app).put("/api/user/password").set("Authorization", `Bearer ${accessToken}`).send({
+            currentPassword: "WrongPassword123",
+            newPassword: "NewPassword123"
+        });
+
+        expect(response.status).toBe(401);
+        expect(response.body).toHaveProperty("error", true);
+    });
+
+    it("debería rechazar cambio de contraseña sin token", async () => {
+        const response = await request(app).put("/api/user/password").send({
+            currentPassword: "Password123",
+            newPassword: "NewPassword123"
+        });
+
+        expect(response.status).toBe(401);
+        expect(response.body).toHaveProperty("error", true);
+    });
+
+    it("debería rechazar cambio de contraseña si el usuario no está verificado", async () => {
+        const registerResponse = await registerUser("pending.password@example.com");
+
+        expect(registerResponse.status).toBe(201);
+
+        const accessToken = registerResponse.body.access_token;
+
+        const response = await request(app).put("/api/user/password").set("Authorization", `Bearer ${accessToken}`).send({
+            currentPassword: "Password123",
+            newPassword: "NewPassword123"
+        });
+
+        expect(response.status).toBe(401);
+        expect(response.body).toHaveProperty("error", true);
+    });
+
+    it("debería rechazar cambio de contraseña con body inválido", async () => {
+        const { accessToken } = await registerAndValidateUser("invalid.password.body@example.com");
+
+        const response = await request(app).put("/api/user/password").set("Authorization", `Bearer ${accessToken}`).send({
+            currentPassword: "",
+            newPassword: "123"
+        });
+
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty("error", true);
+    });
+
+    it("debería invitar un usuario a la compañía", async () => {
+        const { accessToken } = await createReadyUser("admin.invite@example.com");
+
+        const companyResponse = await request(app).patch("/api/user/company").set("Authorization", `Bearer ${accessToken}`).send({
+            isFreelance: false,
+            name: "Invite Empresa SL",
+            cif: "B66666666",
+            address: {
+                street: "Calle Invite",
+                number: "6",
+                postal: "28006",
+                city: "Madrid",
+                province: "Madrid"
+            }
+        });
+
+        expect(companyResponse.status).toBe(201);
+
+        const response = await request(app).post("/api/user/invite").set("Authorization", `Bearer ${accessToken}`).send({
+            email: "guest.invited@example.com",
+            password: "Password123"
+        });
+
+        expect(response.status).toBe(201);
+        expect(response.body).toHaveProperty("user");
+        expect(response.body).toHaveProperty("access_token");
+        expect(response.body).toHaveProperty("refresh_token");
+        expect(response.body).toHaveProperty("verificationCode");
+
+        expect(response.body.user.email).toBe("guest.invited@example.com");
+        expect(response.body.user.role).toBe("guest");
+        expect(response.body.user.company).toBe(companyResponse.body.company._id);
+        expect(response.body.user.password).toBeUndefined();
+
+        expect(sendEmailMock).toHaveBeenCalled();
+    });
+
+    it("debería rechazar invitar usuario sin token", async () => {
+        const response = await request(app).post("/api/user/invite").send({
+            email: "guest.no.token@example.com",
+            password: "Password123"
+        });
+
+        expect(response.status).toBe(401);
+        expect(response.body).toHaveProperty("error", true);
+    });
+
+    it("debería rechazar invitar usuario si el admin no tiene compañía", async () => {
+        const { accessToken } = await createReadyUser("admin.no.company@example.com");
+
+        const response = await request(app).post("/api/user/invite").set("Authorization", `Bearer ${accessToken}`).send({
+            email: "guest.no.company@example.com",
+            password: "Password123"
+        });
+
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty("error", true);
+    });
+
+    it("debería rechazar invitar un usuario que ya existe", async () => {
+        const { accessToken } = await createReadyUser("admin.duplicate.invite@example.com");
+
+        const companyResponse = await request(app).patch("/api/user/company").set("Authorization", `Bearer ${accessToken}`).send({
+            isFreelance: false,
+            name: "Duplicate Invite SL",
+            cif: "B77777777",
+            address: {
+                street: "Calle Duplicate",
+                number: "7",
+                postal: "28007",
+                city: "Madrid",
+                province: "Madrid"
+            }
+        });
+
+        expect(companyResponse.status).toBe(201);
+
+        const firstInvite = await request(app).post("/api/user/invite").set("Authorization", `Bearer ${accessToken}`).send({
+            email: "guest.duplicate@example.com",
+            password: "Password123"
+        });
+
+        expect(firstInvite.status).toBe(201);
+
+        const secondInvite = await request(app).post("/api/user/invite").set("Authorization", `Bearer ${accessToken}`).send({
+            email: "guest.duplicate@example.com",
+            password: "Password123"
+        });
+
+        expect(secondInvite.status).toBe(409);
+        expect(secondInvite.body).toHaveProperty("error", true);
+    });
+
+    it("debería rechazar invitación con body inválido", async () => {
+        const { accessToken } = await createReadyUser("admin.invalid.invite@example.com");
+
+        const companyResponse = await request(app).patch("/api/user/company").set("Authorization", `Bearer ${accessToken}`).send({
+            isFreelance: false,
+            name: "Invalid Invite SL",
+            cif: "B88888888",
+            address: {
+                street: "Calle Invalid",
+                number: "8",
+                postal: "28008",
+                city: "Madrid",
+                province: "Madrid"
+            }
+        });
+
+        expect(companyResponse.status).toBe(201);
+
+        const response = await request(app).post("/api/user/invite").set("Authorization", `Bearer ${accessToken}`).send({
+            email: "email-invalido",
+            password: "123"
+        });
+
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty("error", true);
+    });
 });
 
 describe("Company", () => {
