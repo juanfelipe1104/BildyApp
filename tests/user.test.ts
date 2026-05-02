@@ -9,6 +9,23 @@ jest.unstable_mockModule("../src/config/mail.js", () => ({
     sendEmail: sendEmailMock
 }));
 
+const uploadLogoMock = jest.fn().mockResolvedValue({ secure_url: "https://res.cloudinary.com/test/logo.png" } as never);
+
+const uploadSignatureMock = jest.fn().mockResolvedValue({ secure_url: "https://res.cloudinary.com/test/signature.png" } as never);
+
+const uploadPDFMock = jest.fn().mockResolvedValue({ secure_url: "https://res.cloudinary.com/test/albaran.pdf" } as never);
+
+jest.unstable_mockModule("../src/services/cloudinary.service.js", () => ({
+    uploadLogo: uploadLogoMock,
+    uploadDeliveryNoteSignature: uploadSignatureMock,
+    uploadDeliveryNotePdf: uploadPDFMock,
+    default: {
+        uploadLogo: uploadLogoMock,
+        uploadDeliveryNoteSignature: uploadSignatureMock,
+        uploadDeliveryNotePdf: uploadPDFMock
+    }
+}));
+
 const { default: app } = await import("../src/app.js");
 
 const registerUser = async (email = "juan@example.com", password = "Password123") => {
@@ -37,6 +54,30 @@ const registerAndValidateUser = async (email = "login@example.com") => {
         refreshToken,
         verificationCode,
         user: validationResponse.body.user
+    };
+};
+
+const createReadyUser = async (email = "ready.user@example.com") => {
+    const userData = await registerAndValidateUser(email);
+
+    const dataResponse = await request(app).put("/api/user/register").set("Authorization", `Bearer ${userData.accessToken}`).send({
+        name: "Juan",
+        lastName: "Rodríguez Córdoba",
+        nif: "12345678Z",
+        address: {
+            street: "Calle Mayor",
+            number: "12",
+            postal: "28013",
+            city: "Madrid",
+            province: "Madrid"
+        }
+    });
+
+    expect(dataResponse.status).toBe(200);
+
+    return {
+        ...userData,
+        user: dataResponse.body.user
     };
 };
 
@@ -295,6 +336,243 @@ describe("User / Auth", () => {
             name: "",
             lastName: "",
             nif: "nif-invalido"
+        });
+
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty("error", true);
+    });
+});
+
+describe("Company", () => {
+    beforeEach(() => {
+        uploadLogoMock.mockClear();
+    });
+    it("debería crear una compañía para el usuario autenticado", async () => {
+        const { accessToken } = await createReadyUser("company@example.com");
+
+        const response = await request(app).patch("/api/user/company").set("Authorization", `Bearer ${accessToken}`).send({
+            isFreelance: false,
+            name: "Bildy Construcciones SL",
+            cif: "B12345678",
+            address: {
+                street: "Calle Empresa",
+                number: "10",
+                postal: "28001",
+                city: "Madrid",
+                province: "Madrid"
+            }
+        });
+
+        expect(response.status).toBe(201);
+        expect(response.body).toHaveProperty("company");
+        expect(response.body).toHaveProperty("user");
+
+        expect(response.body.company.name).toBe("Bildy Construcciones SL");
+        expect(response.body.company.cif).toBe("B12345678");
+        expect(response.body.company.isFreelance).toBe(false);
+
+        expect(response.body.user.company).toBe(response.body.company._id);
+    });
+
+    it("debería crear una compañía freelance usando los datos del usuario", async () => {
+        const { accessToken } = await createReadyUser("freelance@example.com");
+
+        const response = await request(app).patch("/api/user/company").set("Authorization", `Bearer ${accessToken}`).send({ isFreelance: true });
+
+        expect(response.status).toBe(201);
+        expect(response.body).toHaveProperty("company");
+
+        expect(response.body.company.isFreelance).toBe(true);
+        expect(response.body.user.company).toBe(response.body.company._id);
+    });
+
+    it("debería rechazar crear compañía sin token", async () => {
+        const response = await request(app).patch("/api/user/company").send({
+            isFreelance: false,
+            name: "Bildy Construcciones SL",
+            cif: "B12345678",
+            address: {
+                street: "Calle Empresa",
+                number: "10",
+                postal: "28001",
+                city: "Madrid",
+                province: "Madrid"
+            }
+        });
+
+        expect(response.status).toBe(401);
+        expect(response.body).toHaveProperty("error", true);
+    });
+
+    it("debería rechazar crear compañía si el usuario no está verificado", async () => {
+        const registerResponse = await registerUser("pending.company@example.com");
+
+        expect(registerResponse.status).toBe(201);
+
+        const accessToken = registerResponse.body.access_token;
+
+        const response = await request(app).patch("/api/user/company").set("Authorization", `Bearer ${accessToken}`).send({
+            isFreelance: false,
+            name: "Bildy Construcciones SL",
+            cif: "B12345678",
+            address: {
+                street: "Calle Empresa",
+                number: "10",
+                postal: "28001",
+                city: "Madrid",
+                province: "Madrid"
+            }
+        });
+
+        expect(response.status).toBe(401);
+        expect(response.body).toHaveProperty("error", true);
+    });
+
+    it("debería rechazar datos de compañía inválidos", async () => {
+        const { accessToken } = await createReadyUser("invalid.company@example.com");
+
+        const response = await request(app).patch("/api/user/company").set("Authorization", `Bearer ${accessToken}`).send({
+            isFreelance: false,
+            name: "",
+            cif: "cif-invalido"
+        });
+
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty("error", true);
+    });
+
+    it("debería rechazar crear compañía si el usuario ya tiene una asociada", async () => {
+        const { accessToken } = await createReadyUser("duplicated.company@example.com");
+
+        const firstResponse = await request(app).patch("/api/user/company").set("Authorization", `Bearer ${accessToken}`).send({
+            isFreelance: false,
+            name: "Primera Empresa SL",
+            cif: "B11111111",
+            address: {
+                street: "Calle Primera",
+                number: "1",
+                postal: "28001",
+                city: "Madrid",
+                province: "Madrid"
+            }
+        });
+
+        expect(firstResponse.status).toBe(201);
+
+        const secondResponse = await request(app).patch("/api/user/company").set("Authorization", `Bearer ${accessToken}`).send({
+            isFreelance: false,
+            name: "Segunda Empresa SL",
+            cif: "B22222222",
+            address: {
+                street: "Calle Segunda",
+                number: "2",
+                postal: "28002",
+                city: "Madrid",
+                province: "Madrid"
+            }
+        });
+
+        expect(secondResponse.status).toBe(409);
+        expect(secondResponse.body).toHaveProperty("error", true);
+    });
+
+    it("debería subir el logo de la compañía", async () => {
+        const { accessToken } = await createReadyUser("logo.company@example.com");
+
+        const companyResponse = await request(app).patch("/api/user/company").set("Authorization", `Bearer ${accessToken}`).send({
+            isFreelance: false,
+            name: "Logo Empresa SL",
+            cif: "B33333333",
+            address: {
+                street: "Calle Logo",
+                number: "3",
+                postal: "28003",
+                city: "Madrid",
+                province: "Madrid"
+            }
+        });
+
+        expect(companyResponse.status).toBe(201);
+
+        const response = await request(app).patch("/api/user/logo").set("Authorization", `Bearer ${accessToken}`).attach("logo", Buffer.from("fake image content"), {
+            filename: "logo.png",
+            contentType: "image/png"
+        });
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("company");
+        expect(response.body.company.logo).toBe("https://res.cloudinary.com/test/logo.png");
+
+        expect(uploadLogoMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("debería rechazar subir logo sin archivo", async () => {
+        const { accessToken } = await createReadyUser("logo.no.file@example.com");
+
+        const companyResponse = await request(app).patch("/api/user/company").set("Authorization", `Bearer ${accessToken}`).send({
+            isFreelance: false,
+            name: "No File SL",
+            cif: "B44444444",
+            address: {
+                street: "Calle No File",
+                number: "4",
+                postal: "28004",
+                city: "Madrid",
+                province: "Madrid"
+            }
+        });
+
+        expect(companyResponse.status).toBe(201);
+
+        const response = await request(app).patch("/api/user/logo").set("Authorization", `Bearer ${accessToken}`);
+
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty("error", true);
+    });
+
+    it("debería rechazar subir logo si el usuario no tiene compañía", async () => {
+        const { accessToken } = await createReadyUser("logo.no.company@example.com");
+
+        const response = await request(app).patch("/api/user/logo").set("Authorization", `Bearer ${accessToken}`).attach("logo", Buffer.from("fake image content"), {
+            filename: "logo.png",
+            contentType: "image/png"
+        });
+
+        expect(response.status).toBe(403);
+        expect(response.body).toHaveProperty("error", true);
+    });
+
+    it("debería rechazar subir logo sin token", async () => {
+        const response = await request(app).patch("/api/user/logo").attach("logo", Buffer.from("fake image content"), {
+            filename: "logo.png",
+            contentType: "image/png"
+        });
+
+        expect(response.status).toBe(401);
+        expect(response.body).toHaveProperty("error", true);
+    });
+
+    it("debería rechazar un logo con formato inválido", async () => {
+        const { accessToken } = await createReadyUser("logo.invalid.file@example.com");
+
+        const companyResponse = await request(app).patch("/api/user/company").set("Authorization", `Bearer ${accessToken}`).send({
+            isFreelance: false,
+            name: "Invalid File SL",
+            cif: "B55555555",
+            address: {
+                street: "Calle Invalid",
+                number: "5",
+                postal: "28005",
+                city: "Madrid",
+                province: "Madrid"
+            }
+        });
+
+        expect(companyResponse.status).toBe(201);
+
+        const response = await request(app).patch("/api/user/logo").set("Authorization", `Bearer ${accessToken}`).attach("logo", Buffer.from("fake text content"), {
+            filename: "logo.txt",
+            contentType: "text/plain"
         });
 
         expect(response.status).toBe(400);
