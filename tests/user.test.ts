@@ -540,6 +540,65 @@ describe("User / Auth", () => {
         expect(response.status).toBe(400);
         expect(response.body).toHaveProperty("error", true);
     });
+
+    it("debería hacer soft delete del usuario autenticado", async () => {
+        const { accessToken } = await registerAndValidateUser("soft.delete@example.com");
+
+        const response = await request(app).delete("/api/user").set("Authorization", `Bearer ${accessToken}`).query({ soft: "true" });
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("message");
+        expect(response.body).toHaveProperty("user");
+
+        const getResponse = await request(app).get("/api/user").set("Authorization", `Bearer ${accessToken}`);
+
+        expect(getResponse.status).toBe(401);
+        expect(getResponse.body).toHaveProperty("error", true);
+    });
+
+    it("debería hacer hard delete del usuario autenticado", async () => {
+        const { accessToken } = await registerAndValidateUser("hard.delete@example.com");
+
+        const response = await request(app).delete("/api/user").set("Authorization", `Bearer ${accessToken}`).query({ soft: "false" });
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("message");
+        expect(response.body).toHaveProperty("user");
+
+        const getResponse = await request(app).get("/api/user").set("Authorization", `Bearer ${accessToken}`);
+
+        expect(getResponse.status).toBe(401);
+        expect(getResponse.body).toHaveProperty("error", true);
+    });
+
+    it("debería rechazar borrar usuario sin token", async () => {
+        const response = await request(app).delete("/api/user").query({ soft: "true" });
+
+        expect(response.status).toBe(401);
+        expect(response.body).toHaveProperty("error", true);
+    });
+
+    it("debería rechazar borrar usuario si no está verificado", async () => {
+        const registerResponse = await registerUser("pending.delete@example.com");
+
+        expect(registerResponse.status).toBe(201);
+
+        const accessToken = registerResponse.body.access_token;
+
+        const response = await request(app).delete("/api/user").set("Authorization", `Bearer ${accessToken}`).query({ soft: "true" });
+
+        expect(response.status).toBe(401);
+        expect(response.body).toHaveProperty("error", true);
+    });
+
+    it("debería rechazar borrar usuario con query soft inválida", async () => {
+        const { accessToken } = await registerAndValidateUser("invalid.soft.delete@example.com");
+
+        const response = await request(app).delete("/api/user").set("Authorization", `Bearer ${accessToken}`).query({ soft: "maybe" });
+
+        expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty("error", true);
+    });
 });
 
 describe("Company", () => {
