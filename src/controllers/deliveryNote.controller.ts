@@ -76,7 +76,7 @@ export const signPDF = async (req: Request, res: Response) => {
     deliveryNote.pdfUrl = uploadedPDF.secure_url;
 
     await deliveryNote.save();
-    emitToCompany(deliveryNote.company.toString(), "deliverynote:signed", deliveryNote);
+    emitToCompany(deliveryNote.company._id.toString(), "deliverynote:signed", deliveryNote);
     res.json({
         deliveryNote
     });
