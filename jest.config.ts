@@ -8,7 +8,9 @@ export default {
         "src/**/*.ts",
         "!src/index.ts",
         "!src/types/**/*.ts",
-        "!src/config/swagger.ts"
+        "!src/config/db.ts",
+        "!src/config/swagger.ts",
+        "!src/utils/handleLogger.ts"
     ],
     coverageReporters: ["text"],
     moduleNameMapper: {

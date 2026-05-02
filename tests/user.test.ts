@@ -1,93 +1,28 @@
-/// <reference types="jest" />
-
 import { jest } from "@jest/globals";
 import request from "supertest";
-
-const sendEmailMock = jest.fn<() => Promise<void>>().mockResolvedValue(undefined);
+import { registerUser, registerAndValidateUser, createReadyUser } from "./helpers.js";
+import { uploadLogoMock, sendEmailMock } from "./mocks.js";
 
 jest.unstable_mockModule("../src/config/mail.js", () => ({
     sendEmail: sendEmailMock
 }));
 
-const uploadLogoMock = jest.fn().mockResolvedValue({ secure_url: "https://res.cloudinary.com/test/logo.png" } as never);
-
-const uploadSignatureMock = jest.fn().mockResolvedValue({ secure_url: "https://res.cloudinary.com/test/signature.png" } as never);
-
-const uploadPDFMock = jest.fn().mockResolvedValue({ secure_url: "https://res.cloudinary.com/test/albaran.pdf" } as never);
-
 jest.unstable_mockModule("../src/services/cloudinary.service.js", () => ({
     uploadLogo: uploadLogoMock,
-    uploadDeliveryNoteSignature: uploadSignatureMock,
-    uploadDeliveryNotePdf: uploadPDFMock,
     default: {
         uploadLogo: uploadLogoMock,
-        uploadDeliveryNoteSignature: uploadSignatureMock,
-        uploadDeliveryNotePdf: uploadPDFMock
     }
 }));
 
 const { default: app } = await import("../src/app.js");
 
-const registerUser = async (email = "juan@example.com", password = "Password123") => {
-    return request(app).post("/api/user/register").send({ email, password });
-};
-
 const validateUser = async (accessToken: string, code: string) => {
     return request(app).put("/api/user/validation").set("Authorization", `Bearer ${accessToken}`).send({ code });
 }
 
-const registerAndValidateUser = async (email = "login@example.com") => {
-    const registerResponse = await registerUser(email);
-
-    const accessToken = registerResponse.body.access_token;
-    const refreshToken = registerResponse.body.refresh_token;
-    const verificationCode = registerResponse.body.verificationCode;
-
-    const validationResponse = await request(app).put("/api/user/validation").set("Authorization", `Bearer ${accessToken}`).send({ code: verificationCode });
-
-    expect(validationResponse.status).toBe(200);
-
-    return {
-        email,
-        password: "Password123",
-        accessToken,
-        refreshToken,
-        verificationCode,
-        user: validationResponse.body.user
-    };
-};
-
-const createReadyUser = async (email = "ready.user@example.com") => {
-    const userData = await registerAndValidateUser(email);
-
-    const dataResponse = await request(app).put("/api/user/register").set("Authorization", `Bearer ${userData.accessToken}`).send({
-        name: "Juan",
-        lastName: "Rodríguez Córdoba",
-        nif: "12345678Z",
-        address: {
-            street: "Calle Mayor",
-            number: "12",
-            postal: "28013",
-            city: "Madrid",
-            province: "Madrid"
-        }
-    });
-
-    expect(dataResponse.status).toBe(200);
-
-    return {
-        ...userData,
-        user: dataResponse.body.user
-    };
-};
-
 describe("User / Auth", () => {
-    beforeEach(() => {
-        sendEmailMock.mockClear();
-    });
-
     it("debería registrar un usuario", async () => {
-        const response = await registerUser();
+        const response = await registerUser(app, "juan@example.com");
 
         expect(response.status).toBe(201);
         expect(response.body).toHaveProperty("user");
@@ -106,7 +41,7 @@ describe("User / Auth", () => {
     });
 
     it("debería validar el email de un usuario registrado", async () => {
-        const registerResponse = await registerUser("validacion@example.com");
+        const registerResponse = await registerUser(app, "validacion@example.com");
 
         expect(registerResponse.status).toBe(201);
 
@@ -122,7 +57,7 @@ describe("User / Auth", () => {
     });
 
     it("debería rechazar un código de validación incorrecto", async () => {
-        const registerResponse = await registerUser("codigo.incorrecto@example.com");
+        const registerResponse = await registerUser(app, "codigo.incorrecto@example.com");
 
         expect(registerResponse.status).toBe(201);
 
@@ -135,14 +70,14 @@ describe("User / Auth", () => {
     });
 
     it("debería rechazar la validación sin token", async () => {
-        const response = await registerUser("", "000000");
+        const response = await registerUser(app, "", "000000");
 
         expect(response.status).toBe(400);
         expect(response.body).toHaveProperty("error", true);
     });
 
     it("debería iniciar sesión con un usuario verificado", async () => {
-        const { email, password } = await registerAndValidateUser("login@example.com");
+        const { email, password } = await registerAndValidateUser(app, "login@example.com");
 
         const response = await request(app).post("/api/user/login").send({ email, password });
 
@@ -156,7 +91,7 @@ describe("User / Auth", () => {
     });
 
     it("debería rechazar login con contraseña incorrecta", async () => {
-        const { email } = await registerAndValidateUser("wrong.password@example.com");
+        const { email } = await registerAndValidateUser(app, "wrong.password@example.com");
 
         const response = await request(app).post("/api/user/login").send({ email, password: "WrongPassword123" });
 
@@ -167,7 +102,7 @@ describe("User / Auth", () => {
     it("debería rechazar login de usuario no verificado", async () => {
         const email = "pending.login@example.com";
 
-        await registerUser(email);
+        await registerUser(app, email);
 
         const response = await request(app).post("/api/user/login").send({ email, password: "Password123" });
 
@@ -183,7 +118,7 @@ describe("User / Auth", () => {
     });
 
     it("debería refrescar la sesión con un refresh token válido", async () => {
-        const { accessToken, refreshToken } = await registerAndValidateUser("refresh@example.com");
+        const { accessToken, refreshToken } = await registerAndValidateUser(app, "refresh@example.com");
 
         const response = await request(app).post("/api/user/refresh").send({ refreshToken });
 
@@ -209,7 +144,7 @@ describe("User / Auth", () => {
     });
 
     it("debería revocar el refresh token después de usarlo", async () => {
-        const { refreshToken } = await registerAndValidateUser("refresh.revoked@example.com");
+        const { refreshToken } = await registerAndValidateUser(app, "refresh.revoked@example.com");
 
         const firstRefreshResponse = await request(app).post("/api/user/refresh").send({ refreshToken });
 
@@ -222,7 +157,7 @@ describe("User / Auth", () => {
     });
 
     it("debería cerrar sesión y revocar los refresh tokens activos", async () => {
-        const { accessToken, refreshToken } = await registerAndValidateUser("logout@example.com");
+        const { accessToken, refreshToken } = await registerAndValidateUser(app, "logout@example.com");
 
         const logoutResponse = await request(app).post("/api/user/logout").set("Authorization", `Bearer ${accessToken}`);
 
@@ -243,7 +178,7 @@ describe("User / Auth", () => {
     });
 
     it("debería obtener el usuario autenticado", async () => {
-        const { accessToken, email } = await registerAndValidateUser("get.user@example.com");
+        const { accessToken, email } = await registerAndValidateUser(app, "get.user@example.com");
 
         const response = await request(app).get("/api/user").set("Authorization", `Bearer ${accessToken}`);
 
@@ -263,7 +198,7 @@ describe("User / Auth", () => {
     });
 
     it("debería rechazar obtener usuario si no está verificado", async () => {
-        const registerResponse = await registerUser("pending.get.user@example.com");
+        const registerResponse = await registerUser(app, "pending.get.user@example.com");
 
         expect(registerResponse.status).toBe(201);
 
@@ -276,7 +211,7 @@ describe("User / Auth", () => {
     });
 
     it("debería completar los datos personales del usuario", async () => {
-        const { accessToken, email } = await registerAndValidateUser("data.user@example.com");
+        const { accessToken, email } = await registerAndValidateUser(app, "data.user@example.com");
 
         const response = await request(app).put("/api/user/register").set("Authorization", `Bearer ${accessToken}`).send({
             name: "Juan",
@@ -313,7 +248,7 @@ describe("User / Auth", () => {
     });
 
     it("debería rechazar completar datos personales si el usuario no está verificado", async () => {
-        const registerResponse = await registerUser("pending.data.user@example.com");
+        const registerResponse = await registerUser(app, "pending.data.user@example.com");
 
         expect(registerResponse.status).toBe(201);
 
@@ -330,7 +265,7 @@ describe("User / Auth", () => {
     });
 
     it("debería rechazar datos personales inválidos", async () => {
-        const { accessToken } = await registerAndValidateUser("invalid.data.user@example.com");
+        const { accessToken } = await registerAndValidateUser(app, "invalid.data.user@example.com");
 
         const response = await request(app).put("/api/user/register").set("Authorization", `Bearer ${accessToken}`).send({
             name: "",
@@ -343,7 +278,7 @@ describe("User / Auth", () => {
     });
 
     it("debería cambiar la contraseña del usuario autenticado", async () => {
-        const { accessToken, email } = await registerAndValidateUser("change.password@example.com");
+        const { accessToken, email } = await registerAndValidateUser(app, "change.password@example.com");
 
         const response = await request(app).put("/api/user/password").set("Authorization", `Bearer ${accessToken}`).send({
             currentPassword: "Password123",
@@ -372,7 +307,7 @@ describe("User / Auth", () => {
     });
 
     it("debería rechazar cambio de contraseña si la contraseña actual es incorrecta", async () => {
-        const { accessToken } = await registerAndValidateUser("wrong.current.password@example.com");
+        const { accessToken } = await registerAndValidateUser(app, "wrong.current.password@example.com");
 
         const response = await request(app).put("/api/user/password").set("Authorization", `Bearer ${accessToken}`).send({
             currentPassword: "WrongPassword123",
@@ -394,7 +329,7 @@ describe("User / Auth", () => {
     });
 
     it("debería rechazar cambio de contraseña si el usuario no está verificado", async () => {
-        const registerResponse = await registerUser("pending.password@example.com");
+        const registerResponse = await registerUser(app, "pending.password@example.com");
 
         expect(registerResponse.status).toBe(201);
 
@@ -410,7 +345,7 @@ describe("User / Auth", () => {
     });
 
     it("debería rechazar cambio de contraseña con body inválido", async () => {
-        const { accessToken } = await registerAndValidateUser("invalid.password.body@example.com");
+        const { accessToken } = await registerAndValidateUser(app, "invalid.password.body@example.com");
 
         const response = await request(app).put("/api/user/password").set("Authorization", `Bearer ${accessToken}`).send({
             currentPassword: "",
@@ -422,7 +357,7 @@ describe("User / Auth", () => {
     });
 
     it("debería invitar un usuario a la compañía", async () => {
-        const { accessToken } = await createReadyUser("admin.invite@example.com");
+        const { accessToken } = await createReadyUser(app, "admin.invite@example.com");
 
         const companyResponse = await request(app).patch("/api/user/company").set("Authorization", `Bearer ${accessToken}`).send({
             isFreelance: false,
@@ -469,7 +404,7 @@ describe("User / Auth", () => {
     });
 
     it("debería rechazar invitar usuario si el admin no tiene compañía", async () => {
-        const { accessToken } = await createReadyUser("admin.no.company@example.com");
+        const { accessToken } = await createReadyUser(app, "admin.no.company@example.com");
 
         const response = await request(app).post("/api/user/invite").set("Authorization", `Bearer ${accessToken}`).send({
             email: "guest.no.company@example.com",
@@ -481,7 +416,7 @@ describe("User / Auth", () => {
     });
 
     it("debería rechazar invitar un usuario que ya existe", async () => {
-        const { accessToken } = await createReadyUser("admin.duplicate.invite@example.com");
+        const { accessToken } = await createReadyUser(app, "admin.duplicate.invite@example.com");
 
         const companyResponse = await request(app).patch("/api/user/company").set("Authorization", `Bearer ${accessToken}`).send({
             isFreelance: false,
@@ -515,7 +450,7 @@ describe("User / Auth", () => {
     });
 
     it("debería rechazar invitación con body inválido", async () => {
-        const { accessToken } = await createReadyUser("admin.invalid.invite@example.com");
+        const { accessToken } = await createReadyUser(app, "admin.invalid.invite@example.com");
 
         const companyResponse = await request(app).patch("/api/user/company").set("Authorization", `Bearer ${accessToken}`).send({
             isFreelance: false,
@@ -542,7 +477,7 @@ describe("User / Auth", () => {
     });
 
     it("debería hacer soft delete del usuario autenticado", async () => {
-        const { accessToken } = await registerAndValidateUser("soft.delete@example.com");
+        const { accessToken } = await registerAndValidateUser(app, "soft.delete@example.com");
 
         const response = await request(app).delete("/api/user").set("Authorization", `Bearer ${accessToken}`).query({ soft: "true" });
 
@@ -557,7 +492,7 @@ describe("User / Auth", () => {
     });
 
     it("debería hacer hard delete del usuario autenticado", async () => {
-        const { accessToken } = await registerAndValidateUser("hard.delete@example.com");
+        const { accessToken } = await registerAndValidateUser(app, "hard.delete@example.com");
 
         const response = await request(app).delete("/api/user").set("Authorization", `Bearer ${accessToken}`).query({ soft: "false" });
 
@@ -579,7 +514,7 @@ describe("User / Auth", () => {
     });
 
     it("debería rechazar borrar usuario si no está verificado", async () => {
-        const registerResponse = await registerUser("pending.delete@example.com");
+        const registerResponse = await registerUser(app, "pending.delete@example.com");
 
         expect(registerResponse.status).toBe(201);
 
@@ -592,7 +527,7 @@ describe("User / Auth", () => {
     });
 
     it("debería rechazar borrar usuario con query soft inválida", async () => {
-        const { accessToken } = await registerAndValidateUser("invalid.soft.delete@example.com");
+        const { accessToken } = await registerAndValidateUser(app, "invalid.soft.delete@example.com");
 
         const response = await request(app).delete("/api/user").set("Authorization", `Bearer ${accessToken}`).query({ soft: "maybe" });
 
@@ -602,11 +537,8 @@ describe("User / Auth", () => {
 });
 
 describe("Company", () => {
-    beforeEach(() => {
-        uploadLogoMock.mockClear();
-    });
     it("debería crear una compañía para el usuario autenticado", async () => {
-        const { accessToken } = await createReadyUser("company@example.com");
+        const { accessToken } = await createReadyUser(app, "company@example.com");
 
         const response = await request(app).patch("/api/user/company").set("Authorization", `Bearer ${accessToken}`).send({
             isFreelance: false,
@@ -633,7 +565,7 @@ describe("Company", () => {
     });
 
     it("debería crear una compañía freelance usando los datos del usuario", async () => {
-        const { accessToken } = await createReadyUser("freelance@example.com");
+        const { accessToken } = await createReadyUser(app, "freelance@example.com");
 
         const response = await request(app).patch("/api/user/company").set("Authorization", `Bearer ${accessToken}`).send({ isFreelance: true });
 
@@ -663,7 +595,7 @@ describe("Company", () => {
     });
 
     it("debería rechazar crear compañía si el usuario no está verificado", async () => {
-        const registerResponse = await registerUser("pending.company@example.com");
+        const registerResponse = await registerUser(app, "pending.company@example.com");
 
         expect(registerResponse.status).toBe(201);
 
@@ -687,7 +619,7 @@ describe("Company", () => {
     });
 
     it("debería rechazar datos de compañía inválidos", async () => {
-        const { accessToken } = await createReadyUser("invalid.company@example.com");
+        const { accessToken } = await createReadyUser(app, "invalid.company@example.com");
 
         const response = await request(app).patch("/api/user/company").set("Authorization", `Bearer ${accessToken}`).send({
             isFreelance: false,
@@ -700,7 +632,7 @@ describe("Company", () => {
     });
 
     it("debería rechazar crear compañía si el usuario ya tiene una asociada", async () => {
-        const { accessToken } = await createReadyUser("duplicated.company@example.com");
+        const { accessToken } = await createReadyUser(app, "duplicated.company@example.com");
 
         const firstResponse = await request(app).patch("/api/user/company").set("Authorization", `Bearer ${accessToken}`).send({
             isFreelance: false,
@@ -735,7 +667,7 @@ describe("Company", () => {
     });
 
     it("debería subir el logo de la compañía", async () => {
-        const { accessToken } = await createReadyUser("logo.company@example.com");
+        const { accessToken } = await createReadyUser(app, "logo.company@example.com");
 
         const companyResponse = await request(app).patch("/api/user/company").set("Authorization", `Bearer ${accessToken}`).send({
             isFreelance: false,
@@ -765,7 +697,7 @@ describe("Company", () => {
     });
 
     it("debería rechazar subir logo sin archivo", async () => {
-        const { accessToken } = await createReadyUser("logo.no.file@example.com");
+        const { accessToken } = await createReadyUser(app, "logo.no.file@example.com");
 
         const companyResponse = await request(app).patch("/api/user/company").set("Authorization", `Bearer ${accessToken}`).send({
             isFreelance: false,
@@ -789,7 +721,7 @@ describe("Company", () => {
     });
 
     it("debería rechazar subir logo si el usuario no tiene compañía", async () => {
-        const { accessToken } = await createReadyUser("logo.no.company@example.com");
+        const { accessToken } = await createReadyUser(app, "logo.no.company@example.com");
 
         const response = await request(app).patch("/api/user/logo").set("Authorization", `Bearer ${accessToken}`).attach("logo", Buffer.from("fake image content"), {
             filename: "logo.png",
@@ -811,7 +743,7 @@ describe("Company", () => {
     });
 
     it("debería rechazar un logo con formato inválido", async () => {
-        const { accessToken } = await createReadyUser("logo.invalid.file@example.com");
+        const { accessToken } = await createReadyUser(app, "logo.invalid.file@example.com");
 
         const companyResponse = await request(app).patch("/api/user/company").set("Authorization", `Bearer ${accessToken}`).send({
             isFreelance: false,
