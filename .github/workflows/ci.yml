@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    env:
+      NODE_ENV: test
+      PORT: 3000
+      DB_URI: mongodb://127.0.0.1:27017
+      DB_NAME: bildyapp_test
+      JWT_SECRET: test_jwt_secret_12345678901234567890
+      SLACK_WEBHOOK: https://example.com/slack
+      CLOUDINARY_CLOUD_NAME: test_cloud
+      CLOUDINARY_API_KEY: test_key
+      CLOUDINARY_API_SECRET: test_secret
+      EMAIL_USER: test@example.com
+      EMAIL_PASSWORD: test_password
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Run tests
+        run: npm test
+
+      - name: Run coverage
+        run: npm run test:coverage
+
+      - name: Build Docker image
+        run: docker build -t bildyapp .
