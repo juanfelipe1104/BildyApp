@@ -1,5 +1,14 @@
 import { IncomingWebhook } from '@slack/webhook';
+import type { Request } from "express";
 import env from '../config/env.js';
+
+type SlackErrorPayload = {
+    req: Request;
+    statusCode: number;
+    message: string;
+    code?: string | null;
+    stack?: string;
+};
 
 const webhookUrl = env.SLACK_WEBHOOK;
 
@@ -7,26 +16,12 @@ const webhook = webhookUrl ? new IncomingWebhook(webhookUrl) : null;
 
 export const loggerStream = {
     write: (message: string): boolean => {
-        if(env.NODE_ENV === "test"){
-            return true;
-        }
-        if (webhook) {
-            webhook.send({
-                text: `Errror en API ${message}`,
-            }).then(() => {
-                console.log('Mensaje enviado a Slack');
-            }).catch((err: unknown) => {
-                console.error('Error enviando a Slack:', err);
-            });
-        } else {
-            console.log('Webhook no configurado');
-        }
         console.error(message);
         return true;
     }
 };
 
-export const sendSlackNotification = async (message: string): Promise<void> => {
+const sendSlackNotification = async (message: string): Promise<void> => {
     if (!webhook) {
         console.log('Webhook no configurado');
         return;
@@ -38,4 +33,23 @@ export const sendSlackNotification = async (message: string): Promise<void> => {
     } catch (err: unknown) {
         console.error('Error enviando a Slack:', err);
     }
+};
+
+export const sendSlackError = async ({ req, statusCode, message, code, stack }: SlackErrorPayload): Promise<void> => {
+    if (env.NODE_ENV === "test" || !webhook || statusCode < 500) {
+        return;
+    }
+
+    const text = [
+        "*Error 5XX en API*",
+        `*Timestamp:* ${new Date().toISOString()}`,
+        `*Método:* ${req.method}`,
+        `*Ruta:* ${req.originalUrl}`,
+        `*Status:* ${statusCode}`,
+        `*Código:* ${code ?? "INTERNAL_ERROR"}`,
+        `*Mensaje:* ${message}`,
+        stack ? `*Stack:*\n\`\`\`${stack.slice(0, 2500)}\`\`\`` : null
+    ].filter(Boolean).join("\n");
+
+    await sendSlackNotification(text);
 };

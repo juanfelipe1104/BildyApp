@@ -42,8 +42,4 @@ export class AppError extends Error {
     static tooManyRequests(message = 'Demasiadas peticiones', code = 'RATE_LIMIT'): AppError {
         return new AppError(message, 429, code);
     }
-
-    static internal(message = 'Error interno del servidor', code = 'INTERNAL_ERROR'): AppError {
-        return new AppError(message, 500, code);
-    }
 }

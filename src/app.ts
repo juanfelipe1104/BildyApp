@@ -20,13 +20,15 @@ app.use(helmet());
 
 app.use(mongoSanitizeMiddleware);
 
-if (env.NODE_ENV !== "test") {
+if (env.NODE_ENV === "development") {
     morganBody(app, {
         noColors: true,
         skip: (_req, res) => res.statusCode < 500,
         stream: loggerStream
     });
+}
 
+if (env.NODE_ENV !== "test") {
     app.use(limiter);
 }
 

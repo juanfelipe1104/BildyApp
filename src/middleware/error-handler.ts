@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import { ZodError } from 'zod';
 import { AppError } from '../utils/AppError.js';
+import { sendSlackError } from '../utils/handleLogger.js';
 
 type GenericError = {
     code?: string | number;
@@ -10,7 +11,7 @@ type GenericError = {
     stack?: string;
 };
 
-const errorHandler = (err: unknown, _req: Request, res: Response, _next: NextFunction): Response => {
+const errorHandler = (err: unknown, req: Request, res: Response, _next: NextFunction): Response => {
     if (err instanceof AppError) {
         return res.status(err.statusCode).json({
             error: true,
@@ -83,10 +84,13 @@ const errorHandler = (err: unknown, _req: Request, res: Response, _next: NextFun
     }
 
     const isProduction = process.env.NODE_ENV === 'production';
+    const message = isProduction ? 'Error interno del servidor' : (err as GenericError)?.message || 'Error interno del servidor';
+
+    sendSlackError({ req, statusCode: 500, message, code: 'INTERNAL_ERROR', stack: (err as GenericError)?.stack });
 
     return res.status(500).json({
         error: true,
-        message: isProduction ? 'Error interno del servidor' : (err as GenericError)?.message || 'Error interno del servidor',
+        message,
         code: 'INTERNAL_ERROR',
         ...(!isProduction && (err as GenericError)?.stack ? { stack: (err as GenericError).stack } : {}),
     });
