@@ -452,7 +452,7 @@ router.put('/password', validate(userSchema.schemaPasswordBody), validateUser, v
  * /api/user/invite:
  *   post:
  *     summary: Invitar usuario a la compañía
- *     description: Crea un usuario invitado con rol guest asociado a la compañía del administrador autenticado.
+ *     description: Crea un usuario invitado con rol guest asociado a la compañía del administrador autenticado. El servidor genera una contraseña temporal y un código de verificación, y los envía por email al invitado.
  *     tags:
  *       - User
  *     security:
@@ -462,7 +462,7 @@ router.put('/password', validate(userSchema.schemaPasswordBody), validateUser, v
  *       content:
  *         application/json:
  *           schema:
- *             $ref: "#/components/schemas/UserAuthInput"
+ *             $ref: "#/components/schemas/InviteUserInput"
  *     responses:
  *       201:
  *         description: Usuario invitado correctamente
@@ -487,6 +487,6 @@ router.put('/password', validate(userSchema.schemaPasswordBody), validateUser, v
  *       500:
  *         description: Error interno
  */
-router.post('/invite', validate(userSchema.schemaMailBody), validateUser, authorizeRoles("admin"), validateUserStatus("verified"), userHasCompany, userController.inviteUser);
+router.post('/invite', validate(userSchema.schemaInviteBody), validateUser, authorizeRoles("admin"), validateUserStatus("verified"), userHasCompany, userController.inviteUser);
 
 export default router;

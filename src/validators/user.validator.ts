@@ -8,6 +8,12 @@ export const schemaMailBody = z.object({
     })
 });
 
+export const schemaInviteBody = z.object({
+    body: z.object({
+        email: z.email("Formato de correo incorrecto").trim().toLowerCase()
+    })
+});
+
 export const schemaUserBody = z.object({
     body: z.object({
         name: z.string().trim().min(1, "El nombre es obligatorio"),

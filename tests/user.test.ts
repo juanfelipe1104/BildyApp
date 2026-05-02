@@ -364,9 +364,10 @@ describe("User / Auth", () => {
 
         expect(companyResponse.status).toBe(201);
 
+        sendEmailMock.mockClear();
+
         const response = await request(app).post("/api/user/invite").set("Authorization", `Bearer ${accessToken}`).send({
-            email: "guest.invited@example.com",
-            password: "Password123"
+            email: "guest.invited@example.com"
         });
 
         expect(response.status).toBe(201);
@@ -380,14 +381,72 @@ describe("User / Auth", () => {
         expect(response.body.user.company).toBe(companyResponse.body.company._id);
         expect(response.body.user.password).toBeUndefined();
 
-        expect(sendEmailMock).toHaveBeenCalled();
+        expect(sendEmailMock).toHaveBeenCalledWith(
+            "guest.invited@example.com",
+            "Invitacion a BildyApp",
+            expect.stringContaining(response.body.temporaryPassword)
+        );
+
+        expect(sendEmailMock).toHaveBeenCalledWith(
+            "guest.invited@example.com",
+            "Invitacion a BildyApp",
+            expect.stringContaining(response.body.verificationCode)
+        );
+    });
+
+    it("debería permitir al invitado verificar su cuenta y cambiar la contraseña temporal", async () => {
+        const { accessToken } = await createReadyUser(app, "admin.invite.flow@example.com");
+
+        const companyResponse = await request(app).patch("/api/user/company").set("Authorization", `Bearer ${accessToken}`).send({
+            isFreelance: false,
+            name: "Invite Flow SL",
+            cif: "B99999991",
+            address: {
+                street: "Calle Invite Flow",
+                number: "9",
+                postal: "28009",
+                city: "Madrid",
+                province: "Madrid"
+            }
+        });
+
+        expect(companyResponse.status).toBe(201);
+
+        const inviteResponse = await request(app).post("/api/user/invite").set("Authorization", `Bearer ${accessToken}`).send({
+            email: "guest.flow@example.com"
+        });
+
+        expect(inviteResponse.status).toBe(201);
+
+        const guestAccessToken = inviteResponse.body.access_token;
+        const temporaryPassword = inviteResponse.body.temporaryPassword;
+        const verificationCode = inviteResponse.body.verificationCode;
+
+        const validationResponse = await request(app).put("/api/user/validation").set("Authorization", `Bearer ${guestAccessToken}`).send({
+            code: verificationCode
+        });
+
+        expect(validationResponse.status).toBe(200);
+        expect(validationResponse.body.user.status).toBe("verified");
+
+        const passwordResponse = await request(app).put("/api/user/password").set("Authorization", `Bearer ${guestAccessToken}`).send({
+            currentPassword: temporaryPassword,
+            newPassword: "GuestPassword123"
+        });
+
+        expect(passwordResponse.status).toBe(200);
+
+        const loginResponse = await request(app).post("/api/user/login").send({
+            email: "guest.flow@example.com",
+            password: "GuestPassword123"
+        });
+
+        expect(loginResponse.status).toBe(200);
+        expect(loginResponse.body).toHaveProperty("access_token");
     });
 
     it("debería rechazar invitar usuario sin token", async () => {
-        const response = await request(app).post("/api/user/invite").send({
-            email: "guest.no.token@example.com",
-            password: "Password123"
-        });
+        const response = await request(app).post("/api/user/invite").send({ email: "guest.no.token@example.com" });
 
         expect(response.status).toBe(401);
         expect(response.body).toHaveProperty("error", true);
@@ -397,8 +456,7 @@ describe("User / Auth", () => {
         const { accessToken } = await createReadyUser(app, "admin.no.company@example.com");
 
         const response = await request(app).post("/api/user/invite").set("Authorization", `Bearer ${accessToken}`).send({
-            email: "guest.no.company@example.com",
-            password: "Password123"
+            email: "guest.no.company@example.com"
         });
 
         expect(response.status).toBe(403);
@@ -424,15 +482,13 @@ describe("User / Auth", () => {
         expect(companyResponse.status).toBe(201);
 
         const firstInvite = await request(app).post("/api/user/invite").set("Authorization", `Bearer ${accessToken}`).send({
-            email: "guest.duplicate@example.com",
-            password: "Password123"
+            email: "guest.duplicate@example.com"
         });
 
         expect(firstInvite.status).toBe(201);
 
         const secondInvite = await request(app).post("/api/user/invite").set("Authorization", `Bearer ${accessToken}`).send({
-            email: "guest.duplicate@example.com",
-            password: "Password123"
+            email: "guest.duplicate@example.com"
         });
 
         expect(secondInvite.status).toBe(409);
@@ -458,8 +514,7 @@ describe("User / Auth", () => {
         expect(companyResponse.status).toBe(201);
 
         const response = await request(app).post("/api/user/invite").set("Authorization", `Bearer ${accessToken}`).send({
-            email: "email-invalido",
-            password: "123"
+            email: "email-invalido"
         });
 
         expect(response.status).toBe(400);

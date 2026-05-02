@@ -2,10 +2,10 @@ import type { Request, Response } from 'express';
 import type { UserDocument } from '../models/User.js';
 import RefreshToken from '../models/RefreshToken.js';
 import User from '../models/User.js';
-import Company from '../models/Company.js';
+import Company, { CompanyDocument } from '../models/Company.js';
 import { AppError } from '../utils/AppError.js';
 import { generateAccessToken, generateRefreshToken, getRefreshTokenExpiry } from '../utils/handleJWT.js';
-import { compare, encrypt } from '../utils/handlePassword.js';
+import { compare, encrypt, generateTemporaryPassword } from '../utils/handlePassword.js';
 import notificationService from '../services/notification.service.js';
 import cloudinaryService from '../services/cloudinary.service.js';
 import { sendEmail } from '../config/mail.js';
@@ -272,16 +272,16 @@ export const changePassword = async (req: Request, res: Response): Promise<void>
 };
 
 export const inviteUser = async (req: Request, res: Response): Promise<void> => {
-    const { email, password } = req.body;
-    const inviter = req.user;
-
+    const { email } = req.body;
+    const inviter = await req.user.populate("company");
+    const company = inviter.company as unknown as CompanyDocument;
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
         throw AppError.conflict("Ya existe el usuario");
     }
-
-    const encryptedPassword = await encrypt(password);
+    const temporaryPassword = generateTemporaryPassword()
+    const encryptedPassword = await encrypt(temporaryPassword);
     const verificationCode = generateRandomCode();
 
     const invitedUser = await User.create({
@@ -289,22 +289,47 @@ export const inviteUser = async (req: Request, res: Response): Promise<void> => 
         password: encryptedPassword,
         verificationCode,
         role: "guest",
-        company: inviter.company
+        company: company._id
     });
+
+    const companyName = company.name;
+    const inviterName = `${inviter.name} + ${inviter.lastName}` || inviter.email;
+
+    await sendEmail(invitedUser.email, "Invitacion a BildyApp", `
+            <h2>Has sido invitado a BildyApp</h2>
+            <p>
+                Has sido invitado a la compañía <strong>${companyName}</strong>
+                por <strong>${inviterName}</strong>.
+            </p>
+
+            <p>Estos son tus datos temporales de acceso:</p>
+
+            <ul>
+                <li><strong>Email:</strong> ${invitedUser.email}</li>
+                <li><strong>Contraseña temporal:</strong> ${temporaryPassword}</li>
+                <li><strong>Código de verificación:</strong> ${verificationCode}</li>
+            </ul>
+
+            <p>
+                Para completar el acceso, inicia sesión con la contraseña temporal,
+                verifica tu usuario con el código anterior y cambia tu contraseña
+                desde tu perfil.
+            </p>
+        `);
 
     const { access_token, refresh_token } = await createSession(invitedUser);
 
     notificationService.inviteUser({
         invitedUserId: invitedUser._id.toString(),
         invitedEmail: invitedUser.email,
-        companyId: inviter.company!.toString(),
+        companyId: company._id.toString(),
         invitedBy: inviter._id.toString()
     });
 
     res.status(201).json({
         message: "Usuario invitado correctamente. Datos invitado: ",
         user: invitedUser,
-        ...(env.NODE_ENV !== "production" ? { verificationCode } : {}),
+        ...(env.NODE_ENV !== "production" ? { verificationCode, temporaryPassword } : {}),
         access_token,
         refresh_token
     });

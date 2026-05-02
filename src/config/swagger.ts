@@ -238,6 +238,18 @@ const swaggerDefinition = {
                 }
             },
 
+            InviteUserInput: {
+                type: "object",
+                required: ["email"],
+                properties: {
+                    email: {
+                        type: "string",
+                        format: "email",
+                        example: "invitado@example.com"
+                    }
+                }
+            },
+
             CompanyInput: {
                 oneOf: [
                     {
