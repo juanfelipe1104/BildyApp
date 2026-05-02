@@ -25,9 +25,9 @@ if (env.NODE_ENV !== "test") {
         skip: (_req, res) => res.statusCode < 500,
         stream: loggerStream
     });
-}
 
-app.use(limiter);
+    app.use(limiter);
+}
 
 app.use('/uploads', express.static(join(import.meta.dirname, '../uploads')));
 
