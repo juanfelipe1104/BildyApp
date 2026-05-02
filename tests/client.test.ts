@@ -292,6 +292,16 @@ describe("Client", () => {
         expect(response.body.archivedClients.length).toBe(1);
     });
 
+    it("debería devolver lista vacía si no hay clientes archivados", async () => {
+        const { accessToken } = await createUserWithCompany(app, "archived.empty.clients@example.com");
+
+        const response = await request(app).get("/api/client/archived").set("Authorization", `Bearer ${accessToken}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe("No hay clientes archivados");
+        expect(response.body.archivedClients).toEqual([]);
+    });
+
     it("debería restaurar un cliente archivado", async () => {
         const { accessToken } = await createUserWithCompany(app, "restore.client@example.com");
 
@@ -312,5 +322,16 @@ describe("Client", () => {
 
         expect(getResponse.status).toBe(200);
         expect(getResponse.body.client._id).toBe(clientId);
+    });
+
+    it("debería devolver 404 al restaurar un cliente que no está archivado", async () => {
+        const { accessToken } = await createUserWithCompany(app, "restore.missing.client@example.com");
+
+        const nonExistingClientId = "663a0e4f9a21b2d4c84fd123";
+
+        const response = await request(app).patch(`/api/client/${nonExistingClientId}/restore`).set("Authorization", `Bearer ${accessToken}`);
+
+        expect(response.status).toBe(404);
+        expect(response.body).toHaveProperty("error", true);
     });
 });
