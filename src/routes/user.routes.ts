@@ -487,6 +487,6 @@ router.put('/password', validate(userSchema.schemaPasswordBody), validateUser, v
  *       500:
  *         description: Error interno
  */
-router.post('/invite', validate(userSchema.schemaMailBody), validateUser, authorizeRoles("admin"), validateUserStatus("verified"), userController.inviteUser);
+router.post('/invite', validate(userSchema.schemaMailBody), validateUser, authorizeRoles("admin"), validateUserStatus("verified"), userHasCompany, userController.inviteUser);
 
 export default router;

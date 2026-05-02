@@ -274,10 +274,6 @@ export const inviteUser = async (req: Request, res: Response): Promise<void> => 
     const { email, password } = req.body;
     const inviter = req.user;
 
-    if (!inviter.company) {
-        throw AppError.badRequest("El usuario administrador no tiene compañía asociada");
-    }
-
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -300,7 +296,7 @@ export const inviteUser = async (req: Request, res: Response): Promise<void> => 
     notificationService.inviteUser({
         invitedUserId: invitedUser._id.toString(),
         invitedEmail: invitedUser.email,
-        companyId: inviter.company.toString(),
+        companyId: inviter.company!.toString(),
         invitedBy: inviter._id.toString()
     });
 
