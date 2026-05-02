@@ -476,7 +476,7 @@ describe("User / Auth", () => {
             password: "Password123"
         });
 
-        expect(response.status).toBe(400);
+        expect(response.status).toBe(403);
         expect(response.body).toHaveProperty("error", true);
     });
 
