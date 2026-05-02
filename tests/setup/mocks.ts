@@ -19,6 +19,8 @@ export const setupMocks = () => {
         uploadDeliveryNotePdf: uploadPDFMock,
         default: {
             uploadLogo: uploadLogoMock,
+            uploadDeliveryNoteSignature: uploadSignatureMock,
+            uploadDeliveryNotePdf: uploadPDFMock
         }
     }));
 }

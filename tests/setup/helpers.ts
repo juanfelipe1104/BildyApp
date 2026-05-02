@@ -100,3 +100,47 @@ export const createProject = async (app: Express, accessToken: string, clientId:
         ...overrides
     });
 };
+
+export const createMaterialDeliveryNote = async (app: Express, accessToken: string, clientId: string, projectId: string, overrides: Record<string, unknown> = {}) => {
+    return request(app).post("/api/deliverynote").set("Authorization", `Bearer ${accessToken}`).send({
+        client: clientId,
+        project: projectId,
+        format: "material",
+        description: "Entrega de materiales",
+        workDate: "2026-04-30",
+        material: "Cemento",
+        quantity: 10,
+        unit: "sacos",
+        ...overrides
+    });
+};
+
+export const createHoursDeliveryNote = async (app: Express, accessToken: string, clientId: string, projectId: string, overrides: Record<string, unknown> = {}) => {
+    return request(app).post("/api/deliverynote").set("Authorization", `Bearer ${accessToken}`).send({
+        client: clientId,
+        project: projectId,
+        format: "hours",
+        description: "Trabajo de instalación",
+        workDate: "2026-04-30",
+        hours: 8,
+        ...overrides
+    });
+};
+
+export const createProjectScenario = async (app: Express, email = "delivery.scenario@example.com", companyOverrides: Record<string, unknown> = {}) => {
+    const userData = await createUserWithCompany(app, email, companyOverrides);
+
+    const clientResponse = await createClient(app, userData.accessToken, { cif: "B20000001" });
+
+    expect(clientResponse.status).toBe(201);
+
+    const projectResponse = await createProject(app, userData.accessToken, clientResponse.body.client._id, { projectCode: "PR-DELIVERY-1" });
+
+    expect(projectResponse.status).toBe(201);
+
+    return {
+        ...userData,
+        client: clientResponse.body.client,
+        project: projectResponse.body.project
+    };
+};
