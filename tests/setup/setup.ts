@@ -1,6 +1,3 @@
-/// <reference types="jest" />
-/// <reference types="node" />
-
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 
