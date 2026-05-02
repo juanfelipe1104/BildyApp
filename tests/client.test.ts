@@ -1,6 +1,6 @@
 import request from "supertest";
-import { createReadyUser, createUserWithCompany, createClient } from "./helpers.js";
-import { setupMocks } from "./mocks.js";
+import { createReadyUser, createUserWithCompany, createClient } from "./setup/helpers.js";
+import { setupMocks } from "./setup/mocks.js";
 
 setupMocks();
 

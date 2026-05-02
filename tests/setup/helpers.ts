@@ -82,3 +82,21 @@ export const createClient = async (app: Express, accessToken: string, overrides:
         ...overrides
     });
 };
+
+export const createProject = async (app: Express, accessToken: string, clientId: string, overrides: Record<string, unknown> = {}) => {
+    return request(app).post("/api/project").set("Authorization", `Bearer ${accessToken}`).send({
+        client: clientId,
+        name: "Proyecto Test",
+        projectCode: "PR-001",
+        email: "proyecto@test.com",
+        notes: "Notas del proyecto",
+        address: {
+            street: "Calle Proyecto",
+            number: "30",
+            postal: "28030",
+            city: "Madrid",
+            province: "Madrid"
+        },
+        ...overrides
+    });
+};

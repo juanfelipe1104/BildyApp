@@ -1,6 +1,6 @@
 import request from "supertest";
-import { registerUser, registerAndValidateUser, createReadyUser } from "./helpers.js";
-import { uploadLogoMock, sendEmailMock, setupMocks } from "./mocks.js";
+import { registerUser, registerAndValidateUser, createReadyUser } from "./setup/helpers.js";
+import { uploadLogoMock, sendEmailMock, setupMocks } from "./setup/mocks.js";
 
 setupMocks();
 
