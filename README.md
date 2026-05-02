@@ -17,6 +17,7 @@ La aplicación incluye autenticación JWT, validación con Zod, documentación S
     - [Client](#client)
     - [Project](#project)
     - [DeliveryNote](#deliverynote)
+    - [Dashboard](#dashboard)
     - [WebSockets](#websockets)
     - [Infraestructura](#infraestructura)
   - [Estructura del proyecto](#estructura-del-proyecto)
@@ -40,6 +41,7 @@ La aplicación incluye autenticación JWT, validación con Zod, documentación S
     - [Client](#client-1)
     - [Project](#project-1)
     - [DeliveryNote](#deliverynote-1)
+    - [Dashboard](#dashboard-1)
     - [Health](#health)
   - [Query params comunes](#query-params-comunes)
     - [Paginación](#paginación)
@@ -52,6 +54,7 @@ La aplicación incluye autenticación JWT, validación con Zod, documentación S
     - [Albaranes firmados](#albaranes-firmados)
     - [WebSockets y rooms](#websockets-y-rooms)
     - [Logging con Slack](#logging-con-slack)
+    - [Dashboard con aggregation pipeline](#dashboard-con-aggregation-pipeline)
   - [Scripts disponibles](#scripts-disponibles)
 
 ---
@@ -131,6 +134,20 @@ La aplicación incluye autenticación JWT, validación con Zod, documentación S
 - Subida de firma y PDF firmado a Cloudinary.
 - Bloqueo de borrado de albaranes firmados.
 - Protección por compañía.
+
+### Dashboard
+
+- Endpoint de estadísticas globales de la compañía.
+- Uso de aggregation pipeline de MongoDB mediante Mongoose.
+- Métricas incluidas:
+  - Total de clientes.
+  - Total de proyectos.
+  - Total de albaranes.
+  - Albaranes firmados y pendientes.
+  - Albaranes por mes.
+  - Horas totales por proyecto.
+  - Materiales por cliente.
+  - Proyectos activos e inactivos.
 
 ### WebSockets
 
@@ -566,6 +583,12 @@ Esto permite comprobar automáticamente que el proyecto instala, compila, pasa l
 | `PATCH` | `/api/deliverynote/:id/sign` | Firmar albarán. |
 | `DELETE` | `/api/deliverynote/:id` | Eliminar albarán. |
 
+### Dashboard
+
+| Método | Endpoint | Descripción |
+|---|---|---|
+| `GET` | `/api/dashboard` | Obtener estadísticas agregadas de la compañía. |
+
 ### Health
 
 | Método | Endpoint | Descripción |
@@ -692,6 +715,28 @@ Esto evita enviar eventos a usuarios de otras compañías.
 Los errores 5XX pueden enviarse a Slack mediante webhook.
 
 Los errores 4XX no se envían a Slack porque corresponden a errores de cliente esperados.
+
+---
+
+### Dashboard con aggregation pipeline
+
+El endpoint `GET /api/dashboard` usa aggregation pipelines de MongoDB mediante Mongoose.
+
+Se utilizan etapas como:
+
+```txt
+$match
+$group
+$project
+$lookup
+$unwind
+$sort
+$addFields
+```
+
+Esto permite calcular estadísticas directamente en MongoDB sin traer todos los documentos a memoria de Node.js.
+
+Las métricas se calculan siempre filtrando por la compañía del usuario autenticado.
 
 ---
 
