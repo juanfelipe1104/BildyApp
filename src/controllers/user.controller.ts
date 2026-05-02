@@ -9,6 +9,7 @@ import { compare, encrypt } from '../utils/handlePassword.js';
 import notificationService from '../services/notification.service.js';
 import cloudinaryService from '../services/cloudinary.service.js';
 import { sendEmail } from '../config/mail.js';
+import env from '../config/env.js';
 
 const generateRandomCode = (): string => Math.floor(100000 + (Math.random() * 900000)).toString();
 
@@ -60,7 +61,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
     res.status(201).json({
         message: "Usuario creado",
         user,
-        verificationCode,
+        ...(env.NODE_ENV !== "production" ? { verificationCode } : {}),
         access_token,
         refresh_token
     });
@@ -303,7 +304,7 @@ export const inviteUser = async (req: Request, res: Response): Promise<void> => 
     res.status(201).json({
         message: "Usuario invitado correctamente. Datos invitado: ",
         user: invitedUser,
-        verificationCode,
+        ...(env.NODE_ENV !== "production" ? { verificationCode } : {}),
         access_token,
         refresh_token
     });
