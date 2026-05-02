@@ -293,7 +293,7 @@ export const inviteUser = async (req: Request, res: Response): Promise<void> => 
     });
 
     const companyName = company.name;
-    const inviterName = `${inviter.name} + ${inviter.lastName}` || inviter.email;
+    const inviterName = [inviter.name, inviter.lastName].filter(Boolean).join(" ") || inviter.email;
 
     await sendEmail(invitedUser.email, "Invitacion a BildyApp", `
             <h2>Has sido invitado a BildyApp</h2>
