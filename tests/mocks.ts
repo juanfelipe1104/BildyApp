@@ -7,3 +7,18 @@ export const uploadLogoMock = jest.fn().mockResolvedValue({ secure_url: "https:/
 export const uploadSignatureMock = jest.fn().mockResolvedValue({ secure_url: "https://res.cloudinary.com/test/signature.png" } as never);
 
 export const uploadPDFMock = jest.fn().mockResolvedValue({ secure_url: "https://res.cloudinary.com/test/albaran.pdf" } as never);
+
+export const setupMocks = () => {
+    jest.unstable_mockModule("../src/config/mail.js", () => ({
+        sendEmail: sendEmailMock
+    }));
+
+    jest.unstable_mockModule("../src/services/cloudinary.service.js", () => ({
+        uploadLogo: uploadLogoMock,
+        uploadDeliveryNoteSignature: uploadSignatureMock,
+        uploadDeliveryNotePdf: uploadPDFMock,
+        default: {
+            uploadLogo: uploadLogoMock,
+        }
+    }));
+}

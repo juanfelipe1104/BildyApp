@@ -1,18 +1,8 @@
-import { jest } from "@jest/globals";
 import request from "supertest";
 import { registerUser, registerAndValidateUser, createReadyUser } from "./helpers.js";
-import { uploadLogoMock, sendEmailMock } from "./mocks.js";
+import { uploadLogoMock, sendEmailMock, setupMocks } from "./mocks.js";
 
-jest.unstable_mockModule("../src/config/mail.js", () => ({
-    sendEmail: sendEmailMock
-}));
-
-jest.unstable_mockModule("../src/services/cloudinary.service.js", () => ({
-    uploadLogo: uploadLogoMock,
-    default: {
-        uploadLogo: uploadLogoMock,
-    }
-}));
+setupMocks();
 
 const { default: app } = await import("../src/app.js");
 

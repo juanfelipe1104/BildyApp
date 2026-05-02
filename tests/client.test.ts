@@ -1,11 +1,8 @@
-import { jest } from "@jest/globals";
 import request from "supertest";
 import { createReadyUser, createUserWithCompany, createClient } from "./helpers.js";
-import { sendEmailMock } from "./mocks.js";
+import { setupMocks } from "./mocks.js";
 
-jest.unstable_mockModule("../src/config/mail.js", () => ({
-    sendEmail: sendEmailMock
-}));
+setupMocks();
 
 const { default: app } = await import("../src/app.js");
 
