@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import Client, { type ClientDocument } from "../models/Client.js";
 import { AppError } from '../utils/AppError.js';
+import { emitToCompany } from "../sockets/socket.js";
 
 export const createClient = async (req: Request, res: Response): Promise<void> => {
     const clientData = req.body;
@@ -9,6 +10,7 @@ export const createClient = async (req: Request, res: Response): Promise<void> =
     const client = await Client.create({
         user, company, ...clientData
     });
+    emitToCompany(company!.toString(), "client:new", client);
     res.status(201).json({
         message: "Cliente creado",
         client

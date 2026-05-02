@@ -4,6 +4,7 @@ import DeliveryNote, { type DeliveryNoteDocument, type PopulatedDeliveryNote } f
 import Project from "../models/Project.js";
 import pdfService from "../services/pdf.service.js";
 import cloudinaryService from "../services/cloudinary.service.js";
+import { emitToCompany } from "../sockets/socket.js";
 
 export const createDeliveryNote = async (req: Request, res: Response) => {
     const user = req.user._id;
@@ -16,6 +17,7 @@ export const createDeliveryNote = async (req: Request, res: Response) => {
     const deliveryNote = await DeliveryNote.create({
         user, company, ...deliveryNoteData
     });
+    emitToCompany(company!.toString(), "deliverynote:new", deliveryNote);
     res.status(201).json({
         message: "Albaran creado",
         deliveryNote
@@ -74,7 +76,7 @@ export const signPDF = async (req: Request, res: Response) => {
     deliveryNote.pdfUrl = uploadedPDF.secure_url;
 
     await deliveryNote.save();
-
+    emitToCompany(deliveryNote.company.toString(), "deliverynote:signed", deliveryNote);
     res.json({
         deliveryNote
     });
@@ -88,10 +90,10 @@ export const deleteDeliveryNote = async (req: Request, res: Response) => {
         throw AppError.forbidden("No se puede borrar albaran firmado");
     }
     let deliveryNote: DeliveryNoteDocument;
-    if(soft === "true"){
+    if (soft === "true") {
         deliveryNote = await DeliveryNote.softDeleteById(deliveryNoteId);
     }
-    else{
+    else {
         deliveryNote = await DeliveryNote.hardDelete(deliveryNoteId);
     }
     res.json({
