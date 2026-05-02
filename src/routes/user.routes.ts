@@ -469,13 +469,27 @@ router.put('/password', validate(userSchema.schemaPasswordBody), validateUser, v
  *         content:
  *           application/json:
  *             schema:
- *               allOf:
- *                 - $ref: "#/components/schemas/AuthResponse"
- *                 - type: object
- *                   properties:
- *                     verificationCode:
- *                       type: string
- *                       example: "123456"
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Usuario invitado correctamente
+ *                 user:
+ *                   $ref: "#/components/schemas/User"
+ *                 access_token:
+ *                   type: string
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *                 refresh_token:
+ *                   type: string
+ *                   example: 550e8400-e29b-41d4-a716-446655440000
+ *                 verificationCode:
+ *                   type: string
+ *                   example: "123456"
+ *                   description: Solo se devuelve fuera de producción para facilitar pruebas.
+ *                 temporaryPassword:
+ *                   type: string
+ *                   example: A7kP92mQxL4z
+ *                   description: Solo se devuelve fuera de producción para facilitar pruebas.
  *       400:
  *         description: El usuario administrador no tiene compañía asociada
  *       401:

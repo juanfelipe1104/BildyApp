@@ -48,7 +48,7 @@ export const schemaDeliveryNoteQuery = z.object({
         material: z.string().optional(),
         quantity: z.coerce.number().optional(),
         hours: z.coerce.number().optional(),
-        signed: z.coerce.boolean().optional(),
+        signed: z.enum(["true", "false"]).transform(value => value === "true").optional(),
         page: z.coerce.number().int().positive().optional(),
         limit: z.coerce.number().int().positive().max(100).optional(),
         sort: z.string().optional()

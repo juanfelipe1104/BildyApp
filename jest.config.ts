@@ -9,7 +9,8 @@ export default {
         "!src/index.ts",
         "!src/types/**/*.ts",
         "!src/config/*.ts",
-        "!src/services/*.ts",
+        "!src/services/cloudinary.service.ts",
+        "!src/services/notification.service.ts",
         "!src/utils/handleLogger.ts"
     ],
     coverageReporters: ["text"],
