@@ -3,7 +3,7 @@ export default {
     testEnvironment: "node",
     extensionsToTreatAsEsm: [".ts"],
     testMatch: ["**/tests/**/*.test.ts"],
-    setupFilesAfterEnv: ["<rootDir>/tests/setup.ts"],
+    setupFilesAfterEnv: ["<rootDir>/tests/setup/setup.ts"],
     collectCoverageFrom: [
         "src/**/*.ts",
         "!src/index.ts",
