@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWYyODNlZTNkYjczOGZkZDJmZWExODIiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3Nzc3NDE2NDAsImV4cCI6MTc3Nzc0MjU0MH0.Qc1iu1kizbi3ekIg-Ox7oHb4jmNzHNk6umDE8ndP4uA";
+
+        const socket = io("http://localhost:3000/notifications", {
+            auth: {
+                token
+            }
+        });
+
+        socket.on("connect", () => {
+            console.log("Conectado:", socket.id);
+        });
+
+        socket.on("notifications:connected", data => {
+            console.log("Room:", data);
+        });
+
+        socket.on("client:new", client => {
+            console.log("Nuevo cliente:", client);
+        });
+
+        socket.on("project:new", project => {
+            console.log("Nuevo proyecto:", project);
+        });
+
+        socket.on("deliverynote:new", deliveryNote => {
+            console.log("Nuevo albarán:", deliveryNote);
+        });
+
+        socket.on("deliverynote:signed", deliveryNote => {
+            console.log("Albarán firmado:", deliveryNote);
+        });
+
+        socket.on("connect_error", error => {
+            console.error("Error de conexión:", error.message);
+        });
+    </script>
+</body>
+
+</html>
