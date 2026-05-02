@@ -10,6 +10,7 @@ import { loggerStream } from './utils/handleLogger.js';
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./config/swagger.js";
 import env from './config/env.js';
+import { getHealth } from './controllers/health.controller.js';
 
 const app = express();
 
@@ -31,9 +32,11 @@ if (env.NODE_ENV !== "test") {
 
 app.use('/uploads', express.static(join(import.meta.dirname, '../uploads')));
 
+app.get('/health', getHealth);
+
 app.use('/api', router);
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(errorHandler);
 
