@@ -82,11 +82,11 @@ export const getIO = (): Server => {
     return io;
 };
 
-export const emitToCompany = (companyId: string, event: string, payload: unknown): void => {
+export const emitToCompany = (companyId: string, event: string, info: unknown): void => {
     if (!io) {
         return;
     }
-    io.of("/notifications").to(getCompanyRoom(companyId)).emit(event, payload);
+    io.of("/notifications").to(getCompanyRoom(companyId)).emit(event, info);
 };
 
 export const closeSocket = async (): Promise<void> => {
