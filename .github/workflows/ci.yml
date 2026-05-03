@@ -17,6 +17,8 @@ jobs:
       PORT: 3000
       DB_URI: mongodb://127.0.0.1:27017
       DB_NAME: bildyapp_test
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/bildyapp_audit_test
+      DIRECT_URL: your_direct_url_supabase
       JWT_SECRET: test_jwt_secret_12345678901234567890
       SLACK_WEBHOOK: https://example.com/slack
       CLOUDINARY_CLOUD_NAME: test_cloud
