@@ -3,6 +3,7 @@ import { AppError } from '../utils/AppError.js';
 import Project, { type ProjectDocument } from "../models/Project.js";
 import Client from "../models/Client.js";
 import { emitToCompany } from "../sockets/socket.js";
+import { createAuditLog } from "../services/audit.service.js";
 
 export const createProject = async (req: Request, res: Response): Promise<void> => {
     const { client, name, projectCode, address, email, notes } = req.body;
@@ -16,6 +17,18 @@ export const createProject = async (req: Request, res: Response): Promise<void> 
         user, company, client, name, projectCode, address, email, notes
     });
     emitToCompany(company!.toString(), "project:new", project);
+    await createAuditLog({
+        action: "PROJECT_CREATED",
+        entity: "Project",
+        entityId: project._id.toString(),
+        companyId: company!.toString(),
+        userId: user.toString(),
+        metadata: {
+            name: project.name,
+            projectCode: project.projectCode,
+            client: project.client.toString()
+        }
+    });
     res.status(201).json({
         message: "Proyecto creado",
         project

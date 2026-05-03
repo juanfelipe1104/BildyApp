@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import Client, { type ClientDocument } from "../models/Client.js";
 import { AppError } from '../utils/AppError.js';
 import { emitToCompany } from "../sockets/socket.js";
+import { createAuditLog } from "../services/audit.service.js";
 
 export const createClient = async (req: Request, res: Response): Promise<void> => {
     const clientData = req.body;
@@ -11,6 +12,17 @@ export const createClient = async (req: Request, res: Response): Promise<void> =
         user, company, ...clientData
     });
     emitToCompany(company!.toString(), "client:new", client);
+    await createAuditLog({
+        action: "CLIENT_CREATED",
+        entity: "Client",
+        entityId: client._id.toString(),
+        companyId: company!.toString(),
+        userId: user.toString(),
+        metadata: {
+            name: client.name.toString(),
+            cif: client.cif.toString()
+        }
+    });
     res.status(201).json({
         message: "Cliente creado",
         client

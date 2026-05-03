@@ -10,6 +10,7 @@ import notificationService from '../services/notification.service.js';
 import cloudinaryService from '../services/cloudinary.service.js';
 import { sendEmail } from '../config/mail.js';
 import env from '../config/env.js';
+import { createAuditLog } from '../services/audit.service.js';
 
 const generateRandomCode = (): string => Math.floor(100000 + (Math.random() * 900000)).toString();
 
@@ -324,6 +325,18 @@ export const inviteUser = async (req: Request, res: Response): Promise<void> => 
         invitedEmail: invitedUser.email,
         companyId: company._id.toString(),
         invitedBy: inviter._id.toString()
+    });
+
+    await createAuditLog({
+        action: "USER_INVITED",
+        entity: "User",
+        entityId: invitedUser._id.toString(),
+        companyId: company._id.toString(),
+        userId: req.user._id.toString(),
+        metadata: {
+            email: invitedUser.email,
+            role: invitedUser.role
+        }
     });
 
     res.status(201).json({

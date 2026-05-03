@@ -5,6 +5,7 @@ import Project from "../models/Project.js";
 import pdfService from "../services/pdf.service.js";
 import cloudinaryService from "../services/cloudinary.service.js";
 import { emitToCompany } from "../sockets/socket.js";
+import { createAuditLog } from "../services/audit.service.js";
 
 export const createDeliveryNote = async (req: Request, res: Response) => {
     const user = req.user._id;
@@ -18,6 +19,19 @@ export const createDeliveryNote = async (req: Request, res: Response) => {
         user, company, ...deliveryNoteData
     });
     emitToCompany(company!.toString(), "deliverynote:new", deliveryNote);
+    await createAuditLog({
+        action: "DELIVERYNOTE_CREATED",
+        entity: "DeliveryNote",
+        entityId: deliveryNote._id.toString(),
+        companyId: company!.toString(),
+        userId: user.toString(),
+        metadata: {
+            format: deliveryNote.format,
+            client: deliveryNote.client.toString(),
+            project: deliveryNote.project.toString(),
+            workDate: deliveryNote.workDate
+        }
+    });
     res.status(201).json({
         message: "Albaran creado",
         deliveryNote
@@ -77,6 +91,17 @@ export const signPDF = async (req: Request, res: Response) => {
 
     await deliveryNote.save();
     emitToCompany(deliveryNote.company._id.toString(), "deliverynote:signed", deliveryNote);
+    await createAuditLog({
+        action: "DELIVERYNOTE_SIGNED",
+        entity: "DeliveryNote",
+        entityId: deliveryNote._id.toString(),
+        companyId: deliveryNote.company._id.toString(),
+        userId: req.user._id.toString(),
+        metadata: {
+            signatureUrl: deliveryNote.signatureUrl,
+            pdfUrl: deliveryNote.pdfUrl
+        }
+    });
     res.json({
         deliveryNote
     });
