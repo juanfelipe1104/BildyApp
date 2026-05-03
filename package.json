@@ -10,7 +10,11 @@
     "start": "node --env-file=.env dist/index.js",
     "test": "node --env-file=tests/.env.test --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:watch": "npm test -- --watch",
-    "test:coverage": "npm test -- --coverage"
+    "test:coverage": "npm test -- --coverage",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "prisma:deploy": "prisma migrate deploy"
   },
   "engines": {
     "node": ">=22"
