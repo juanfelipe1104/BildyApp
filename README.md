@@ -18,6 +18,7 @@ La aplicación incluye autenticación JWT, validación con Zod, documentación S
     - [Project](#project)
     - [DeliveryNote](#deliverynote)
     - [Dashboard](#dashboard)
+    - [PostgreSQL + Prisma](#postgresql--prisma)
     - [WebSockets](#websockets)
     - [Infraestructura](#infraestructura)
   - [Estructura del proyecto](#estructura-del-proyecto)
@@ -42,6 +43,7 @@ La aplicación incluye autenticación JWT, validación con Zod, documentación S
     - [Project](#project-1)
     - [DeliveryNote](#deliverynote-1)
     - [Dashboard](#dashboard-1)
+    - [Audit](#audit)
     - [Health](#health)
   - [Query params comunes](#query-params-comunes)
     - [Paginación](#paginación)
@@ -55,6 +57,7 @@ La aplicación incluye autenticación JWT, validación con Zod, documentación S
     - [WebSockets y rooms](#websockets-y-rooms)
     - [Logging con Slack](#logging-con-slack)
     - [Dashboard con aggregation pipeline](#dashboard-con-aggregation-pipeline)
+    - [PostgreSQL + Prisma](#postgresql--prisma-1)
   - [Scripts disponibles](#scripts-disponibles)
 
 ---
@@ -149,6 +152,14 @@ La aplicación incluye autenticación JWT, validación con Zod, documentación S
   - Materiales por cliente.
   - Proyectos activos e inactivos.
 
+### PostgreSQL + Prisma
+
+- Integración complementaria con PostgreSQL usando Prisma ORM.
+- Persistencia principal mantenida en MongoDB/Mongoose.
+- Registro de eventos de auditoría en PostgreSQL.
+- Gestión del esquema mediante `prisma/schema.prisma`.
+- Migraciones con Prisma Migrate.
+
 ### WebSockets
 
 - Namespace `/notifications`.
@@ -228,6 +239,9 @@ PORT=3000
 DB_URI=mongodb://127.0.0.1:27017
 DB_NAME=bildyapp
 
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/bildyapp_audit
+DIRECT_URL=your_direct_url_supabase
+
 JWT_SECRET=minimum_32_characters
 
 SLACK_WEBHOOK=your_slack_webhook
@@ -248,6 +262,8 @@ EMAIL_PASSWORD=your_gmail_app_password
 | `PORT` | Puerto donde se levanta la API. |
 | `DB_URI` | URI de conexión a MongoDB. |
 | `DB_NAME` | Nombre de la base de datos. |
+| `DATABASE_URL` | URL de conexión a PostgreSQL usada por Prisma. |
+| `DIRECT_URL` | URL de conexión a Supabase PostgreSQL usada por Prisma. Opcional |
 | `JWT_SECRET` | Clave secreta para firmar tokens JWT. |
 | `SLACK_WEBHOOK` | Webhook de Slack para logging de errores 5XX. |
 | `CLOUDINARY_CLOUD_NAME` | Nombre de Cloudinary. |
@@ -276,6 +292,12 @@ Compilar TypeScript:
 
 ```bash
 npm run build
+```
+
+Generar el cliente de prisma:
+
+```bash
+npm run prisma:generate
 ```
 
 Ejecutar la versión compilada en local:
@@ -589,6 +611,12 @@ Esto permite comprobar automáticamente que el proyecto instala, compila, pasa l
 |---|---|---|
 | `GET` | `/api/dashboard` | Obtener estadísticas agregadas de la compañía. |
 
+### Audit
+
+| Método | Endpoint | Descripción |
+|---|---|---|
+| `GET` | `/api/audit` | Obtener los últimos logs de auditoría de la compañía. |
+
 ### Health
 
 | Método | Endpoint | Descripción |
@@ -737,6 +765,48 @@ $addFields
 Esto permite calcular estadísticas directamente en MongoDB sin traer todos los documentos a memoria de Node.js.
 
 Las métricas se calculan siempre filtrando por la compañía del usuario autenticado.
+
+---
+
+### PostgreSQL + Prisma
+
+Además de MongoDB/Mongoose, el proyecto incluye una integración complementaria con PostgreSQL usando Prisma ORM.
+
+La persistencia principal de la aplicación continúa en MongoDB. PostgreSQL se usa como módulo adicional para almacenar eventos de auditoría en la tabla `audit_logs`.
+
+Eventos registrados:
+
+- Invitación de usuarios.
+- Creación de clientes.
+- Creación de proyectos.
+- Creación de albaranes.
+- Firma de albaranes.
+
+El schema se define en:
+
+```txt
+prisma/schema.prisma
+```
+
+Las migraciones se gestionan con Prisma Migrate:
+
+```bash
+npm run prisma:migrate
+```
+
+Para regenerar Prisma Client:
+
+```bash
+npm run prisma:generate
+```
+
+El endpoint relacionado es:
+
+```http
+GET /api/audit
+```
+
+Este endpoint devuelve los últimos logs de auditoría asociados a la compañía del usuario autenticado.
 
 ---
 
