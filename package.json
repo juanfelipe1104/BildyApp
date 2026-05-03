@@ -19,7 +19,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@prisma/client": "^7.8.0",
+    "@prisma/client": "^6.19.3",
     "@slack/webhook": "^7.0.8",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.9.0",
