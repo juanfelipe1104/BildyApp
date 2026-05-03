@@ -26,10 +26,19 @@ describe("Dashboard", () => {
 
         const secondProjectResponse = await createProject(app, accessToken, secondClientResponse.body.client._id, {
             name: "Segundo Proyecto",
-            projectCode: "PR-DASH-2",
-            active: false
+            projectCode: "PR-DASH-2"
         }
         );
+
+        expect(secondProjectResponse.status).toBe(201);
+
+        const updateSecondProjectResponse = await request(app).put(`/api/project/${secondProjectResponse.body.project._id}`).set("Authorization", `Bearer ${accessToken}`)
+            .send({
+                active: false
+            });
+
+        expect(updateSecondProjectResponse.status).toBe(200);
+        expect(updateSecondProjectResponse.body.project.active).toBe(false);
 
         expect(secondProjectResponse.status).toBe(201);
 
@@ -85,8 +94,8 @@ describe("Dashboard", () => {
         expect(response.body.summary.signedDeliveryNotes).toBe(0);
         expect(response.body.summary.pendingDeliveryNotes).toBe(3);
 
-        expect(response.body.projectsByStatus.active).toBe(2);
-        expect(response.body.projectsByStatus.inactive).toBe(0);
+        expect(response.body.projectsByStatus.active).toBe(1);
+        expect(response.body.projectsByStatus.inactive).toBe(1);
 
         expect(response.body.deliveryNotesByMonth).toEqual(
             expect.arrayContaining([
