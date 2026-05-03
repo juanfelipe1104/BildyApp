@@ -26,6 +26,7 @@ La aplicación incluye autenticación JWT, validación con Zod, documentación S
     - [Descripción de variables](#descripción-de-variables)
   - [Instalación local](#instalación-local)
   - [Ejecución con Docker](#ejecución-con-docker)
+    - [Migraciones de Prisma en Docker](#migraciones-de-prisma-en-docker)
   - [Documentación Swagger](#documentación-swagger)
   - [Tests y cobertura](#tests-y-cobertura)
   - [WebSockets](#websockets-1)
@@ -348,6 +349,28 @@ La API se conecta internamente mediante:
 
 ```txt
 mongodb://mongodb:27017
+```
+
+### Migraciones de Prisma en Docker
+
+El proyecto usa PostgreSQL + Prisma como módulo complementario para los logs de auditoría.
+
+Si se levanta PostgreSQL mediante Docker Compose, primero hay que iniciar el servicio de PostgreSQL:
+
+```bash
+docker-compose up -d postgres
+```
+
+Después se aplican las migraciones de Prisma:
+
+```bash
+npx prisma migrate deploy
+```
+
+Finalmente se puede levantar la API completa:
+
+```bash
+docker-compose up --build
 ```
 
 ---
@@ -798,6 +821,12 @@ Para regenerar Prisma Client:
 
 ```bash
 npm run prisma:generate
+```
+
+Para aplicar migraciones existentes, por ejemplo en Docker o producción:
+
+```bash
+npx prisma migrate deploy
 ```
 
 El endpoint relacionado es:
