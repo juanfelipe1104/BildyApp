@@ -355,22 +355,12 @@ mongodb://mongodb:27017
 
 El proyecto usa PostgreSQL + Prisma como módulo complementario para los logs de auditoría.
 
-Si se levanta PostgreSQL mediante Docker Compose, primero hay que iniciar el servicio de PostgreSQL:
+Si se levanta PostgreSQL mediante Docker Compose, hay que aplicar las migraciones de Prisma:
 
 ```bash
-docker-compose up -d postgres
-```
-
-Después se aplican las migraciones de Prisma:
-
-```bash
-npx prisma migrate deploy
-```
-
-Finalmente se puede levantar la API completa:
-
-```bash
-docker-compose up --build
+docker-compose up -d --build
+docker-compose exec api npx prisma migrate deploy
+docker-compose restart api
 ```
 
 ---
