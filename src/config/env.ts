@@ -6,7 +6,7 @@ const envSchema = z.object({
     DB_URI: z.string(),
     DB_NAME: z.string(),
     DATABASE_URL: z.string(),
-    DIRECT_URL: z.string(),
+    DIRECT_URL: z.string().optional(),
     JWT_SECRET: z.string().min(32, 'JWT_SECRET debe tener al menos 32 caracteres'),
     SLACK_WEBHOOK: z.string(),
     CLOUDINARY_CLOUD_NAME: z.string(),
