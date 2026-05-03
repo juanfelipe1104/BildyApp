@@ -1,6 +1,7 @@
 import app from './app.js';
 import env from './config/env.js';
 import dbConnect from './config/db.js';
+import prisma from './config/prisma.js';
 import { createServer } from 'http';
 import { closeSocket, initSocket } from './sockets/socket.js';
 import mongoose from 'mongoose';
@@ -30,6 +31,8 @@ const closeServer = async (signal: string): Promise<void> => {
             console.log('Conexión a Socket cerrada');
             await mongoose.connection.close();
             console.log('Conexión a MongoDB cerrada');
+            await prisma.$disconnect();
+            console.log('Conexion de Prisma cerrada');
 
             console.log("Servidor cerrado correctamente");
             process.exit(0);
