@@ -263,7 +263,7 @@ EMAIL_PASSWORD=your_gmail_app_password
 | `DB_URI` | URI de conexión a MongoDB. |
 | `DB_NAME` | Nombre de la base de datos. |
 | `DATABASE_URL` | URL de conexión a PostgreSQL usada por Prisma. |
-| `DIRECT_URL` | URL de conexión a Supabase PostgreSQL usada por Prisma. Opcional |
+| `DIRECT_URL` | URL de conexión a Supabase PostgreSQL usada por Prisma. Si no se tiene Supabase, poner la misma URL que en DATABASE_URL |
 | `JWT_SECRET` | Clave secreta para firmar tokens JWT. |
 | `SLACK_WEBHOOK` | Webhook de Slack para logging de errores 5XX. |
 | `CLOUDINARY_CLOUD_NAME` | Nombre de Cloudinary. |
