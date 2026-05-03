@@ -86,7 +86,7 @@ const errorHandler = (err: unknown, req: Request, res: Response, _next: NextFunc
     const isProduction = process.env.NODE_ENV === 'production';
     const message = isProduction ? 'Error interno del servidor' : (err as GenericError)?.message || 'Error interno del servidor';
 
-    sendSlackError({ req, statusCode: 500, message, code: 'INTERNAL_ERROR', stack: (err as GenericError)?.stack });
+    void sendSlackError({ req, statusCode: 500, message, code: 'INTERNAL_ERROR', stack: (err as GenericError)?.stack });
 
     return res.status(500).json({
         error: true,
