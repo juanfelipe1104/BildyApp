@@ -14,8 +14,10 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY package*.json ./
 COPY tsconfig.json ./
+COPY prisma ./prisma
 COPY src ./src
 
+RUN npx prisma generate
 RUN npm run build
 
 
@@ -37,6 +39,7 @@ ENV NODE_ENV=production
 COPY package*.json ./
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
+COPY --from=build /app/prisma ./prisma
 
 EXPOSE 3000
 
