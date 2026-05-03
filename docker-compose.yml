@@ -5,6 +5,18 @@ services:
     restart: unless-stopped
     volumes:
       - mongodb_data:/data/db
+  postgres:
+    image: postgres:16-alpine
+    container_name: bildyapp-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: bildyapp_audit
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
 
   api:
     build:
@@ -19,6 +31,7 @@ services:
       NODE_ENV: production
       DB_URI: mongodb://mongodb:27017
       DB_NAME: bildyapp
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/bildyapp_audit
       JWT_SECRET: ${JWT_SECRET}
       SLACK_WEBHOOK: ${SLACK_WEBHOOK}
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
@@ -28,6 +41,8 @@ services:
       EMAIL_PASSWORD: ${EMAIL_PASSWORD}
     depends_on:
       - mongodb
+      - postgres
 
 volumes:
   mongodb_data:
+  postgres_data:

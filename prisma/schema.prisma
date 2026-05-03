@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum AuditAction {
+  USER_INVITED
+  CLIENT_CREATED
+  PROJECT_CREATED
+  DELIVERYNOTE_CREATED
+  DELIVERYNOTE_SIGNED
+}
+
+model AuditLog {
+  id        Int         @id @default(autoincrement())
+  action    AuditAction
+  entity    String
+  entityId  String
+  companyId String
+  userId    String?
+  metadata  Json?
+  createdAt DateTime    @default(now())
+
+  @@index([companyId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

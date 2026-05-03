@@ -19,6 +19,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^7.8.0",
     "@slack/webhook": "^7.0.8",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.9.0",
@@ -50,6 +51,7 @@
     "@types/swagger-ui-express": "^4.1.8",
     "jest": "^30.3.0",
     "mongodb-memory-server": "^11.1.0",
+    "prisma": "^6.19.3",
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.9",
     "tsx": "^4.21.0",
