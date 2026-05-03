@@ -8,10 +8,10 @@ type CreateAuditLogInput = {
     entityId: string;
     companyId: string;
     userId?: string;
-    metadata?: Prisma.InputJsonValue;
+    metadata: Prisma.InputJsonValue;
 };
 
-export const createAuditLog = async ({ action, entity, entityId, companyId, userId, metadata }: CreateAuditLogInput): Promise<void> => {
+export const createAuditLog = async ({ action, entity, entityId, companyId, userId, metadata = {} }: CreateAuditLogInput): Promise<void> => {
     if (env.NODE_ENV === "test") {
         return;
     }

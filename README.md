@@ -184,39 +184,104 @@ La aplicación incluye autenticación JWT, validación con Zod, documentación S
 ## Estructura del proyecto
 
 ```txt
-src/
-├── app.ts
-├── index.ts
-├── config/
-│   ├── db.ts
-│   ├── env.ts
-│   ├── mail.ts
-│   └── swagger.ts
-├── controllers/
-│   ├── client.controller.ts
-│   ├── deliveryNote.controller.ts
-│   ├── health.controller.ts
-│   ├── project.controller.ts
-│   └── user.controller.ts
-├── middlewares/
-├── models/
-├── routes/
-├── services/
-├── sockets/
-│   └── socket.ts
-├── types/
-├── utils/
-└── validators/
+.
+├── .github/
+│   └── workflows/
+│       └── ci.yml
+├── postman/
+├── prisma/
+│   ├── migrations/
+│   │   └── ...
+│   └── schema.prisma
+├── src/
+│   ├── app.ts
+│   ├── index.ts
+│   ├── config/
+│   │   ├── cloudinary.ts
+│   │   ├── db.ts
+│   │   ├── env.ts
+│   │   ├── mail.ts
+│   │   ├── prisma.ts
+│   │   └── swagger.ts
+│   ├── controllers/
+│   │   ├── audit.controller.ts
+│   │   ├── client.controller.ts
+│   │   ├── dashboard.controller.ts
+│   │   ├── deliveryNote.controller.ts
+│   │   ├── health.controller.ts
+│   │   ├── project.controller.ts
+│   │   └── user.controller.ts
+│   ├── middlewares/
+│   │   ├── auth.middleware.ts
+│   │   ├── buildQuery.ts
+│   │   ├── error-handler.ts
+│   │   ├── rate-limit.ts
+│   │   ├── role.middleware.ts
+│   │   ├── sanitize.middleware.ts
+│   │   ├── upload.ts
+│   │   └── validate.ts
+│   ├── models/
+│   │   ├── Client.ts
+│   │   ├── Company.ts
+│   │   ├── DeliveryNote.ts
+│   │   ├── Project.ts
+│   │   ├── RefreshToken.ts
+│   │   └── User.ts
+│   ├── plugins/
+│   │   └── softDelete.plugin.ts
+│   ├── routes/
+│   │   ├── audit.routes.ts
+│   │   ├── client.routes.ts
+│   │   ├── dashboard.routes.ts
+│   │   ├── deliveryNote.routes.ts
+│   │   ├── project.routes.ts
+│   │   ├── routes.ts
+│   │   └── user.routes.ts
+│   ├── services/
+│   │   ├── audit.service.ts
+│   │   ├── cloudinary.service.ts
+│   │   ├── notification.service.ts
+│   │   └── pdf.service.ts
+│   ├── sockets/
+│   │   ├── client.html
+│   │   └── socket.ts
+│   ├── types/
+│   │   └── express.d.ts
+│   ├── utils/
+│   │   ├── AppError.ts
+│   │   ├── handleJWT.ts
+│   │   ├── handleLogger.ts
+│   │   └── handlePassword.ts
+│   └── validators/
+│       ├── client.validator.ts
+│       ├── common.validator.ts
+│       ├── deliveryNote.validator.ts
+│       ├── project.validator.ts
+│       └── user.validator.ts
+├── tests/
+│   ├── setup/
+│   │   ├── helpers.ts
+│   │   ├── mocks.ts
+│   │   └── setup.ts
+│   ├── .env.test
+│   ├── client.test.ts
+│   ├── dashboard.test.ts
+│   ├── deliveryNote.test.ts
+│   ├── project.test.ts
+│   └── user.test.ts
+├── .dockerignore
+├── .env
+├── .env.example
+├── .gitignore
+├── docker-compose.yml
+├── Dockerfile
+├── jest.config.ts
+├── package-lock.json
+├── package.json
+├── README.md
+├── tsconfig.json
+└── tsconfig.test.json
 
-tests/
-├── setup/
-│   ├── helpers.ts
-│   ├── mocks.ts
-│   └── setup.ts
-├── user.test.ts
-├── client.test.ts
-├── project.test.ts
-└── deliveryNote.test.ts
 ```
 
 ---
