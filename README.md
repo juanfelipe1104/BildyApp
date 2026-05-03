@@ -282,6 +282,12 @@ Instalar dependencias:
 npm install
 ```
 
+Generar el cliente de prisma:
+
+```bash
+npm run prisma:generate
+```
+
 Ejecutar en modo desarrollo:
 
 ```bash
@@ -292,12 +298,6 @@ Compilar TypeScript:
 
 ```bash
 npm run build
-```
-
-Generar el cliente de prisma:
-
-```bash
-npm run prisma:generate
 ```
 
 Ejecutar la versión compilada en local:
