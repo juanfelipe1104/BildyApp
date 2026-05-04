@@ -1,8 +1,6 @@
 import { Server } from "socket.io";
 import type { Server as HttpServer } from "http";
-import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import env from "../config/env.js";
 import { AppError } from "../utils/AppError.js";
 import { verifyAccessToken } from "../utils/handleJWT.js";
 
