@@ -8,6 +8,8 @@ import mongoose from 'mongoose';
 
 const httpServer = createServer(app);
 
+let isClosing = false;
+
 const startServer = async (): Promise<void> => {
     await dbConnect();
     initSocket(httpServer);
@@ -19,6 +21,13 @@ const startServer = async (): Promise<void> => {
 
 const closeServer = async (signal: string): Promise<void> => {
     console.log(`Recibida señal ${signal}. Cerrando servidor...`);
+
+    if(isClosing){
+        console.log("El servidor se está cerrando");
+        return;
+    }
+
+    isClosing = true;
 
     httpServer.close(async error => {
         if (error) {
