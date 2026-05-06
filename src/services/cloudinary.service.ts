@@ -79,10 +79,10 @@ class CloudinaryService {
         });
     }
 
-    async uploadDeliveryNotePdf(buffer: Buffer, deliveryNoteId: string): Promise<CloudinaryUploadResult> {
+    async uploadDeliveryNotePdf(buffer: Buffer, companyId: string, deliveryNoteId: string): Promise<CloudinaryUploadResult> {
         return this.uploadBuffer(buffer, {
-            folder: 'deliverynotes/pdfs',
-            publicId: `deliverynote_${deliveryNoteId}`,
+            folder: `company_${companyId}/deliverynotes/pdfs`,
+            publicId: `deliverynote_${deliveryNoteId}.pdf`,
             overwrite: true,
             resourceType: 'raw'
         });

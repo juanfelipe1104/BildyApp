@@ -86,7 +86,7 @@ export const signPDF = async (req: Request, res: Response) => {
     deliveryNote.signatureUrl = uploadedSignature.secure_url;
 
     const pdf = await pdfService.generateDeliveryNotePDF({ deliveryNote, signatureBuffer: signature });
-    const uploadedPDF = await cloudinaryService.uploadDeliveryNotePdf(pdf, deliveryNote._id.toString());
+    const uploadedPDF = await cloudinaryService.uploadDeliveryNotePdf(pdf, deliveryNote.company._id.toString(), deliveryNote._id.toString());
     deliveryNote.pdfUrl = uploadedPDF.secure_url;
 
     await deliveryNote.save();
