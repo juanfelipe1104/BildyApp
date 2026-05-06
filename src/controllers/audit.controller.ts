@@ -14,7 +14,7 @@ export const getAuditLogs = async (req: Request, res: Response): Promise<void> =
         take: 50
     });
 
-    res.status(200).json({
+    res.json({
         logs
     });
 };

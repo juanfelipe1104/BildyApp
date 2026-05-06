@@ -214,7 +214,7 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
 
     const inactiveProjects = projectsByStatus.find(item => item._id === false)?.total ?? 0;
 
-    res.status(200).json({
+    res.json({
         summary: {
             clients: totalClients,
             projects: totalProjects,
