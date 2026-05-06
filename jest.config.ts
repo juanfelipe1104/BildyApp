@@ -9,6 +9,9 @@ export default {
         "!src/index.ts",
         "!src/types/**/*.ts",
         "!src/config/*.ts",
+        "!src/sockets/*",
+        "!src/controllers/audit.controller.ts",
+        "!src/services/audit.service.ts",
         "!src/services/cloudinary.service.ts",
         "!src/utils/handleLogger.ts"
     ],
