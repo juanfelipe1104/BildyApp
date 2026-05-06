@@ -8,371 +8,659 @@
   },
   "item": [
     {
-      "name": "Auth",
+      "name": "User/Auth",
       "item": [
         {
-          "name": "Register User",
-          "event": [
+          "name": "Auth",
+          "item": [
             {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 201\", function () {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "",
-                  "const response = pm.response.json();",
-                  "",
-                  "if (response.access_token) {",
-                  "    pm.environment.set(\"accessToken\", response.access_token);",
-                  "}",
-                  "",
-                  "if (response.refresh_token) {",
-                  "    pm.environment.set(\"refreshToken\", response.refresh_token);",
-                  "}",
-                  "",
-                  "if (response.verificationCode) {",
-                  "    pm.environment.set(\"verificationCode\", response.verificationCode);",
-                  "}"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"email\": \"juan@gmail.com\",\n    \"password\": \"12345678\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "register"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Validate Email",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "const response = pm.response.json();",
-                  "",
-                  "pm.test(\"Email validated successfully\", function () {",
-                  "    pm.expect(response.error).to.eql(false);",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
+              "name": "Register User",
+              "event": [
                 {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();",
+                      "",
+                      "if (response.access_token) {",
+                      "    pm.environment.set(\"accessToken\", response.access_token);",
+                      "}",
+                      "",
+                      "if (response.refresh_token) {",
+                      "    pm.environment.set(\"refreshToken\", response.refresh_token);",
+                      "}",
+                      "",
+                      "if (response.verificationCode) {",
+                      "    pm.environment.set(\"verificationCode\", response.verificationCode);",
+                      "}"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
                 }
-              ]
-            },
-            "method": "PUT",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"code\": \"{{verificationCode}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/validation",
-              "host": [
-                "{{baseUrl}}"
               ],
-              "path": [
-                "validation"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Login",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "const response = pm.response.json();",
-                  "",
-                  "pm.test(\"Login returns tokens\", function () {",
-                  "    pm.expect(response.access_token).to.exist;",
-                  "    pm.expect(response.refresh_token).to.exist;",
-                  "});",
-                  "",
-                  "if (response.access_token) {",
-                  "    pm.environment.set(\"accessToken\", response.access_token);",
-                  "}",
-                  "",
-                  "if (response.refresh_token) {",
-                  "    pm.environment.set(\"refreshToken\", response.refresh_token);",
-                  "}"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"juan@gmail.com\",\n  \"password\": \"12345678\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"juanfelipe1104@gmail.com\",\n    \"password\": \"12345678\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/user/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "register"
+                  ]
                 }
-              }
+              },
+              "response": []
             },
-            "url": {
-              "raw": "{{baseUrl}}/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "login"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Refresh Session",
-          "event": [
             {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "const response = pm.response.json();",
-                  "",
-                  "pm.test(\"Refresh returns new tokens\", function () {",
-                  "    pm.expect(response.access_token).to.exist;",
-                  "    pm.expect(response.refresh_token).to.exist;",
-                  "});",
-                  "",
-                  "if (response.access_token) {",
-                  "    pm.environment.set(\"accessToken\", response.access_token);",
-                  "}",
-                  "",
-                  "if (response.refresh_token) {",
-                  "    pm.environment.set(\"refreshToken\", response.refresh_token);",
-                  "}"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/refresh",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "refresh"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Logout",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.environment.unset(\"accessToken\");",
-                  "pm.environment.unset(\"refreshToken\");"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
+              "name": "Validate Email",
+              "event": [
                 {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
                 }
-              ]
-            },
-            "method": "POST",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/logout",
-              "host": [
-                "{{baseUrl}}"
               ],
-              "path": [
-                "logout"
-              ]
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"code\": \"{{verificationCode}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/user/validation",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "validation"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Login",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();",
+                      "",
+                      "if (response.access_token) {",
+                      "    pm.environment.set(\"accessToken\", response.access_token);",
+                      "}",
+                      "",
+                      "if (response.refresh_token) {",
+                      "    pm.environment.set(\"refreshToken\", response.refresh_token);",
+                      "}"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"juanfelipe1104@gmail.com\",\n  \"password\": \"12345678\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/user/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Refresh Session",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();",
+                      "",
+                      "if (response.access_token) {",
+                      "    pm.environment.set(\"accessToken\", response.access_token);",
+                      "}",
+                      "",
+                      "if (response.refresh_token) {",
+                      "    pm.environment.set(\"refreshToken\", response.refresh_token);",
+                      "}"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/user/refresh",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "refresh"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Logout",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.environment.unset(\"accessToken\");",
+                      "pm.environment.unset(\"refreshToken\");"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/user/logout",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "logout"
+                  ]
+                }
+              },
+              "response": []
             }
-          },
-          "response": []
+          ]
+        },
+        {
+          "name": "User Profile",
+          "item": [
+            {
+              "name": "Complete User Data",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Juan Felipe\",\n  \"lastName\": \"Rodriguez Cordoba\",\n  \"nif\": \"12345678A\",\n  \"address\": {\n    \"street\": \"Calle Mayor\",\n    \"number\": \"12\",\n    \"postal\": \"28001\",\n    \"city\": \"Madrid\",\n    \"province\": \"Madrid\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/user/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "register"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Authenticated User",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/user",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "user"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Change Password",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"currentPassword\": \"12345678\",\n  \"newPassword\": \"87654321\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/user/password",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "password"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete User (Soft)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/user?soft=true",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "user"
+                  ],
+                  "query": [
+                    {
+                      "key": "soft",
+                      "value": "true"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete User (Hard)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/user?soft=false",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "user"
+                  ],
+                  "query": [
+                    {
+                      "key": "soft",
+                      "value": "false"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Company",
+          "item": [
+            {
+              "name": "Register Company",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"isFreelance\": false,\n  \"name\": \"BildyApp SL\",\n  \"cif\": \"B12345678\",\n  \"address\": {\n    \"street\": \"Gran Via\",\n    \"number\": \"15\",\n    \"postal\": \"28013\",\n    \"city\": \"Madrid\",\n    \"province\": \"Madrid\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/user/company",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "company"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Upload Company Logo",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "logo",
+                      "type": "file",
+                      "uuid": "d595da25-09be-48fa-b854-1ee493eee97d",
+                      "src": "postman-cloud:///1f12d300-7aff-4c10-892e-8cf65e63ba9a"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/user/logo",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "logo"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Invite",
+          "item": [
+            {
+              "name": "Invite User",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"davidalejandro0929@gmail.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/user/invite",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "user",
+                    "invite"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
         }
       ]
     },
     {
-      "name": "User Profile",
+      "name": "Dashboard",
       "item": [
         {
-          "name": "Complete User Data",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "const response = pm.response.json();",
-                  "",
-                  "pm.test(\"User data completed\", function () {",
-                  "    pm.expect(response.user).to.exist;",
-                  "    pm.expect(response.user.name).to.eql(\"Juan Felipe\");",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PUT",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Juan Felipe\",\n  \"lastName\": \"Rodriguez Cordoba\",\n  \"nif\": \"12345678A\",\n  \"address\": {\n    \"street\": \"Calle Mayor\",\n    \"number\": \"12\",\n    \"postal\": \"28001\",\n    \"city\": \"Madrid\",\n    \"province\": \"Madrid\"\n  }\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "register"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Authenticated User",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "const response = pm.response.json();",
-                  "",
-                  "pm.test(\"Authenticated user returned\", function () {",
-                  "    pm.expect(response.user).to.exist;",
-                  "});",
-                  "",
-                  "pm.test(\"User has company\", function () {",
-                  "    pm.expect(response.user.company).to.exist;",
-                  "});",
-                  "",
-                  "pm.test(\"Company has logo\", function () {",
-                  "    pm.expect(response.user.company.logo).to.exist;",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
+          "name": "Dashboard",
           "request": {
             "auth": {
               "type": "bearer",
@@ -387,30 +675,66 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}",
+              "raw": "{{baseUrl}}/dashboard",
               "host": [
                 "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard"
               ]
             }
           },
           "response": []
-        },
+        }
+      ]
+    },
+    {
+      "name": "Audit",
+      "item": [
         {
-          "name": "Change Password",
+          "name": "Audit",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/audit",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "audit"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Client",
+      "item": [
+        {
+          "name": "Create Client",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
                   "const response = pm.response.json();",
                   "",
-                  "pm.test(\"Password changed successfully\", function () {",
-                  "    pm.expect(response.error).to.eql(false);",
-                  "});"
+                  "if(response.client._id){",
+                  "    pm.environment.set(\"client_id\", response.client._id);",
+                  "}"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -418,6 +742,42 @@
               }
             }
           ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Cliente8\",\n    \"cif\": \"A1434567K\",\n    \"email\": \"cliente@example.com\",\n    \"phone\": \"12345678\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/client",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "client"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Client",
           "request": {
             "auth": {
               "type": "bearer",
@@ -433,7 +793,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"currentPassword\": \"12345678\",\n  \"newPassword\": \"87654321\"\n}",
+              "raw": "{\n  \"name\": \"Cliente01\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -441,33 +801,117 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/password",
+              "raw": "{{baseUrl}}/client/{{client_id}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "password"
+                "client",
+                "{{client_id}}"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "Delete User (Soft)",
+          "name": "Get All Clients",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/client?page=1&limit=10&sort=-createdAt&name=Client",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "client"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sort",
+                  "value": "-createdAt"
+                },
+                {
+                  "key": "name",
+                  "value": "Client",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Client",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/client/{{client_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "client",
+                "{{client_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Soft Delete Client",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
                   "const response = pm.response.json();",
                   "",
-                  "pm.test(\"User deleted successfully\", function () {",
-                  "    pm.expect(response).to.exist;",
-                  "});"
+                  "if(response.client._id){",
+                  "    pm.environment.set(\"archived_client_id\", response.client._id)",
+                  "    pm.environment.unset(\"client_id\")",
+                  "}"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -489,9 +933,13 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}?soft=true",
+              "raw": "{{baseUrl}}/client/{{client_id}}?soft=true",
               "host": [
                 "{{baseUrl}}"
+              ],
+              "path": [
+                "client",
+                "{{client_id}}"
               ],
               "query": [
                 {
@@ -504,21 +952,17 @@
           "response": []
         },
         {
-          "name": "Delete User (Hard)",
+          "name": "Hard Delete Client",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
                   "const response = pm.response.json();",
                   "",
-                  "pm.test(\"User deleted successfully\", function () {",
-                  "    pm.expect(response).to.exist;",
-                  "});"
+                  "if(response.client._id){",
+                  "    pm.environment.unset(\"client_id\")",
+                  "}"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -540,9 +984,13 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}?soft=false",
+              "raw": "{{baseUrl}}/client/{{client_id}}?soft=false",
               "host": [
                 "{{baseUrl}}"
+              ],
+              "path": [
+                "client",
+                "{{client_id}}"
               ],
               "query": [
                 {
@@ -553,28 +1001,48 @@
             }
           },
           "response": []
-        }
-      ]
-    },
-    {
-      "name": "Company",
-      "item": [
+        },
         {
-          "name": "Register Company",
+          "name": "Get Archived Clients",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/client/archived",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "client",
+                "archived"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Restore Archived Client",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
                   "const response = pm.response.json();",
                   "",
-                  "pm.test(\"Company registered\", function () {",
-                  "    pm.expect(response.company).to.exist;",
-                  "});"
+                  "if(response.restoredClient._id){",
+                  "    pm.environment.set(\"client_id\", response.restoredClient._id)",
+                  "    pm.environment.unset(\"archived_client_id\")",
+                  "}"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -595,44 +1063,37 @@
             },
             "method": "PATCH",
             "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"isFreelance\": false,\n  \"name\": \"BildyApp SL\",\n  \"cif\": \"B12345678\",\n  \"address\": {\n    \"street\": \"Gran Via\",\n    \"number\": \"15\",\n    \"postal\": \"28013\",\n    \"city\": \"Madrid\",\n    \"province\": \"Madrid\"\n  }\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
             "url": {
-              "raw": "{{baseUrl}}/company",
+              "raw": "{{baseUrl}}/client/{{archived_client_id}}/restore",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "company"
+                "client",
+                "{{archived_client_id}}",
+                "restore"
               ]
             }
           },
           "response": []
-        },
+        }
+      ]
+    },
+    {
+      "name": "Project",
+      "item": [
         {
-          "name": "Upload Company Logo",
+          "name": "Create Project",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "const response = pm.response.json();",
-                  "",
-                  "pm.test(\"Logo uploaded\", function () {",
-                  "    pm.expect(response.company).to.exist;",
-                  "    pm.expect(response.company.logo).to.exist;",
-                  "});"
+                  "const response = pm.response.json();\r",
+                  "\r",
+                  "if(response.project._id){\r",
+                  "    pm.environment.set(\"project_id\", response.project._id);\r",
+                  "}"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -640,6 +1101,494 @@
               }
             }
           ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Proyecto Demo\",\r\n  \"client\": \"{{client_id}}\",\r\n  \"projectCode\": \"PR005\",\r\n  \"email\": \"contacto@empresa.com\",\r\n  \"notes\": \"Proyecto creado desde Postman para pruebas\",\r\n  \"active\": true,\r\n  \"address\": {\r\n    \"street\": \"Calle Mayor\",\r\n    \"number\": \"123\",\r\n    \"postal\": \"28001\",\r\n    \"city\": \"Madrid\",\r\n    \"province\": \"Madrid\"\r\n  }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/project",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Project",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"active\" : false\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/project/{{project_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project",
+                "{{project_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List All Project",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/project?page=1&limit=10&sort=-name",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sort",
+                  "value": "-name"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Project",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{baseUrl}}/project/{{project_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project",
+                "{{project_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Soft Delete Project",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "if(response.project._id){",
+                  "    pm.environment.unset(\"project_id\");",
+                  "    pm.environment.set(\"archived_project_id\", response.project._id)",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/project/{{project_id}}?soft=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project",
+                "{{project_id}}"
+              ],
+              "query": [
+                {
+                  "key": "soft",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Hard Delete Project",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "if(response.project){",
+                  "    pm.environment.unset(\"project_id\")",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/project/{{project_id}}?soft=false",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project",
+                "{{project_id}}"
+              ],
+              "query": [
+                {
+                  "key": "soft",
+                  "value": "false"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Archived Projects",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/project/archived",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project",
+                "archived"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Restore Archived Project",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "if(response.restoredProject._id){",
+                  "    pm.environment.unset(\"archived_project_id\")",
+                  "    pm.environment.set(\"project_id\", response.restoredProject._id);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/project/{{archived_project_id}}/restore",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "project",
+                "{{archived_project_id}}",
+                "restore"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "DeliveryNote",
+      "item": [
+        {
+          "name": "Create DeliveryNote",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();\r",
+                  "\r",
+                  "if(response.deliveryNote){\r",
+                  "    pm.environment.set(\"deliveryNote_id\", response.deliveryNote._id);\r",
+                  "}\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"client\": \"{{client_id}}\",\r\n  \"project\": \"{{project_id}}\",\r\n  \"description\": \"Material entregado para obra\",\r\n  \"workDate\": \"2026-04-26\",\r\n  \"format\": \"material\",\r\n  \"material\": \"Cemento\",\r\n  \"unit\": \"kg\",\r\n  \"quantity\": 25\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/deliverynote",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "deliverynote"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List All DeliveryNotes",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/deliverynote?page=1&limit=10&sort=-createdAt&format=material",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "deliverynote"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sort",
+                  "value": "-createdAt"
+                },
+                {
+                  "key": "format",
+                  "value": "material"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List DeliveryNote",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/deliverynote/{{deliveryNote_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "deliverynote",
+                "{{deliveryNote_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get DeliveryNote PDF",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/deliverynote/pdf/{{deliveryNote_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "deliverynote",
+                "pdf",
+                "{{deliveryNote_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Sign DeliveryNote",
           "request": {
             "auth": {
               "type": "bearer",
@@ -657,47 +1606,39 @@
               "mode": "formdata",
               "formdata": [
                 {
-                  "key": "logo",
+                  "key": "signature",
                   "type": "file",
-                  "uuid": "d595da25-09be-48fa-b854-1ee493eee97d",
-                  "src": "postman-cloud:///1f12d300-7aff-4c10-892e-8cf65e63ba9a"
+                  "uuid": "0b752a07-e67e-4ac6-823c-3df7afddf737",
+                  "src": "postman-cloud:///1f1496e7-a9b6-42f0-a03e-33894f722ad6"
                 }
               ]
             },
             "url": {
-              "raw": "{{baseUrl}}/logo",
+              "raw": "{{baseUrl}}/deliverynote/{{deliveryNote_id}}/sign",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "logo"
+                "deliverynote",
+                "{{deliveryNote_id}}",
+                "sign"
               ]
             }
           },
           "response": []
-        }
-      ]
-    },
-    {
-      "name": "Invite",
-      "item": [
+        },
         {
-          "name": "Invite User",
+          "name": "Soft Delete DeliveryNote",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 201\", function () {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "",
                   "const response = pm.response.json();",
                   "",
-                  "pm.test(\"Invited user created\", function () {",
-                  "    pm.expect(response.user).to.exist;",
-                  "    pm.expect(response.user.role).to.eql(\"guest\");",
-                  "});"
+                  "if(response.deliveryNote){",
+                  "    pm.environment.unset(\"deliveryNote_id\");",
+                  "}"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -716,24 +1657,73 @@
                 }
               ]
             },
-            "method": "POST",
+            "method": "DELETE",
             "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"guest@test.com\",\n  \"password\": \"12345678\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
             "url": {
-              "raw": "{{baseUrl}}/invite",
+              "raw": "{{baseUrl}}/deliverynote/{{deliveryNote_id}}?soft=true",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "invite"
+                "deliverynote",
+                "{{deliveryNote_id}}"
+              ],
+              "query": [
+                {
+                  "key": "soft",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Hard Delete DeliveryNote",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "if(response.deliveryNote){",
+                  "    pm.environment.unset(\"deliveryNote_id\");",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/deliverynote/{{deliveryNote_id}}?soft=false",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "deliverynote",
+                "{{deliveryNote_id}}"
+              ],
+              "query": [
+                {
+                  "key": "soft",
+                  "value": "false"
+                }
               ]
             }
           },
@@ -742,130 +1732,23 @@
       ]
     },
     {
-      "name": "Negative Cases",
-      "item": [
-        {
-          "name": "Get Authenticated User - No Token",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 401\", function () {",
-                  "    pm.response.to.have.status(401);",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/health",
+          "protocol": "http",
+          "host": [
+            "localhost"
           ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}",
-              "host": [
-                "{{baseUrl}}"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Validate Email - Wrong Code",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 400 or 429\", function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([400, 429]);",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PUT",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"code\": \"000000\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/validation",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "validation"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Register User - Duplicate Email",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 409\", function () {",
-                  "    pm.response.to.have.status(409);",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"juan@gmail.com\",\n  \"password\": \"12345678\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "register"
-              ]
-            }
-          },
-          "response": []
+          "port": "3000",
+          "path": [
+            "health"
+          ]
         }
-      ]
+      },
+      "response": []
     }
   ]
 }
